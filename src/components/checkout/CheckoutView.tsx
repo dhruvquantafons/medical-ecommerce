@@ -1,0 +1,192 @@
+"use client";
+
+import { Banknote, CircleCheck, CreditCard, Lock, Smartphone } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import clsx from "clsx";
+import type { PaymentMethod } from "@/data/types";
+import { useAccount } from "@/store/account";
+import { useCart } from "@/store/cart";
+import { useRx } from "@/store/rx";
+import { useHydrated } from "@/lib/useHydrated";
+import { formatPrice } from "@/lib/format";
+import { createOrder } from "@/lib/orders";
+import { Button } from "@/components/ui/Button";
+import { RxBadge } from "@/components/product/Badges";
+import { RxDropzone, RxThumb } from "@/components/rx/RxDropzone";
+import { AddressForm } from "./AddressForm";
+import { BillSummary } from "./BillSummary";
+import { EmptyCart, PageSkeleton } from "./CartView";
+import { useCartBill } from "./useCartBill";
+
+const payments: { id: PaymentMethod; label: string; note: string; icon: typeof Banknote }[] = [
+  { id: "upi", label: "UPI", note: "Google Pay, PhonePe, Paytm and more", icon: Smartphone },
+  { id: "card", label: "Credit / debit card", note: "Visa, Mastercard, RuPay", icon: CreditCard },
+  { id: "cod", label: "Cash on delivery", note: "Pay when your order arrives", icon: Banknote },
+];
+
+function Step({ n, title, done, children }: { n: number; title: string; done?: boolean; children: React.ReactNode }) {
+  return (
+    <section className="card p-5">
+      <h2 className="mb-4 flex items-center gap-3 font-bold">
+        <span className={clsx("grid size-7 place-items-center rounded-full text-sm", done ? "bg-save text-white" : "bg-brand-100 text-brand-700")}>
+          {done ? <CircleCheck className="size-4" /> : n}
+        </span>
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+export function CheckoutView() {
+  const hydrated = useHydrated();
+  const router = useRouter();
+  const { lines, bill, hasRx } = useCartBill();
+  const clearCart = useCart((s) => s.clear);
+  const { addresses, saveAddress, addOrder, pincode } = useAccount();
+  const prescriptions = useRx((s) => s.prescriptions);
+
+  const [addressId, setAddressId] = useState<string>();
+  const [addingAddress, setAddingAddress] = useState(false);
+  const [rxIds, setRxIds] = useState<string[]>([]);
+  const [payment, setPayment] = useState<PaymentMethod>("upi");
+  const [placing, setPlacing] = useState(false);
+
+  if (!hydrated || placing) return <PageSkeleton />;
+  if (!lines.length) return <EmptyCart />;
+
+  const selectedAddress = addresses.find((a) => a.id === (addressId ?? addresses[0]?.id));
+  const attachedRx = rxIds.filter((id) => prescriptions.some((p) => p.id === id));
+  const rxOk = !hasRx || attachedRx.length > 0;
+  const canPlace = !!selectedAddress && rxOk;
+  const showForm = addingAddress || addresses.length === 0;
+
+  function placeOrder() {
+    if (!selectedAddress || !rxOk) return;
+    setPlacing(true);
+    const order = createOrder({ lines, bill, address: selectedAddress, payment, prescriptionIds: hasRx ? attachedRx : [] });
+    addOrder(order);
+    clearCart();
+    router.replace(`/order-success/${order.id}`);
+  }
+
+  let n = 1;
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-6">
+      <h1 className="text-xl font-bold md:text-2xl">Checkout</h1>
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-4">
+          <Step n={n++} title="Delivery address" done={!!selectedAddress && !showForm}>
+            {addresses.length > 0 && (
+              <div className="mb-4 grid gap-3 sm:grid-cols-2">
+                {addresses.map((a) => (
+                  <label key={a.id} className={clsx("flex cursor-pointer gap-3 rounded-lg border p-3", selectedAddress?.id === a.id ? "border-brand-600 bg-brand-50" : "border-line")}>
+                    <input type="radio" name="address" className="mt-1 accent-brand-600" checked={selectedAddress?.id === a.id} onChange={() => setAddressId(a.id)} />
+                    <span className="text-sm">
+                      <span className="flex items-center gap-2 font-semibold">{a.name} <span className="rounded bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-muted">{a.label}</span></span>
+                      <span className="block text-gray-700">{a.line1}{a.line2 && `, ${a.line2}`}</span>
+                      <span className="block text-gray-700">{a.city}, {a.state} {a.pincode}</span>
+                      <span className="block text-muted">{a.phone}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+            {showForm ? (
+              <AddressForm
+                defaultPincode={pincode}
+                onCancel={addresses.length ? () => setAddingAddress(false) : undefined}
+                onSave={(a) => {
+                  saveAddress(a);
+                  setAddressId(a.id);
+                  setAddingAddress(false);
+                }}
+              />
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => setAddingAddress(true)}>+ Add new address</Button>
+            )}
+          </Step>
+
+          {hasRx && (
+            <Step n={n++} title="Attach prescription" done={rxOk}>
+              <p className="mb-3 text-sm text-muted">
+                These items need a valid prescription:{" "}
+                {lines.filter((l) => l.product.rxRequired).map((l) => l.product.name).join(", ")}
+              </p>
+              {prescriptions.length > 0 && (
+                <div className="mb-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
+                  {prescriptions.map((p) => {
+                    const on = attachedRx.includes(p.id);
+                    return (
+                      <label key={p.id} className={clsx("relative cursor-pointer rounded-lg ring-2", on ? "ring-brand-600" : "ring-transparent")}>
+                        <input
+                          type="checkbox"
+                          className="absolute top-2 left-2 z-10 size-4 accent-brand-600"
+                          checked={on}
+                          onChange={() => setRxIds((ids) => (on ? ids.filter((x) => x !== p.id) : [...ids, p.id]))}
+                          aria-label={`Attach ${p.name}`}
+                        />
+                        <RxThumb rx={p} />
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+              <RxDropzone compact onAdded={(p) => setRxIds((ids) => [...ids, p.id])} />
+              {!rxOk && <p className="mt-2 text-xs font-medium text-red-600">Attach at least one prescription to continue.</p>}
+            </Step>
+          )}
+
+          <Step n={n++} title="Payment method" done>
+            <div className="space-y-2">
+              {payments.map(({ id, label, note, icon: I }) => (
+                <label key={id} className={clsx("flex cursor-pointer items-center gap-3 rounded-lg border p-3", payment === id ? "border-brand-600 bg-brand-50" : "border-line")}>
+                  <input type="radio" name="payment" className="accent-brand-600" checked={payment === id} onChange={() => setPayment(id)} />
+                  <I className="size-5 text-brand-600" />
+                  <span className="text-sm">
+                    <span className="block font-semibold">{label}</span>
+                    <span className="text-xs text-muted">{note}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+              <Lock className="size-3.5" /> Demo checkout: no real payment is taken.
+            </p>
+          </Step>
+
+          <Step n={n++} title={`Review items (${bill.itemCount})`}>
+            <ul className="divide-y divide-line text-sm">
+              {lines.map(({ product: p, qty }) => (
+                <li key={p.id} className="flex items-center justify-between gap-3 py-2">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate">{p.name}</span>
+                    {p.rxRequired && <RxBadge />}
+                    <span className="shrink-0 text-muted">× {qty}</span>
+                  </span>
+                  <span className="shrink-0 font-semibold">{formatPrice(p.price * qty)}</span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/cart" className="mt-2 inline-block text-xs font-semibold text-brand-700 hover:underline">Edit cart</Link>
+          </Step>
+        </div>
+
+        <div className="lg:sticky lg:top-32 lg:self-start">
+          <BillSummary bill={bill}>
+            <Button size="lg" className="w-full" disabled={!canPlace} onClick={placeOrder}>
+              {payment === "cod" ? "Place order" : `Pay ${formatPrice(bill.total)}`}
+            </Button>
+            {!canPlace && (
+              <p className="mt-2 text-center text-xs text-muted">
+                {!selectedAddress ? "Add a delivery address to continue" : "Attach a prescription to continue"}
+              </p>
+            )}
+          </BillSummary>
+        </div>
+      </div>
+    </div>
+  );
+}
