@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 
 export function Modal({
@@ -9,12 +10,15 @@ export function Modal({
   onClose,
   title,
   children,
+  footer,
   side,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
+  /** Pinned below the scrolling content, e.g. primary actions. */
+  footer?: ReactNode;
   /** Render as a drawer sliding in from the left instead of a centred dialog. */
   side?: "left";
 }) {
@@ -30,7 +34,9 @@ export function Modal({
   }, [open, onClose]);
 
   if (!open) return null;
-  return (
+  // Portal to <body> so ancestors that create a containing block (e.g. the header's backdrop-blur)
+  // can't trap the fixed overlay inside them.
+  return createPortal(
     <div className={clsx("fixed inset-0 z-50 flex bg-black/40", side ? "justify-start" : "items-center justify-center p-4")} onClick={onClose}>
       <div
         role="dialog"
@@ -49,7 +55,9 @@ export function Modal({
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-5">{children}</div>
+        {footer && <div className="border-t border-line p-4">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

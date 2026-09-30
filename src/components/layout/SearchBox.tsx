@@ -4,9 +4,17 @@ import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import clsx from "clsx";
-import { suggest } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { RxBadge } from "@/components/product/Badges";
+
+interface Suggestion {
+  id: string;
+  slug: string;
+  name: string;
+  composition: string;
+  price: number;
+  rxRequired: boolean;
+}
 
 export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; autoFocus?: boolean }) {
   const router = useRouter();
@@ -14,6 +22,7 @@ export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; auto
   const [debounced, setDebounced] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  const [results, setResults] = useState<Suggestion[]>([]);
   const wrap = useRef<HTMLDivElement>(null);
   const listId = useId();
 
@@ -30,7 +39,16 @@ export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; auto
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  const results = suggest(debounced);
+  useEffect(() => {
+    const q = debounced.trim();
+    if (!q) return;
+    const ctrl = new AbortController();
+    fetch(`/api/search/suggest?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setResults)
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [debounced]);
 
   function go(href: string) {
     setOpen(false);

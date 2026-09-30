@@ -4,15 +4,15 @@ import type { Category, HealthConcern } from "@/data/types";
 import { Icon } from "@/components/ui/Icon";
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-4 text-lg font-bold md:text-xl">{children}</h2>;
+  return <h2 className="mb-4 text-lg font-bold tracking-tight md:text-xl">{children}</h2>;
 }
 
 export function CategoryGrid({ categories }: { categories: Category[] }) {
   return (
     <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
       {categories.map((c) => (
-        <Link key={c.slug} href={`/category/${c.slug}`} className="card flex flex-col items-center gap-2 p-3 text-center transition-shadow hover:shadow-md md:p-4">
-          <span className="grid size-12 place-items-center rounded-full md:size-14" style={{ background: `${c.color}18`, color: c.color }}>
+        <Link key={c.slug} href={`/category/${c.slug}`} className="card group flex flex-col items-center gap-2 p-3 text-center transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md md:p-4">
+          <span className="grid size-12 place-items-center rounded-2xl transition group-hover:scale-110 md:size-14" style={{ background: `${c.color}18`, color: c.color }}>
             <Icon name={c.icon} className="size-6 md:size-7" />
           </span>
           <span className="text-xs font-semibold md:text-sm">{c.name}</span>

@@ -2,7 +2,7 @@
 
 import { ChevronDown, MapPin } from "lucide-react";
 import { useState } from "react";
-import { useAccount } from "@/store/account";
+import { useLocation } from "@/store/location";
 import { useHydrated } from "@/lib/useHydrated";
 import { site } from "@/config/site";
 import { Modal } from "@/components/ui/Modal";
@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/Button";
 
 export function PincodeChip() {
   const hydrated = useHydrated();
-  const pincode = useAccount((s) => s.pincode);
-  const setPincode = useAccount((s) => s.setPincode);
+  const pincode = useLocation((s) => s.pincode);
+  const setPincode = useLocation((s) => s.setPincode);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const valid = /^[1-9]\d{5}$/.test(value);

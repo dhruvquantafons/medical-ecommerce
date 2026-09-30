@@ -3,8 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem } from "@/data/types";
-
-const MAX_QTY = 10;
+import { MAX_CART_QTY as MAX_QTY } from "@/lib/limits";
 
 interface CartState {
   items: CartItem[];

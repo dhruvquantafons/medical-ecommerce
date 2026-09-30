@@ -32,7 +32,9 @@ export interface Product {
   rating: number;
   ratingCount: number;
   inStock: boolean;
+  stock: number;
   tags: string[];
+  imageUrl?: string | null;
 }
 
 export interface Category {
@@ -78,7 +80,8 @@ export interface Prescription {
   id: string;
   name: string;
   type: string;
-  dataUrl: string;
+  /** Authenticated URL that serves the file (owner or admin only). */
+  url: string;
   uploadedAt: string;
 }
 
@@ -95,18 +98,42 @@ export interface Address {
 }
 
 export type PaymentMethod = "online" | "cod";
+export type OrderStatus = "placed" | "confirmed" | "packed" | "shipped" | "delivered" | "cancelled";
+export type PaymentStatus = "pending" | "paid" | "failed" | "cod";
+export type RxStatus = "not_required" | "pending" | "approved" | "rejected";
 
-export interface Order {
+export interface OrderItemView {
+  productId: string;
+  slug: string | null;
+  name: string;
+  packSize: string;
+  rxRequired: boolean;
+  qty: number;
+  price: number;
+  mrp: number;
+}
+
+/** An order as shown to customers and admins (money in rupees). */
+export interface OrderDetail {
   id: string;
-  items: { productId: string; name: string; qty: number; price: number; mrp: number }[];
-  address: Address;
-  payment: PaymentMethod;
-  /** Razorpay references, present for verified online payments. */
-  razorpayPaymentId?: string;
-  razorpayOrderId?: string;
-  prescriptionIds: string[];
-  coupon?: string;
+  userId: string;
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  rxStatus: RxStatus;
+  rxNote: string | null;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  couponCode: string | null;
+  itemCount: number;
+  mrpTotal: number;
+  subtotal: number;
+  couponDiscount: number;
+  deliveryFee: number;
   total: number;
-  savings: number;
-  placedAt: string;
+  address: Omit<Address, "id">;
+  createdAt: string;
+  paidAt: string | null;
+  items: OrderItemView[];
+  prescriptions: Prescription[];
 }

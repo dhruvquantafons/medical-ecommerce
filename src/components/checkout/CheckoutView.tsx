@@ -5,13 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
-import type { PaymentMethod } from "@/data/types";
-import { useAccount } from "@/store/account";
+import type { Address, PaymentMethod, Prescription } from "@/data/types";
 import { useCart } from "@/store/cart";
-import { useRx } from "@/store/rx";
+import { useLocation } from "@/store/location";
 import { useHydrated } from "@/lib/useHydrated";
 import { formatPrice } from "@/lib/format";
-import { createOrder } from "@/lib/orders";
+import { placeCodOrder, saveAddress } from "@/app/actions/account";
 import { loadRazorpay, openRazorpay } from "@/lib/razorpayCheckout";
 import { site } from "@/config/site";
 import { Button } from "@/components/ui/Button";
@@ -41,13 +40,15 @@ function Step({ n, title, done, children }: { n: number; title: string; done?: b
   );
 }
 
-export function CheckoutView() {
+export function CheckoutView({ initialAddresses, initialPrescriptions }: { initialAddresses: Address[]; initialPrescriptions: Prescription[] }) {
   const hydrated = useHydrated();
   const router = useRouter();
-  const { lines, bill, hasRx, couponCode } = useCartBill();
+  const { lines, bill, hasRx, couponCode, loading } = useCartBill();
+  const items = useCart((s) => s.items);
   const clearCart = useCart((s) => s.clear);
-  const { addresses, saveAddress, addOrder, pincode } = useAccount();
-  const prescriptions = useRx((s) => s.prescriptions);
+  const pincode = useLocation((s) => s.pincode);
+  const [addresses, setAddresses] = useState(initialAddresses);
+  const [prescriptions, setPrescriptions] = useState(initialPrescriptions);
 
   const [addressId, setAddressId] = useState<string>();
   const [addingAddress, setAddingAddress] = useState(false);
@@ -57,7 +58,7 @@ export function CheckoutView() {
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string>();
 
-  if (!hydrated || placing) return <PageSkeleton />;
+  if (!hydrated || placing || loading) return <PageSkeleton />;
   if (!lines.length) return <EmptyCart />;
 
   const selectedAddress = addresses.find((a) => a.id === (addressId ?? addresses[0]?.id));
@@ -66,13 +67,26 @@ export function CheckoutView() {
   const canPlace = !!selectedAddress && rxOk && !paying;
   const showForm = addingAddress || addresses.length === 0;
 
-  function finalize(razorpay?: { paymentId: string; orderId: string }) {
-    if (!selectedAddress) return;
+  /** Order saved (and paid, for online): empty the cart and show the confirmation. */
+  function finish(orderId: string) {
     setPlacing(true);
-    const order = createOrder({ lines, bill, address: selectedAddress, payment, prescriptionIds: hasRx ? attachedRx : [], razorpay });
-    addOrder(order);
     clearCart();
-    router.replace(`/order-success/${order.id}`);
+    router.replace(`/order-success/${orderId}`);
+  }
+
+  const checkoutBody = () => ({
+    cart: { items, couponCode },
+    addressId: selectedAddress?.id,
+    prescriptionIds: hasRx ? attachedRx : [],
+  });
+
+  async function placeCod() {
+    setPaying(true);
+    setPayError(undefined);
+    const res = await placeCodOrder(checkoutBody());
+    if (res.ok) return finish(res.data.orderId);
+    setPaying(false);
+    setPayError(res.error);
   }
 
   async function payOnline() {
@@ -84,7 +98,7 @@ export function CheckoutView() {
       const res = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: lines.map((l) => ({ productId: l.product.id, qty: l.qty })), couponCode }),
+        body: JSON.stringify(checkoutBody()),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not start payment");
@@ -92,7 +106,7 @@ export function CheckoutView() {
       openRazorpay(
         {
           key: data.keyId,
-          order_id: data.orderId,
+          order_id: data.razorpayOrderId,
           amount: data.amount,
           currency: data.currency,
           name: site.name,
@@ -108,7 +122,7 @@ export function CheckoutView() {
               });
               const result = await v.json();
               if (!v.ok || !result.verified) throw new Error(result.error ?? "Payment could not be verified");
-              finalize({ paymentId: success.razorpay_payment_id, orderId: success.razorpay_order_id });
+              finish(result.orderId);
             } catch (e) {
               setPaying(false);
               setPayError(`${(e as Error).message}. If money was deducted, it will be refunded automatically. Payment ID: ${success.razorpay_payment_id}`);
@@ -129,7 +143,7 @@ export function CheckoutView() {
 
   function placeOrder() {
     if (!selectedAddress || !rxOk || paying) return;
-    if (payment === "cod") finalize();
+    if (payment === "cod") placeCod();
     else payOnline();
   }
 
@@ -159,9 +173,11 @@ export function CheckoutView() {
               <AddressForm
                 defaultPincode={pincode}
                 onCancel={addresses.length ? () => setAddingAddress(false) : undefined}
-                onSave={(a) => {
-                  saveAddress(a);
-                  setAddressId(a.id);
+                onSave={async (fields) => {
+                  const res = await saveAddress(fields);
+                  if (!res.ok) return res.error;
+                  setAddresses((list) => [res.data, ...list]);
+                  setAddressId(res.data.id);
                   setAddingAddress(false);
                 }}
               />
@@ -195,7 +211,13 @@ export function CheckoutView() {
                   })}
                 </div>
               )}
-              <RxDropzone compact onAdded={(p) => setRxIds((ids) => [...ids, p.id])} />
+              <RxDropzone
+                compact
+                onAdded={(p) => {
+                  setPrescriptions((list) => [p, ...list]);
+                  setRxIds((ids) => [...ids, p.id]);
+                }}
+              />
               {!rxOk && <p className="mt-2 text-xs font-medium text-red-600">Attach at least one prescription to continue.</p>}
             </Step>
           )}

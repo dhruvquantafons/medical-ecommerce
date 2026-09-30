@@ -1,23 +1,31 @@
 import Link from "next/link";
 import { site } from "@/config/site";
-import { categories } from "@/data/categories";
+import { getCategories } from "@/lib/catalog";
 import { SearchBox } from "./SearchBox";
 import { PincodeChip } from "./PincodeChip";
 import { CartLink } from "./CartLink";
-import { LoginButton } from "./LoginButton";
+import { getSession } from "@/lib/session";
+import { AccountMenu } from "./AccountMenu";
+import { CategoryNav } from "./CategoryNav";
 
 export function Logo() {
   return (
     <Link href="/" className="flex shrink-0 items-center gap-2">
-      <span className="grid size-8 place-items-center rounded-lg bg-brand-600 text-lg font-black text-white">+</span>
-      <span className="text-xl font-extrabold tracking-tight text-brand-700">{site.name}</span>
+      <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm shadow-brand-900/20">
+        <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
+          <path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor" />
+        </svg>
+      </span>
+      <span className="text-xl leading-none font-extrabold tracking-tight text-brand-700">{site.name}</span>
     </Link>
   );
 }
 
-export function Header() {
+export async function Header() {
+  const [categories, session] = await Promise.all([getCategories(), getSession()]);
+  const user = session && { name: session.user.name, email: session.user.email, isAdmin: session.user.role === "admin" };
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-white">
+    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 md:gap-5">
         <Logo />
         <div className="hidden lg:block">
@@ -27,22 +35,14 @@ export function Header() {
           <SearchBox />
         </div>
         <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <LoginButton />
+          <AccountMenu user={user} />
           <CartLink />
         </div>
       </div>
       <div className="px-4 pb-2.5 md:hidden">
         <SearchBox />
       </div>
-      <nav className="hidden border-t border-line md:block">
-        <div className="no-scrollbar mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4">
-          {categories.map((c) => (
-            <Link key={c.slug} href={`/category/${c.slug}`} className="shrink-0 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-gray-600 hover:border-brand-600 hover:text-brand-700">
-              {c.name}
-            </Link>
-          ))}
-        </div>
-      </nav>
+      <CategoryNav categories={categories} />
     </header>
   );
 }

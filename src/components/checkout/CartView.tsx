@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { coupons } from "@/data/home";
 import { useCart } from "@/store/cart";
+import type { Product } from "@/data/types";
+import { ProductRail } from "@/components/product/ProductCard";
 import { useHydrated } from "@/lib/useHydrated";
 import { formatPrice } from "@/lib/format";
 import { ProductImage } from "@/components/product/ProductImage";
@@ -95,13 +97,13 @@ function CouponBox() {
   );
 }
 
-export function CartView() {
+export function CartView({ suggestions }: { suggestions: Product[] }) {
   const hydrated = useHydrated();
   const setQty = useCart((s) => s.setQty);
   const remove = useCart((s) => s.remove);
-  const { lines, bill } = useCartBill();
+  const { lines, bill, loading } = useCartBill();
 
-  if (!hydrated) return <PageSkeleton />;
+  if (!hydrated || loading) return <PageSkeleton />;
   if (!lines.length) return <EmptyCart />;
 
   return (
@@ -151,6 +153,13 @@ export function CartView() {
           {bill.savings > 0 && <p className="text-xs font-semibold text-save">Saving {formatPrice(bill.savings)}</p>}
         </div>
         <ButtonLink href="/checkout">Checkout</ButtonLink>
+      </div>
+      <div className="-mx-4 mt-4">
+        <ProductRail
+          title="You may also like"
+          subtitle="Top deals on everyday essentials"
+          products={suggestions.filter((p) => !lines.some((l) => l.product.id === p.id)).slice(0, 10)}
+        />
       </div>
       <div className="h-20 lg:hidden" />
     </div>

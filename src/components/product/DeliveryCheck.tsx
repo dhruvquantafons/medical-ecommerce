@@ -2,7 +2,7 @@
 
 import { Truck } from "lucide-react";
 import { useState } from "react";
-import { useAccount } from "@/store/account";
+import { useLocation } from "@/store/location";
 import { useHydrated } from "@/lib/useHydrated";
 
 // Mock serviceability: every valid pincode is serviceable; metros (starting 1–6) get faster delivery.
@@ -15,8 +15,8 @@ function estimate(pin: string) {
 
 export function DeliveryCheck() {
   const hydrated = useHydrated();
-  const saved = useAccount((s) => s.pincode);
-  const setPincode = useAccount((s) => s.setPincode);
+  const saved = useLocation((s) => s.pincode);
+  const setPincode = useLocation((s) => s.setPincode);
   const [value, setValue] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const pin = value ?? (hydrated ? saved : "");

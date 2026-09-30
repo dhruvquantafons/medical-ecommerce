@@ -1,7 +1,6 @@
 import { site } from "@/config/site";
 import { coupons } from "@/data/home";
 import type { CartItem, Coupon, Product } from "@/data/types";
-import { getProductById } from "./catalog";
 
 export interface CartLine {
   product: Product;
@@ -23,9 +22,11 @@ export interface BillSummary {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-export function resolveLines(items: CartItem[]): CartLine[] {
+/** Pairs cart items with their products. Items whose product is missing (deleted/inactive) are dropped. */
+export function resolveLines(items: CartItem[], byId: Map<string, Product> | Record<string, Product | null | undefined>): CartLine[] {
+  const lookup = (id: string) => (byId instanceof Map ? byId.get(id) : byId[id]);
   return items.flatMap((i) => {
-    const product = getProductById(i.productId);
+    const product = lookup(i.productId);
     return product ? [{ product, qty: i.qty }] : [];
   });
 }

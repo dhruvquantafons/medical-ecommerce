@@ -4,53 +4,43 @@ import { FileText, ImagePlus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import clsx from "clsx";
 import type { Prescription } from "@/data/types";
-import { useRx } from "@/store/rx";
+import { PRESCRIPTION_MAX_BYTES, PRESCRIPTION_TYPES } from "@/lib/files";
 
-const MAX_BYTES = 2 * 1024 * 1024;
-const ACCEPT = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+const ACCEPT: readonly string[] = PRESCRIPTION_TYPES;
 
-function readAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result as string);
-    r.onerror = () => reject(r.error);
-    r.readAsDataURL(file);
-  });
-}
-
-/** Uploads prescriptions into the local Rx store. Calls `onAdded` with each new prescription. */
+/** Uploads prescriptions to the server. Calls `onAdded` with each stored prescription. */
 export function RxDropzone({ onAdded, compact }: { onAdded?: (p: Prescription) => void; compact?: boolean }) {
-  const add = useRx((s) => s.add);
   const input = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   async function handle(files: FileList | null) {
-    if (!files) return;
+    if (!files?.length) return;
     const errs: string[] = [];
+    setUploading(true);
     for (const file of Array.from(files)) {
+      // Quick client-side checks; the server re-checks the real file type and size.
       if (!ACCEPT.includes(file.type)) {
         errs.push(`${file.name}: only JPG, PNG, WEBP or PDF files are allowed`);
         continue;
       }
-      if (file.size > MAX_BYTES) {
+      if (file.size > PRESCRIPTION_MAX_BYTES) {
         errs.push(`${file.name}: file is larger than 2 MB`);
         continue;
       }
-      const p: Prescription = {
-        id: `rx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
-        name: file.name,
-        type: file.type,
-        dataUrl: await readAsDataUrl(file),
-        uploadedAt: new Date().toISOString(),
-      };
+      const body = new FormData();
+      body.append("file", file);
       try {
-        add(p);
-        onAdded?.(p);
+        const res = await fetch("/api/prescriptions", { method: "POST", body });
+        const data = await res.json();
+        if (!res.ok) errs.push(data.error ?? `${file.name}: upload failed`);
+        else onAdded?.(data as Prescription);
       } catch {
-        errs.push(`${file.name}: could not be saved (browser storage is full)`);
+        errs.push(`${file.name}: upload failed. Check your connection and try again.`);
       }
     }
+    setUploading(false);
     setErrors(errs);
     if (input.current) input.current.value = "";
   }
@@ -59,6 +49,7 @@ export function RxDropzone({ onAdded, compact }: { onAdded?: (p: Prescription) =
     <div>
       <button
         type="button"
+        disabled={uploading}
         onClick={() => input.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -76,8 +67,8 @@ export function RxDropzone({ onAdded, compact }: { onAdded?: (p: Prescription) =
           drag ? "border-brand-500 bg-brand-50" : "border-brand-200 bg-white hover:border-brand-500 hover:bg-brand-50/50",
         )}
       >
-        <ImagePlus className={clsx("text-brand-600", compact ? "size-8" : "size-12")} />
-        <span className="text-sm font-semibold">Drag & drop or click to upload</span>
+        <ImagePlus className={clsx("text-brand-600", compact ? "size-8" : "size-12", uploading && "animate-pulse")} />
+        <span className="text-sm font-semibold">{uploading ? "Uploading…" : "Drag & drop or click to upload"}</span>
         <span className="text-xs text-muted">JPG, PNG, WEBP or PDF · up to 2 MB each</span>
       </button>
       <input ref={input} type="file" accept={ACCEPT.join(",")} multiple hidden onChange={(e) => handle(e.target.files)} />
@@ -96,8 +87,8 @@ export function RxThumb({ rx, onRemove }: { rx: Prescription; onRemove?: () => v
     <div className="relative overflow-hidden rounded-lg border border-line bg-white">
       <div className="grid aspect-[3/4] place-items-center bg-gray-50">
         {isImage ? (
-          // eslint-disable-next-line @next/next/no-img-element -- local data URL preview
-          <img src={rx.dataUrl} alt={rx.name} className="size-full object-cover" />
+          // eslint-disable-next-line @next/next/no-img-element -- authenticated file route, not optimisable
+          <img src={rx.url} alt={rx.name} className="size-full object-cover" />
         ) : (
           <FileText className="size-10 text-red-500" />
         )}

@@ -1,8 +1,11 @@
-import { categories, getCategory } from "@/data/categories";
-import { products } from "@/data/products";
-import type { Product } from "@/data/types";
+import "server-only";
+import { cache } from "react";
+import { and, asc, desc, eq, getTableColumns, gt, gte, inArray, lte, ne, sql, type SQL } from "drizzle-orm";
+import { db } from "@/db";
+import { categories, products } from "@/db/schema";
+import type { Category, Product } from "@/data/types";
 
-// All catalogue access goes through here so the mock data can later be swapped for an API.
+// All catalogue reads go through this module. Money is stored in paise and exposed in rupees.
 
 export type SortKey = "relevance" | "price-asc" | "price-desc" | "discount" | "rating";
 
@@ -40,115 +43,197 @@ export function parseFilters(sp: RawParams): ProductFilters {
   };
 }
 
-function matchScore(p: Product, q: string) {
-  const needle = q.toLowerCase();
-  const name = p.name.toLowerCase();
-  if (name.startsWith(needle)) return 3;
-  if (name.includes(needle) || p.brand.toLowerCase().includes(needle)) return 2;
-  const haystack = [p.composition, p.manufacturer, ...p.tags, ...p.uses, getCategory(p.categorySlug)?.name ?? ""]
-    .join(" ")
-    .toLowerCase();
-  return haystack.includes(needle) ? 1 : 0;
+// ---- Row mapping
+
+const productColumns = { ...getTableColumns(products), categorySlug: categories.slug };
+type ProductRow = typeof products.$inferSelect & { categorySlug: string };
+
+export function toProduct(r: ProductRow): Product {
+  const mrp = r.mrpPaise / 100;
+  const price = r.pricePaise / 100;
+  return {
+    id: r.id,
+    slug: r.slug,
+    name: r.name,
+    brand: r.brand,
+    manufacturer: r.manufacturer,
+    categorySlug: r.categorySlug,
+    form: r.form,
+    packSize: r.packSize,
+    mrp,
+    price,
+    discountPct: mrp > 0 ? Math.round(((mrp - price) / mrp) * 100) : 0,
+    rxRequired: r.rxRequired,
+    composition: r.composition,
+    description: r.description,
+    uses: r.uses,
+    sideEffects: r.sideEffects,
+    howToUse: r.howToUse,
+    safetyAdvice: r.safetyAdvice,
+    storage: r.storage,
+    rating: r.rating,
+    ratingCount: r.ratingCount,
+    inStock: r.stock > 0,
+    stock: r.stock,
+    tags: r.tags,
+    imageUrl: r.imageUrl,
+  };
 }
 
-/** Products matching the scope (category / search / tag) before user-applied filters. */
-export function getScopedProducts(f: Pick<ProductFilters, "category" | "q" | "tag">): Product[] {
-  let list = products;
-  if (f.category) list = list.filter((p) => p.categorySlug === f.category);
-  if (f.tag) list = list.filter((p) => p.tags.includes(f.tag!));
-  if (f.q) {
-    const q = f.q;
-    list = list
-      .map((p) => ({ p, s: matchScore(p, q) }))
-      .filter((x) => x.s > 0)
-      .sort((a, b) => b.s - a.s)
-      .map((x) => x.p);
-  }
-  return list;
+function toCategory(r: typeof categories.$inferSelect): Category {
+  return { slug: r.slug, name: r.name, icon: r.icon, color: r.color, description: r.description };
 }
 
-export function getProducts(f: ProductFilters): Product[] {
-  let list = getScopedProducts(f);
-  if (f.brands?.length) list = list.filter((p) => f.brands!.includes(p.brand));
-  if (f.minPrice != null) list = list.filter((p) => p.price >= f.minPrice!);
-  if (f.maxPrice != null) list = list.filter((p) => p.price <= f.maxPrice!);
-  if (f.minDiscount != null) list = list.filter((p) => p.discountPct >= f.minDiscount!);
-  if (f.type === "rx") list = list.filter((p) => p.rxRequired);
-  if (f.type === "otc") list = list.filter((p) => !p.rxRequired);
-  if (f.inStock) list = list.filter((p) => p.inStock);
+const selectProducts = () => db.select(productColumns).from(products).innerJoin(categories, eq(products.categoryId, categories.id));
 
-  const sorted = [...list];
+// ---- Search and filters
+
+const discountPct = sql<number>`round(((${products.mrpPaise} - ${products.pricePaise}) * 100.0) / nullif(${products.mrpPaise}, 0))`;
+const escapeLike = (s: string) => s.replace(/[\\%_]/g, (m) => `\\${m}`);
+
+/** 3 = name starts with q, 2 = name/brand contains q, 1 = other text fields contain q, 0 = no match. */
+function searchScore(q: string) {
+  const contains = `%${escapeLike(q)}%`;
+  const prefix = `${escapeLike(q)}%`;
+  return sql<number>`case
+    when ${products.name} ilike ${prefix} then 3
+    when ${products.name} ilike ${contains} or ${products.brand} ilike ${contains} then 2
+    when ${products.composition} ilike ${contains} or ${products.manufacturer} ilike ${contains}
+      or array_to_string(${products.tags}, ' ') ilike ${contains}
+      or array_to_string(${products.uses}, ' ') ilike ${contains}
+      or ${categories.name} ilike ${contains} then 1
+    else 0 end`;
+}
+
+/** Conditions that define the page scope (category / search / concern tag), before user filters. */
+function scopeConditions(f: Pick<ProductFilters, "category" | "q" | "tag">): SQL[] {
+  const c: SQL[] = [eq(products.active, true)];
+  if (f.category) c.push(eq(categories.slug, f.category));
+  if (f.tag) c.push(sql`${f.tag} = any(${products.tags})`);
+  if (f.q) c.push(gt(searchScore(f.q), 0));
+  return c;
+}
+
+function filterConditions(f: ProductFilters): SQL[] {
+  const c = scopeConditions(f);
+  if (f.brands?.length) c.push(inArray(products.brand, f.brands));
+  if (f.minPrice != null) c.push(gte(products.pricePaise, Math.round(f.minPrice * 100)));
+  if (f.maxPrice != null) c.push(lte(products.pricePaise, Math.round(f.maxPrice * 100)));
+  if (f.minDiscount != null) c.push(gte(discountPct, f.minDiscount));
+  if (f.type === "rx") c.push(eq(products.rxRequired, true));
+  if (f.type === "otc") c.push(eq(products.rxRequired, false));
+  if (f.inStock) c.push(gt(products.stock, 0));
+  return c;
+}
+
+function orderBy(f: ProductFilters): SQL[] {
+  const stable = [asc(products.createdAt), asc(products.id)];
   switch (f.sort) {
     case "price-asc":
-      sorted.sort((a, b) => a.price - b.price);
-      break;
+      return [asc(products.pricePaise), ...stable];
     case "price-desc":
-      sorted.sort((a, b) => b.price - a.price);
-      break;
+      return [desc(products.pricePaise), ...stable];
     case "discount":
-      sorted.sort((a, b) => b.discountPct - a.discountPct);
-      break;
+      return [desc(discountPct), ...stable];
     case "rating":
-      sorted.sort((a, b) => b.rating - a.rating);
-      break;
+      return [desc(products.rating), ...stable];
+    default:
+      return f.q ? [desc(searchScore(f.q)), ...stable] : stable;
   }
-  return sorted;
 }
 
-export function getBrands(list: Product[]) {
-  const counts = new Map<string, number>();
-  for (const p of list) counts.set(p.brand, (counts.get(p.brand) ?? 0) + 1);
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
+export async function getProducts(f: ProductFilters, limit?: number): Promise<Product[]> {
+  const query = selectProducts()
+    .where(and(...filterConditions(f)))
+    .orderBy(...orderBy(f));
+  const rows = limit ? await query.limit(limit) : await query;
+  return rows.map(toProduct);
 }
 
-export function getProductBySlug(slug: string) {
-  return products.find((p) => p.slug === slug);
-}
-
-export function getProductById(id: string) {
-  return products.find((p) => p.id === id);
-}
-
-export function getAllProducts() {
-  return products;
-}
-
-export function getCategories() {
-  return categories;
-}
-
-/** Other products with the exact same composition, cheapest first. */
-export function getSubstitutes(p: Product) {
-  return products
-    .filter((x) => x.id !== p.id && x.composition === p.composition)
-    .sort((a, b) => a.price - b.price);
-}
-
-export function getRelated(p: Product, limit = 10) {
-  return products
-    .filter((x) => x.id !== p.id && x.composition !== p.composition)
-    .map((x) => ({
-      x,
-      s: (x.categorySlug === p.categorySlug ? 1 : 0) + x.tags.filter((t) => p.tags.includes(t)).length * 2,
-    }))
-    .filter((r) => r.s > 0)
-    .sort((a, b) => b.s - a.s)
-    .slice(0, limit)
-    .map((r) => r.x);
-}
-
-export function getDeals(limit = 12) {
-  return [...products]
-    .filter((p) => p.inStock && !p.rxRequired)
-    .sort((a, b) => b.discountPct - a.discountPct)
-    .slice(0, limit);
-}
-
-export function getBestsellers(limit = 12) {
-  return [...products].sort((a, b) => b.ratingCount - a.ratingCount).slice(0, limit);
+/** Everything a category/search listing page needs: filtered results, scope size and brand facets. */
+export async function getListing(f: ProductFilters) {
+  const scope = and(...scopeConditions(f));
+  const [results, [{ total }], brands] = await Promise.all([
+    getProducts(f),
+    db.select({ total: sql<number>`count(*)::int` }).from(products).innerJoin(categories, eq(products.categoryId, categories.id)).where(scope),
+    db
+      .select({ name: products.brand, count: sql<number>`count(*)::int` })
+      .from(products)
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .where(scope)
+      .groupBy(products.brand)
+      .orderBy(desc(sql`count(*)`), asc(products.brand)),
+  ]);
+  return { results, total, brands };
 }
 
 export function suggest(q: string, limit = 6) {
-  if (!q.trim()) return [];
-  return getScopedProducts({ q }).slice(0, limit);
+  return q.trim() ? getProducts({ q: q.trim() }, limit) : Promise.resolve([]);
+}
+
+// ---- Single products and recommendations
+
+export async function getProductBySlug(slug: string) {
+  const [row] = await selectProducts()
+    .where(and(eq(products.slug, slug), eq(products.active, true)))
+    .limit(1);
+  return row ? toProduct(row) : undefined;
+}
+
+/** Active products by id, e.g. for cart lines and order creation. Missing or inactive ids are omitted. */
+export async function getProductsByIds(ids: string[]) {
+  if (!ids.length) return [];
+  const rows = await selectProducts().where(and(inArray(products.id, ids), eq(products.active, true)));
+  return rows.map(toProduct);
+}
+
+/** Other products with the exact same composition, cheapest first. */
+export async function getSubstitutes(p: Product) {
+  if (!p.composition) return [];
+  const rows = await selectProducts()
+    .where(and(eq(products.active, true), eq(products.composition, p.composition), ne(products.id, p.id)))
+    .orderBy(asc(products.pricePaise));
+  return rows.map(toProduct);
+}
+
+/** Same category scores 1, each shared tag scores 2; substitutes are excluded (shown separately). */
+export async function getRelated(p: Product, limit = 10) {
+  const tags = sql`array[${sql.join(
+    p.tags.map((t) => sql`${t}`),
+    sql`, `,
+  )}]::text[]`;
+  const score = sql<number>`(case when ${categories.slug} = ${p.categorySlug} then 1 else 0 end)
+    + 2 * cardinality(array(select unnest(${products.tags}) intersect select unnest(${tags})))`;
+  const rows = await selectProducts()
+    .where(and(eq(products.active, true), ne(products.id, p.id), ne(products.composition, p.composition), gt(score, 0)))
+    .orderBy(desc(score), asc(products.createdAt))
+    .limit(limit);
+  return rows.map(toProduct);
+}
+
+export async function getDeals(limit = 12) {
+  const rows = await selectProducts()
+    .where(and(eq(products.active, true), gt(products.stock, 0), eq(products.rxRequired, false)))
+    .orderBy(desc(discountPct), asc(products.createdAt))
+    .limit(limit);
+  return rows.map(toProduct);
+}
+
+export async function getBestsellers(limit = 12) {
+  const rows = await selectProducts()
+    .where(eq(products.active, true))
+    .orderBy(desc(products.ratingCount))
+    .limit(limit);
+  return rows.map(toProduct);
+}
+
+// ---- Categories (cached per request: the header, footer and page all ask for them)
+
+export const getCategories = cache(async (): Promise<Category[]> => {
+  const rows = await db.select().from(categories).orderBy(asc(categories.sortOrder), asc(categories.name));
+  return rows.map(toCategory);
+});
+
+export async function getCategoryBySlug(slug: string) {
+  return (await getCategories()).find((c) => c.slug === slug);
 }

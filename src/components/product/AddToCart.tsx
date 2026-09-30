@@ -10,14 +10,17 @@ export function QuantityStepper({
   qty,
   onChange,
   size = "sm",
+  block,
 }: {
   qty: number;
   onChange: (qty: number) => void;
   size?: "sm" | "lg";
+  /** Stretch to the full width of the container. */
+  block?: boolean;
 }) {
   const h = size === "lg" ? "h-12" : "h-9";
   return (
-    <div className={clsx("inline-flex items-center overflow-hidden rounded-lg border border-brand-600 bg-brand-50", h)}>
+    <div className={clsx("items-center justify-between overflow-hidden rounded-lg border border-brand-600 bg-brand-50", block ? "flex w-full" : "inline-flex", h)}>
       <button aria-label="Decrease quantity" onClick={() => onChange(qty - 1)} className="grid h-full w-9 place-items-center text-brand-700 hover:bg-brand-100">
         <Minus className="size-4" />
       </button>
@@ -40,11 +43,13 @@ export function AddToCart({
   productId,
   inStock,
   size = "sm",
+  block,
   className,
 }: {
   productId: string;
   inStock: boolean;
   size?: "sm" | "lg";
+  block?: boolean;
   className?: string;
 }) {
   const hydrated = useHydrated();
@@ -55,7 +60,7 @@ export function AddToCart({
 
   if (!inStock) {
     return (
-      <span className={clsx("inline-flex items-center justify-center rounded-lg bg-gray-100 px-3 text-sm font-semibold text-muted", size === "lg" ? "h-12" : "h-9", className)}>
+      <span className={clsx("inline-flex items-center justify-center rounded-lg bg-gray-100 px-3 text-sm font-semibold text-muted", size === "lg" ? "h-12" : "h-9", block && "w-full", className)}>
         Out of stock
       </span>
     );
@@ -63,7 +68,7 @@ export function AddToCart({
   if (hydrated && qty > 0) {
     return (
       <div className={className}>
-        <QuantityStepper qty={qty} onChange={(n) => setQty(productId, n)} size={size} />
+        <QuantityStepper qty={qty} onChange={(n) => setQty(productId, n)} size={size} block={block} />
       </div>
     );
   }
@@ -74,12 +79,13 @@ export function AddToCart({
         toast("Added to cart");
       }}
       className={clsx(
-        "inline-flex items-center justify-center rounded-lg bg-brand-600 font-semibold text-white hover:bg-brand-700",
+        "inline-flex items-center justify-center rounded-lg bg-brand-600 font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98]",
+        block && "w-full",
         size === "lg" ? "h-12 px-8 text-base" : "h-9 px-5 text-sm",
         className,
       )}
     >
-      Add{size === "lg" ? " to cart" : ""}
+      {size === "lg" || block ? "Add to cart" : "Add"}
     </button>
   );
 }

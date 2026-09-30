@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import clsx from "clsx";
 import type { Address } from "@/data/types";
+
+export type AddressFields = Omit<Address, "id">;
 import { Button } from "@/components/ui/Button";
 
-type Fields = Omit<Address, "id">;
+type Fields = AddressFields;
 const empty: Fields = { name: "", phone: "", line1: "", line2: "", city: "", state: "", pincode: "", label: "Home" };
 
 function validate(f: Fields) {
@@ -19,9 +21,21 @@ function validate(f: Fields) {
   return e;
 }
 
-export function AddressForm({ onSave, onCancel, defaultPincode }: { onSave: (a: Address) => void; onCancel?: () => void; defaultPincode?: string }) {
+export function AddressForm({
+  onSave,
+  onCancel,
+  defaultPincode,
+}: {
+  /** Resolves to an error message to show, or nothing on success. */
+  onSave: (fields: Fields) => Promise<string | void>;
+  onCancel?: () => void;
+  defaultPincode?: string;
+}) {
   const [f, setF] = useState<Fields>({ ...empty, pincode: defaultPincode ?? "" });
   const [touched, setTouched] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const uid = useId();
+  const [serverError, setServerError] = useState<string>();
   const errors = validate(f);
   const set = (k: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value;
@@ -30,30 +44,36 @@ export function AddressForm({ onSave, onCancel, defaultPincode }: { onSave: (a: 
     setF((prev) => ({ ...prev, [k]: v }));
   };
 
-  const field = (k: keyof Fields, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}, wide = false) => (
-    <label className={clsx("block", wide && "sm:col-span-2")}>
-      <span className="mb-1 block text-xs font-medium text-gray-600">{label}</span>
-      <input
-        value={f[k]}
-        onChange={set(k)}
-        className={clsx(
-          "h-10 w-full rounded-lg border px-3 text-sm outline-none focus:border-brand-500",
-          touched && errors[k] ? "border-red-400" : "border-line",
-        )}
-        {...props}
-      />
-      {touched && errors[k] && <span className="mt-1 block text-xs text-red-600">{errors[k]}</span>}
-    </label>
-  );
+  const field = (k: keyof Fields, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}, wide = false) => {
+    const id = `${uid}-${k}`;
+    const err = touched ? errors[k] : undefined;
+    return (
+      <div className={clsx("block", wide && "sm:col-span-2")}>
+        <label htmlFor={id} className="mb-1 block text-xs font-medium text-gray-600">{label}</label>
+        <input
+          id={id}
+          value={f[k]}
+          onChange={set(k)}
+          aria-invalid={!!err}
+          aria-describedby={err ? `${id}-error` : undefined}
+          className={clsx("h-10 w-full rounded-lg border px-3 text-sm outline-none focus:border-brand-500", err ? "border-red-400" : "border-line")}
+          {...props}
+        />
+        {err && <span id={`${id}-error`} className="mt-1 block text-xs text-red-600">{err}</span>}
+      </div>
+    );
+  };
 
   return (
     <form
       noValidate
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         setTouched(true);
         if (Object.keys(errors).length) return;
-        onSave({ ...f, id: `addr-${Date.now().toString(36)}` });
+        setSaving(true);
+        setServerError(await onSave(f) ?? undefined);
+        setSaving(false);
       }}
       className="grid gap-3 sm:grid-cols-2"
     >
@@ -79,8 +99,9 @@ export function AddressForm({ onSave, onCancel, defaultPincode }: { onSave: (a: 
           ))}
         </div>
       </div>
+      {serverError && <p role="alert" className="text-sm text-red-600 sm:col-span-2">{serverError}</p>}
       <div className="flex gap-2 sm:col-span-2">
-        <Button type="submit">Save address</Button>
+        <Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save address"}</Button>
         {onCancel && <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>}
       </div>
     </form>

@@ -1,15 +1,15 @@
 import { PackageSearch } from "lucide-react";
 import type { ReactNode } from "react";
-import { getBrands, getProducts, getScopedProducts, parseFilters } from "@/lib/catalog";
+import { getListing, parseFilters } from "@/lib/catalog";
 import { ProductGrid } from "@/components/product/ProductCard";
 import { ButtonLink } from "@/components/ui/Button";
-import { FilterSidebar, MobileFilterButton } from "./FilterPanel";
+import { ActiveFilters, FilterSidebar, MobileFilterButton } from "./FilterPanel";
 import { SortSelect } from "./SortSelect";
 
 type RawParams = Record<string, string | string[] | undefined>;
 
 /** Shared category / search results layout. Filtering happens on the server from URL params. */
-export function ListingView({
+export async function ListingView({
   basePath,
   searchParams,
   category,
@@ -21,12 +21,11 @@ export function ListingView({
   header: ReactNode;
 }) {
   const filters = { ...parseFilters(searchParams), category };
-  const scoped = getScopedProducts(filters);
-  const results = getProducts(filters);
+  const { results, total, brands } = await getListing(filters);
   const params = Object.fromEntries(
     Object.entries(searchParams).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : Array.isArray(v) && v[0] ? [[k, v[0]]] : [])),
   );
-  const panel = { basePath, params, brands: getBrands(scoped) };
+  const panel = { basePath, params, brands, resultCount: results.length };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-5">
@@ -36,13 +35,14 @@ export function ListingView({
         <div className="min-w-0 flex-1">
           <div className="mb-3 flex items-center justify-between gap-2">
             <p className="text-sm text-muted">
-              Showing <span className="font-semibold text-ink">{results.length}</span> of {scoped.length} products
+              Showing <span className="font-semibold text-ink">{results.length}</span> of {total} products
             </p>
             <div className="flex items-center gap-2">
               <MobileFilterButton {...panel} />
               <SortSelect basePath={basePath} params={params} />
             </div>
           </div>
+          <ActiveFilters basePath={basePath} params={params} />
           {results.length ? (
             <ProductGrid products={results} />
           ) : (

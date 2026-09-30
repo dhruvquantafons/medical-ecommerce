@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { site } from "@/config/site";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { ToastViewport } from "@/components/ui/Toast";
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+const sans = Plus_Jakarta_Sans({ variable: "--font-brand", subsets: ["latin"] });
+
+// Pages read live prices, stock, orders and sessions from the database on every request.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: { default: `${site.name}: ${site.tagline}`, template: `%s | ${site.name}` },
@@ -16,12 +16,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col pb-16 font-sans md:pb-0">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <MobileBottomNav />
+    <html lang="en" className={`${sans.variable} h-full scroll-smooth antialiased`}>
+      <body className="flex min-h-full flex-col font-sans">
+        {children}
         <ToastViewport />
       </body>
     </html>
