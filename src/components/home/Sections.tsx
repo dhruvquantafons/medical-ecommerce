@@ -1,4 +1,4 @@
-import { BadgePercent, FileText, ShieldCheck, Truck, Upload } from "lucide-react";
+import { BadgePercent, FileText, ShieldCheck, Truck } from "lucide-react";
 import Link from "next/link";
 import type { Category, HealthConcern } from "@/data/types";
 import { Icon } from "@/components/ui/Icon";
@@ -33,23 +33,6 @@ export function ConcernGrid({ concerns }: { concerns: HealthConcern[] }) {
           <span className="text-xs font-medium">{c.name}</span>
         </Link>
       ))}
-    </div>
-  );
-}
-
-export function RxCallout() {
-  return (
-    <div className="card flex flex-col items-start gap-4 bg-gradient-to-r from-brand-50 to-white p-5 sm:flex-row sm:items-center">
-      <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-600 text-white">
-        <FileText className="size-6" />
-      </span>
-      <div className="flex-1">
-        <p className="font-bold">Order with prescription</p>
-        <p className="text-sm text-muted">Upload a photo of your prescription and our pharmacist will help you place the order.</p>
-      </div>
-      <Link href="/upload-prescription" className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
-        <Upload className="size-4" /> Upload now
-      </Link>
     </div>
   );
 }

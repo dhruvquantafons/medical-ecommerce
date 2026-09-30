@@ -7,6 +7,7 @@ export function createOrder(input: {
   address: Address;
   payment: PaymentMethod;
   prescriptionIds: string[];
+  razorpay?: { paymentId: string; orderId: string };
 }): Order {
   const { lines, bill } = input;
   return {
@@ -14,6 +15,8 @@ export function createOrder(input: {
     items: lines.map((l) => ({ productId: l.product.id, name: l.product.name, qty: l.qty, price: l.product.price, mrp: l.product.mrp })),
     address: input.address,
     payment: input.payment,
+    razorpayPaymentId: input.razorpay?.paymentId,
+    razorpayOrderId: input.razorpay?.orderId,
     prescriptionIds: input.prescriptionIds,
     coupon: bill.couponDiscount > 0 ? bill.coupon?.code : undefined,
     total: bill.total,

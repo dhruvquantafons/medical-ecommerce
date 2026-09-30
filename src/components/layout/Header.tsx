@@ -1,4 +1,3 @@
-import { Upload } from "lucide-react";
 import Link from "next/link";
 import { site } from "@/config/site";
 import { categories } from "@/data/categories";
@@ -28,10 +27,6 @@ export function Header() {
           <SearchBox />
         </div>
         <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <Link href="/upload-prescription" className="hidden items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-gray-100 sm:flex">
-            <Upload className="size-5" />
-            <span className="hidden xl:inline">Upload Rx</span>
-          </Link>
           <LoginButton />
           <CartLink />
         </div>

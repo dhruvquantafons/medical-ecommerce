@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ShoppingCart, Tag, Trash2 } from "lucide-react";
+import { ShoppingCart, Tag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { coupons } from "@/data/home";
@@ -34,10 +34,7 @@ export function EmptyCart() {
       </span>
       <h1 className="text-xl font-bold">Your cart is empty</h1>
       <p className="text-sm text-muted">Search for medicines or browse categories to add items.</p>
-      <div className="mt-2 flex gap-2">
-        <ButtonLink href="/">Start shopping</ButtonLink>
-        <ButtonLink href="/upload-prescription" variant="outline">Upload Rx</ButtonLink>
-      </div>
+      <ButtonLink href="/" className="mt-2">Start shopping</ButtonLink>
     </div>
   );
 }
@@ -102,7 +99,7 @@ export function CartView() {
   const hydrated = useHydrated();
   const setQty = useCart((s) => s.setQty);
   const remove = useCart((s) => s.remove);
-  const { lines, bill, hasRx } = useCartBill();
+  const { lines, bill } = useCartBill();
 
   if (!hydrated) return <PageSkeleton />;
   if (!lines.length) return <EmptyCart />;
@@ -112,15 +109,6 @@ export function CartView() {
       <h1 className="text-xl font-bold md:text-2xl">Cart ({bill.itemCount} item{bill.itemCount === 1 ? "" : "s"})</h1>
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
         <div className="space-y-4">
-          {hasRx && (
-            <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-              <AlertTriangle className="mt-0.5 size-5 shrink-0" />
-              <p>
-                Your cart has prescription (Rx) medicines. You will need to attach a valid prescription at checkout.{" "}
-                <Link href="/upload-prescription" className="font-semibold underline">Upload now</Link>
-              </p>
-            </div>
-          )}
           <ul className="card divide-y divide-line">
             {lines.map(({ product: p, qty }) => (
               <li key={p.id} className="flex gap-3 p-4 sm:gap-4">

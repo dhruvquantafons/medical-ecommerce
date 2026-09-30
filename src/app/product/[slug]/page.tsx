@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgePercent, Building2, FlaskConical } from "lucide-react";
+import { BadgePercent, Building2, FlaskConical } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -96,15 +96,6 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
                 <p className="mt-0.5 text-xs text-muted">Inclusive of all taxes</p>
               </div>
               <AddToCart productId={product.id} inStock={product.inStock} size="lg" className="w-full sm:w-auto" />
-              {product.rxRequired && (
-                <p className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
-                  <AlertTriangle className="size-4 shrink-0" />
-                  <span>
-                    This medicine needs a valid prescription. You can upload it at checkout or from the{" "}
-                    <Link href="/upload-prescription" className="font-semibold underline">Upload prescription</Link> page.
-                  </span>
-                </p>
-              )}
             </div>
 
             {cheaper && (

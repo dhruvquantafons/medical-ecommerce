@@ -1,6 +1,6 @@
 "use client";
 
-import { Banknote, CircleCheck, CreditCard, Lock, Smartphone } from "lucide-react";
+import { AlertTriangle, Banknote, CircleCheck, CreditCard, Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,6 +12,8 @@ import { useRx } from "@/store/rx";
 import { useHydrated } from "@/lib/useHydrated";
 import { formatPrice } from "@/lib/format";
 import { createOrder } from "@/lib/orders";
+import { loadRazorpay, openRazorpay } from "@/lib/razorpayCheckout";
+import { site } from "@/config/site";
 import { Button } from "@/components/ui/Button";
 import { RxBadge } from "@/components/product/Badges";
 import { RxDropzone, RxThumb } from "@/components/rx/RxDropzone";
@@ -21,8 +23,7 @@ import { EmptyCart, PageSkeleton } from "./CartView";
 import { useCartBill } from "./useCartBill";
 
 const payments: { id: PaymentMethod; label: string; note: string; icon: typeof Banknote }[] = [
-  { id: "upi", label: "UPI", note: "Google Pay, PhonePe, Paytm and more", icon: Smartphone },
-  { id: "card", label: "Credit / debit card", note: "Visa, Mastercard, RuPay", icon: CreditCard },
+  { id: "online", label: "Pay online", note: "UPI, cards, netbanking and wallets via Razorpay", icon: CreditCard },
   { id: "cod", label: "Cash on delivery", note: "Pay when your order arrives", icon: Banknote },
 ];
 
@@ -43,7 +44,7 @@ function Step({ n, title, done, children }: { n: number; title: string; done?: b
 export function CheckoutView() {
   const hydrated = useHydrated();
   const router = useRouter();
-  const { lines, bill, hasRx } = useCartBill();
+  const { lines, bill, hasRx, couponCode } = useCartBill();
   const clearCart = useCart((s) => s.clear);
   const { addresses, saveAddress, addOrder, pincode } = useAccount();
   const prescriptions = useRx((s) => s.prescriptions);
@@ -51,8 +52,10 @@ export function CheckoutView() {
   const [addressId, setAddressId] = useState<string>();
   const [addingAddress, setAddingAddress] = useState(false);
   const [rxIds, setRxIds] = useState<string[]>([]);
-  const [payment, setPayment] = useState<PaymentMethod>("upi");
+  const [payment, setPayment] = useState<PaymentMethod>("online");
   const [placing, setPlacing] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string>();
 
   if (!hydrated || placing) return <PageSkeleton />;
   if (!lines.length) return <EmptyCart />;
@@ -60,16 +63,74 @@ export function CheckoutView() {
   const selectedAddress = addresses.find((a) => a.id === (addressId ?? addresses[0]?.id));
   const attachedRx = rxIds.filter((id) => prescriptions.some((p) => p.id === id));
   const rxOk = !hasRx || attachedRx.length > 0;
-  const canPlace = !!selectedAddress && rxOk;
+  const canPlace = !!selectedAddress && rxOk && !paying;
   const showForm = addingAddress || addresses.length === 0;
 
-  function placeOrder() {
-    if (!selectedAddress || !rxOk) return;
+  function finalize(razorpay?: { paymentId: string; orderId: string }) {
+    if (!selectedAddress) return;
     setPlacing(true);
-    const order = createOrder({ lines, bill, address: selectedAddress, payment, prescriptionIds: hasRx ? attachedRx : [] });
+    const order = createOrder({ lines, bill, address: selectedAddress, payment, prescriptionIds: hasRx ? attachedRx : [], razorpay });
     addOrder(order);
     clearCart();
     router.replace(`/order-success/${order.id}`);
+  }
+
+  async function payOnline() {
+    if (!selectedAddress) return;
+    setPaying(true);
+    setPayError(undefined);
+    try {
+      await loadRazorpay();
+      const res = await fetch("/api/payments/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: lines.map((l) => ({ productId: l.product.id, qty: l.qty })), couponCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Could not start payment");
+
+      openRazorpay(
+        {
+          key: data.keyId,
+          order_id: data.orderId,
+          amount: data.amount,
+          currency: data.currency,
+          name: site.name,
+          description: `Order of ${bill.itemCount} item${bill.itemCount === 1 ? "" : "s"}`,
+          prefill: { name: selectedAddress.name, contact: `+91${selectedAddress.phone}` },
+          theme: { color: "#10847e" },
+          handler: async (success) => {
+            try {
+              const v = await fetch("/api/payments/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(success),
+              });
+              const result = await v.json();
+              if (!v.ok || !result.verified) throw new Error(result.error ?? "Payment could not be verified");
+              finalize({ paymentId: success.razorpay_payment_id, orderId: success.razorpay_order_id });
+            } catch (e) {
+              setPaying(false);
+              setPayError(`${(e as Error).message}. If money was deducted, it will be refunded automatically. Payment ID: ${success.razorpay_payment_id}`);
+            }
+          },
+          modal: {
+            ondismiss: () => setPaying(false),
+          },
+        },
+        // Razorpay keeps its window open on failure so the customer can retry; we just surface the reason.
+        (failure) => setPayError(failure.error.description || "Payment failed. Please try again."),
+      );
+    } catch (e) {
+      setPaying(false);
+      setPayError((e as Error).message);
+    }
+  }
+
+  function placeOrder() {
+    if (!selectedAddress || !rxOk || paying) return;
+    if (payment === "cod") finalize();
+    else payOnline();
   }
 
   let n = 1;
@@ -153,7 +214,7 @@ export function CheckoutView() {
               ))}
             </div>
             <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
-              <Lock className="size-3.5" /> Demo checkout: no real payment is taken.
+              <Lock className="size-3.5" /> Payments are processed securely by Razorpay (test mode).
             </p>
           </Step>
 
@@ -177,9 +238,14 @@ export function CheckoutView() {
         <div className="lg:sticky lg:top-32 lg:self-start">
           <BillSummary bill={bill}>
             <Button size="lg" className="w-full" disabled={!canPlace} onClick={placeOrder}>
-              {payment === "cod" ? "Place order" : `Pay ${formatPrice(bill.total)}`}
+              {paying ? "Processing payment…" : payment === "cod" ? "Place order" : `Pay ${formatPrice(bill.total)}`}
             </Button>
-            {!canPlace && (
+            {payError && (
+              <p role="alert" className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 p-3 text-xs text-red-700">
+                <AlertTriangle className="size-4 shrink-0" /> <span>{payError}</span>
+              </p>
+            )}
+            {!canPlace && !paying && (
               <p className="mt-2 text-center text-xs text-muted">
                 {!selectedAddress ? "Add a delivery address to continue" : "Attach a prescription to continue"}
               </p>

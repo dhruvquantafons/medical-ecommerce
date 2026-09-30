@@ -5,7 +5,7 @@ import { banners, concerns, coupons, faqs, featuredBrands, stats } from "@/data/
 import { getBestsellers, getDeals, getProducts } from "@/lib/catalog";
 import { SearchBox } from "@/components/layout/SearchBox";
 import { BannerCarousel } from "@/components/home/BannerCarousel";
-import { CategoryGrid, ConcernGrid, RxCallout, SectionTitle, TrustBadges } from "@/components/home/Sections";
+import { CategoryGrid, ConcernGrid, SectionTitle, TrustBadges } from "@/components/home/Sections";
 import { ProductRail } from "@/components/product/ProductCard";
 
 export default function Home() {
@@ -33,10 +33,6 @@ export default function Home() {
 
       <section className="mx-auto max-w-7xl px-4 py-4">
         <BannerCarousel banners={banners} />
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-4">
-        <RxCallout />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-6">

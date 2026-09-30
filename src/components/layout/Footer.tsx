@@ -24,7 +24,6 @@ export function Footer() {
         <div>
           <p className="mb-3 text-sm font-bold">Services</p>
           <ul className="space-y-2 text-sm text-muted">
-            <li><Link className="hover:text-brand-700" href="/upload-prescription">Upload prescription</Link></li>
             <li><Link className="hover:text-brand-700" href="/search?q=paracetamol">Find substitutes</Link></li>
             <li><Link className="hover:text-brand-700" href="/cart">Your cart</Link></li>
           </ul>

@@ -94,13 +94,16 @@ export interface Address {
   label: "Home" | "Work" | "Other";
 }
 
-export type PaymentMethod = "cod" | "upi" | "card";
+export type PaymentMethod = "online" | "cod";
 
 export interface Order {
   id: string;
   items: { productId: string; name: string; qty: number; price: number; mrp: number }[];
   address: Address;
   payment: PaymentMethod;
+  /** Razorpay references, present for verified online payments. */
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
   prescriptionIds: string[];
   coupon?: string;
   total: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import { House, LayoutGrid, ShoppingCart, Upload } from "lucide-react";
+import { House, LayoutGrid, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
@@ -9,7 +9,6 @@ import { useCartCount } from "./CartLink";
 const items = [
   { href: "/", label: "Home", icon: House },
   { href: "/categories", label: "Categories", icon: LayoutGrid },
-  { href: "/upload-prescription", label: "Upload Rx", icon: Upload },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
 ];
 
@@ -17,7 +16,7 @@ export function MobileBottomNav() {
   const path = usePathname();
   const count = useCartCount();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-white md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-line bg-white md:hidden">
       {items.map(({ href, label, icon: I }) => {
         const active = href === "/" ? path === "/" : path.startsWith(href);
         return (

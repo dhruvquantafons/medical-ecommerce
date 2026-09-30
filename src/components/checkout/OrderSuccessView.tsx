@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { PageSkeleton } from "./CartView";
 
-const paymentLabel = { cod: "Cash on delivery", upi: "UPI", card: "Card" };
+const paymentLabel: Record<string, string> = { online: "Paid online (Razorpay)", cod: "Cash on delivery", upi: "UPI", card: "Card" };
 
 export function OrderSuccessView({ id }: { id: string }) {
   const hydrated = useHydrated();
@@ -54,7 +54,7 @@ export function OrderSuccessView({ id }: { id: string }) {
           ))}
         </ul>
         <div className="mt-3 flex justify-between border-t border-dashed border-line pt-3 font-bold">
-          <span>Total paid{order.payment === "cod" ? " on delivery" : ""}</span>
+          <span>{order.payment === "cod" ? "To pay on delivery" : "Total paid"}</span>
           <span>{formatPrice(order.total)}</span>
         </div>
         {order.savings > 0 && <p className="mt-1 text-right text-xs font-semibold text-save">You saved {formatPrice(order.savings)}{order.coupon && ` (incl. ${order.coupon})`}</p>}
@@ -69,7 +69,12 @@ export function OrderSuccessView({ id }: { id: string }) {
         </div>
         <div className="card p-5 text-sm">
           <p className="mb-2 flex items-center gap-2 font-bold"><Wallet className="size-4 text-brand-600" /> Payment</p>
-          <p>{paymentLabel[order.payment]}</p>
+          <p>{paymentLabel[order.payment] ?? order.payment}</p>
+          {order.razorpayPaymentId && (
+            <p className="mt-1 text-xs text-muted">
+              Payment ID <span className="font-mono text-ink">{order.razorpayPaymentId}</span>
+            </p>
+          )}
         </div>
       </div>
 
