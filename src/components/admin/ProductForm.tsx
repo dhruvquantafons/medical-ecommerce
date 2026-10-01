@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { inputClass } from "./ui";
+import { ProductImagesField, serializeImages, type ImageItem } from "./ProductImagesField";
 
 export interface ProductFormValues {
   id?: string;
@@ -32,10 +33,20 @@ export interface ProductFormValues {
   safetyAdvice: string;
   storage: string;
   tags: string;
-  imageUrl: string;
+  images: ImageItem[];
 }
 
-const FORMS: Form[] = ["tablet", "capsule", "syrup", "cream", "drops", "powder", "device", "pack", "bottle"];
+const FORMS: { v: Form; l: string }[] = [
+  { v: "capsule", l: "Capsules (jar)" },
+  { v: "tablet", l: "Tablets (jar)" },
+  { v: "bottle", l: "Gummies / other (jar)" },
+  { v: "powder", l: "Powder (canister)" },
+  { v: "drops", l: "Drops (dropper bottle)" },
+  { v: "syrup", l: "Liquid (bottle)" },
+  { v: "pack", l: "Sachets (pouch)" },
+  { v: "cream", l: "Cream (tube)" },
+  { v: "device", l: "Other" },
+];
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -139,13 +150,16 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
     inStock: Number(v.stock) > 0,
     stock: Number(v.stock) || 0,
     tags: [],
-    imageUrl: /^https:\/\/\S+$/.test(v.imageUrl) ? v.imageUrl : null,
+    images: v.images.map((i) => i.src),
   };
+  const uploading = v.images.some((i) => i.uploading);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (uploading) return toast("Wait for the photos to finish uploading.", "error");
     setSaving(true);
     const data = new FormData(e.currentTarget);
+    data.set("images", serializeImages(v.images));
     const res = v.id ? await updateProduct(v.id, data) : await createProduct(data);
     setSaving(false);
     if (!res.ok) {
@@ -179,7 +193,7 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
             const { id, note, aria } = describe("categoryId");
             return (
               <div>
-                <label htmlFor={id} className="mb-1 block text-xs font-semibold text-gray-600">Category</label>
+                <label htmlFor={id} className="mb-1 block text-xs font-semibold text-gray-600">Collection</label>
                 <select id={id} name="categoryId" value={v.categoryId} onChange={(e) => set("categoryId", Number(e.target.value) || "")} {...aria} className={clsx(inputClass, "w-full", errors.categoryId && "border-red-400")}>
                   <option value="">Choose…</option>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -189,9 +203,9 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
             );
           })()}
           <label className="block">
-            <span className="mb-1 block text-xs font-semibold text-gray-600">Form (used for the placeholder image)</span>
-            <select name="form" value={v.form} onChange={(e) => set("form", e.target.value as Form)} className={clsx(inputClass, "w-full capitalize")}>
-              {FORMS.map((f) => <option key={f} value={f}>{f}</option>)}
+            <span className="mb-1 block text-xs font-semibold text-gray-600">Pack type (used for the placeholder image)</span>
+            <select name="form" value={v.form} onChange={(e) => set("form", e.target.value as Form)} className={clsx(inputClass, "w-full")}>
+              {FORMS.map((f) => <option key={f.v} value={f.v}>{f.l}</option>)}
             </select>
           </label>
           {field("packSize", "Pack size", { hint: "e.g. Strip of 15 tablets" })}
@@ -213,19 +227,26 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
           </div>
         </Section>
 
-        <Section title="Medical details">
-          {field("composition", "Composition / salt", { wide: true, hint: "Products with the exact same composition are shown as substitutes." })}
+        <Section title="Product details">
+          {field("composition", "Key ingredients", { wide: true })}
           {field("description", "Description", { wide: true, textarea: 3 })}
-          {field("uses", "Uses (one per line)", { textarea: 4 })}
+          {field("uses", "Benefits (one per line)", { textarea: 4 })}
           {field("sideEffects", "Side effects (one per line)", { textarea: 4 })}
           {field("howToUse", "How to use", { wide: true, textarea: 2 })}
           {field("safetyAdvice", "Safety advice (one per line)", { wide: true, textarea: 3 })}
           {field("storage", "Storage", { wide: true })}
-          {field("tags", "Health-concern tags (comma separated)", { wide: true, hint: "e.g. fever, pain. These power “Shop by health concern”." })}
+          {field("tags", "Search tags (comma separated)", { wide: true, hint: "e.g. gut, sleep. Helps customers find the product in search." })}
         </Section>
 
-        <Section title="Image">
-          {field("imageUrl", "Image URL (optional)", { wide: true, hint: "An https:// link to a product photo. Leave empty to use the drawn placeholder." })}
+        <Section title="Photos">
+          <ProductImagesField
+            items={v.images}
+            update={(fn) => {
+              setV((prev) => ({ ...prev, images: fn(prev.images) }));
+              setErrors((e) => ({ ...e, images: "" }));
+            }}
+            error={errors.images}
+          />
         </Section>
       </div>
 
@@ -236,8 +257,8 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
             <ProductCard product={preview} />
           </div>
         </div>
-        <Button type="submit" size="lg" className="w-full" disabled={saving}>
-          {saving ? "Saving…" : v.id ? "Save changes" : "Create product"}
+        <Button type="submit" size="lg" className="w-full" disabled={saving || uploading}>
+          {saving ? "Saving…" : uploading ? "Uploading photos…" : v.id ? "Save changes" : "Create product"}
         </Button>
         {v.id && (
           <button type="button" onClick={onDelete} className="w-full text-center text-xs font-semibold text-red-600 hover:underline">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 import clsx from "clsx";
 import { MAX_CART_QTY, useCart } from "@/store/cart";
 import { useHydrated } from "@/lib/useHydrated";
@@ -20,8 +20,8 @@ export function QuantityStepper({
 }) {
   const h = size === "lg" ? "h-12" : "h-9";
   return (
-    <div className={clsx("items-center justify-between overflow-hidden rounded-lg border border-brand-600 bg-brand-50", block ? "flex w-full" : "inline-flex", h)}>
-      <button aria-label="Decrease quantity" onClick={() => onChange(qty - 1)} className="grid h-full w-9 place-items-center text-brand-700 hover:bg-brand-100">
+    <div className={clsx("items-center justify-between overflow-hidden rounded-full border border-brand-800/20 bg-white", block ? "flex w-full" : "inline-flex", h)}>
+      <button aria-label="Decrease quantity" onClick={() => onChange(qty - 1)} className="grid h-full w-10 place-items-center text-brand-800 hover:bg-brand-50">
         <Minus className="size-4" />
       </button>
       <span className="min-w-8 text-center text-sm font-semibold text-brand-800" aria-live="polite">
@@ -31,7 +31,7 @@ export function QuantityStepper({
         aria-label="Increase quantity"
         disabled={qty >= MAX_CART_QTY}
         onClick={() => onChange(qty + 1)}
-        className="grid h-full w-9 place-items-center text-brand-700 hover:bg-brand-100 disabled:opacity-40"
+        className="grid h-full w-10 place-items-center text-brand-800 hover:bg-brand-50 disabled:opacity-40"
       >
         <Plus className="size-4" />
       </button>
@@ -39,17 +39,21 @@ export function QuantityStepper({
   );
 }
 
+/**
+ * Add-to-cart control. `icon` is the round black cart button used on product cards;
+ * `pill` is the full-width button with a quantity stepper once added (product page).
+ */
 export function AddToCart({
   productId,
+  productName,
   inStock,
-  size = "sm",
-  block,
+  variant = "pill",
   className,
 }: {
   productId: string;
+  productName: string;
   inStock: boolean;
-  size?: "sm" | "lg";
-  block?: boolean;
+  variant?: "icon" | "pill";
   className?: string;
 }) {
   const hydrated = useHydrated();
@@ -57,35 +61,56 @@ export function AddToCart({
   const add = useCart((s) => s.add);
   const setQty = useCart((s) => s.setQty);
   const toast = useToast((s) => s.show);
+  const inCart = hydrated ? qty : 0;
+
+  const addOne = () => {
+    add(productId);
+    toast(`${productName} added to cart`);
+  };
+
+  if (variant === "icon") {
+    return (
+      <button
+        type="button"
+        onClick={addOne}
+        disabled={!inStock}
+        aria-label={inStock ? `Add ${productName} to cart` : `${productName} is out of stock`}
+        title={inStock ? "Add to cart" : "Out of stock"}
+        className={clsx(
+          "relative grid size-10 shrink-0 place-items-center rounded-full bg-ink text-white transition hover:bg-brand-800 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-300",
+          className,
+        )}
+      >
+        <ShoppingCart className="size-4" />
+        {inCart > 0 && (
+          <span className="absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-lime px-1 text-[10px] font-bold text-brand-800 ring-2 ring-tile">
+            {inCart}
+          </span>
+        )}
+      </button>
+    );
+  }
 
   if (!inStock) {
     return (
-      <span className={clsx("inline-flex items-center justify-center rounded-lg bg-gray-100 px-3 text-sm font-semibold text-muted", size === "lg" ? "h-12" : "h-9", block && "w-full", className)}>
+      <span className={clsx("inline-flex h-12 items-center justify-center rounded-full bg-gray-100 px-6 text-sm font-semibold text-muted", className)}>
         Out of stock
       </span>
     );
   }
-  if (hydrated && qty > 0) {
+  if (inCart > 0) {
     return (
       <div className={className}>
-        <QuantityStepper qty={qty} onChange={(n) => setQty(productId, n)} size={size} block={block} />
+        <QuantityStepper qty={inCart} onChange={(n) => setQty(productId, n)} size="lg" block />
       </div>
     );
   }
   return (
     <button
-      onClick={() => {
-        add(productId);
-        toast("Added to cart");
-      }}
-      className={clsx(
-        "inline-flex items-center justify-center rounded-lg bg-brand-600 font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98]",
-        block && "w-full",
-        size === "lg" ? "h-12 px-8 text-base" : "h-9 px-5 text-sm",
-        className,
-      )}
+      onClick={addOne}
+      className={clsx("inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink px-8 text-base font-semibold text-white transition hover:bg-brand-800 active:scale-[0.98]", className)}
     >
-      {size === "lg" || block ? "Add to cart" : "Add"}
+      <ShoppingCart className="size-4" /> Add to cart
     </button>
   );
 }

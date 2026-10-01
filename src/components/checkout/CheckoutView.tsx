@@ -28,9 +28,9 @@ const payments: { id: PaymentMethod; label: string; note: string; icon: typeof B
 
 function Step({ n, title, done, children }: { n: number; title: string; done?: boolean; children: React.ReactNode }) {
   return (
-    <section className="card p-5">
-      <h2 className="mb-4 flex items-center gap-3 font-bold">
-        <span className={clsx("grid size-7 place-items-center rounded-full text-sm", done ? "bg-save text-white" : "bg-brand-100 text-brand-700")}>
+    <section className="card p-6">
+      <h2 className="mb-5 flex items-center gap-3 text-lg font-semibold">
+        <span className={clsx("grid size-8 place-items-center rounded-full text-sm", done ? "bg-brand-800 text-lime" : "bg-tile text-ink")}>
           {done ? <CircleCheck className="size-4" /> : n}
         </span>
         {title}
@@ -149,9 +149,9 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
 
   let n = 1;
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <h1 className="text-xl font-bold md:text-2xl">Checkout</h1>
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
+    <div className="mx-auto max-w-7xl px-4 md:px-10 pt-10 pb-6 md:pt-14">
+      <h1 className="display text-5xl md:text-6xl">Checkout</h1>
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
         <div className="space-y-4">
           <Step n={n++} title="Delivery address" done={!!selectedAddress && !showForm}>
             {addresses.length > 0 && (
@@ -257,7 +257,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
           </Step>
         </div>
 
-        <div className="lg:sticky lg:top-32 lg:self-start">
+        <div className="lg:sticky lg:top-28 lg:self-start">
           <BillSummary bill={bill}>
             <Button size="lg" className="w-full" disabled={!canPlace} onClick={placeOrder}>
               {paying ? "Processing payment…" : payment === "cod" ? "Place order" : `Pay ${formatPrice(bill.total)}`}

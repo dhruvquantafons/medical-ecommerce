@@ -23,7 +23,7 @@ export function DeliveryCheck() {
   const valid = /^[1-9]\d{5}$/.test(pin);
 
   return (
-    <div className="rounded-xl border border-line p-4">
+    <div className="rounded-2xl bg-tile p-4">
       <p className="flex items-center gap-2 text-sm font-semibold">
         <Truck className="size-4 text-brand-600" /> Check delivery
       </p>
@@ -45,9 +45,9 @@ export function DeliveryCheck() {
           inputMode="numeric"
           placeholder="Enter pincode"
           aria-label="Delivery pincode"
-          className="h-10 w-36 rounded-lg border border-line px-3 text-sm outline-none focus:border-brand-500"
+          className="h-10 w-40 rounded-full border border-line bg-white px-4 text-sm outline-none focus:border-brand-500"
         />
-        <button className="text-sm font-semibold text-brand-700 hover:underline">Check</button>
+        <button className="rounded-full px-3 text-sm font-semibold text-brand-800 underline-offset-4 hover:underline">Check</button>
       </form>
       {result === "error" && <p className="mt-2 text-xs text-red-600">Please enter a valid 6-digit pincode.</p>}
       {result && result !== "error" && (

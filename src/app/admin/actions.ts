@@ -1,13 +1,14 @@
 "use server";
 
-import { and, count, eq, ne, sql } from "drizzle-orm";
+import { and, count, eq, inArray, isNotNull, isNull, ne, notInArray, or, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
-import { categories, orderItems, orders, products, session, user } from "@/db/schema";
+import { categories, orderItems, orders, productImages, products, session, user } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { currentUser } from "@/lib/session";
+import { MAX_PRODUCT_IMAGES } from "@/lib/files";
 import { ICON_NAMES } from "@/components/ui/Icon";
 
 // Every action re-checks the admin role: server actions are public HTTP endpoints.
@@ -117,6 +118,13 @@ const lines = (v: unknown) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
+const httpsUrl = z.string().trim().url("Enter a full https:// URL").startsWith("https://", "Use an https:// URL").max(2000);
+
+/** Ordered photos: an uploaded photo by id, or an external image URL. */
+const imageList = z
+  .array(z.union([z.object({ id: z.string().uuid() }), z.object({ url: httpsUrl })]))
+  .max(MAX_PRODUCT_IMAGES, `Up to ${MAX_PRODUCT_IMAGES} photos per product`);
+
 const money = z.coerce.number().min(0, "Must be 0 or more").max(1_000_000);
 
 const productInput = z
@@ -125,7 +133,7 @@ const productInput = z
     slug: z.string().trim().max(160).optional(),
     brand: z.string().trim().min(1, "Enter the brand").max(80),
     manufacturer: z.string().trim().min(1, "Enter the manufacturer").max(120),
-    categoryId: z.coerce.number().int().positive("Choose a category"),
+    categoryId: z.coerce.number().int().positive("Choose a collection"),
     form: z.enum(["tablet", "capsule", "syrup", "cream", "drops", "powder", "device", "pack", "bottle"]),
     packSize: z.string().trim().min(1, "Enter the pack size").max(80),
     mrp: money.refine((v) => v > 0, "MRP must be more than 0"),
@@ -141,9 +149,17 @@ const productInput = z
     sideEffects: z.array(z.string().max(200)).max(30),
     safetyAdvice: z.array(z.string().max(300)).max(30),
     tags: z.array(z.string().max(40)).max(30),
-    imageUrl: z.union([z.literal(""), z.string().url("Enter a full https:// URL").startsWith("https://", "Use an https:// URL")]).optional(),
+    images: imageList,
   })
   .refine((d) => d.price <= d.mrp, { message: "Selling price can't be more than MRP", path: ["price"] });
+
+function parseJson(v: FormDataEntryValue | null) {
+  try {
+    return JSON.parse(String(v ?? "[]"));
+  } catch {
+    return null;
+  }
+}
 
 function readProduct(form: FormData) {
   const get = (k: string) => form.get(k);
@@ -171,20 +187,57 @@ function readProduct(form: FormData) {
       .split(",")
       .map((t) => t.trim().toLowerCase())
       .filter(Boolean),
-    imageUrl: get("imageUrl") ?? "",
+    images: parseJson(get("images")),
   });
 }
 
-function productValues(d: z.infer<typeof productInput>) {
-  const { mrp, price, slug, imageUrl, ...rest } = d;
+/** Product table values; photos are saved separately by saveProductImages. */
+function productValues({ images, ...d }: z.infer<typeof productInput>) {
+  void images;
+  const { mrp, price, slug, ...rest } = d;
   return {
     ...rest,
     slug: slugify(slug || d.name),
     mrpPaise: Math.round(mrp * 100),
     pricePaise: Math.round(price * 100),
-    imageUrl: imageUrl || null,
   };
 }
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Makes the product's photos exactly `images`, in that order: attaches staged uploads,
+ * removes photos no longer listed, and re-creates external URL rows.
+ */
+async function saveProductImages(tx: Tx, productId: string, images: z.infer<typeof imageList>) {
+  const uploadIds = images.flatMap((i) => ("id" in i ? [i.id] : []));
+  await tx
+    .delete(productImages)
+    .where(
+      and(
+        eq(productImages.productId, productId),
+        uploadIds.length ? or(isNotNull(productImages.url), notInArray(productImages.id, uploadIds)) : undefined,
+      ),
+    );
+  if (uploadIds.length) {
+    const usable = await tx
+      .select({ id: productImages.id })
+      .from(productImages)
+      .where(and(inArray(productImages.id, uploadIds), isNotNull(productImages.data), or(isNull(productImages.productId), eq(productImages.productId, productId))));
+    if (usable.length !== new Set(uploadIds).size) throw new MissingImageError();
+  }
+  for (const [sortOrder, img] of images.entries()) {
+    if ("id" in img) await tx.update(productImages).set({ productId, sortOrder }).where(eq(productImages.id, img.id));
+    else await tx.insert(productImages).values({ productId, sortOrder, url: img.url });
+  }
+}
+
+class MissingImageError extends Error {}
+const missingImage: ActionResult<never> = {
+  ok: false,
+  error: "Please fix the highlighted fields.",
+  fieldErrors: { images: "A photo could not be found (it may have expired). Remove it and upload it again." },
+};
 
 async function slugTaken(table: typeof products | typeof categories, slug: string, exceptId?: string | number) {
   const [row] =
@@ -206,9 +259,19 @@ export async function createProduct(form: FormData): Promise<ActionResult<{ id: 
   const values = productValues(parsed.data);
   if (!values.slug) return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: { slug: "Enter a URL slug" } };
   if (await slugTaken(products, values.slug)) return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: { slug: "Another product already uses this URL" } };
-  const [row] = await db.insert(products).values(values).returning({ id: products.id });
+  let id: string;
+  try {
+    id = await db.transaction(async (tx) => {
+      const [row] = await tx.insert(products).values(values).returning({ id: products.id });
+      await saveProductImages(tx, row.id, parsed.data.images);
+      return row.id;
+    });
+  } catch (e) {
+    if (e instanceof MissingImageError) return missingImage;
+    throw e;
+  }
   revalidateStore(values.slug);
-  return { ok: true, data: { id: row.id }, message: "Product created." };
+  return { ok: true, data: { id }, message: "Product created." };
 }
 
 export async function updateProduct(id: string, form: FormData): Promise<ActionResult<{ id: string }>> {
@@ -218,8 +281,18 @@ export async function updateProduct(id: string, form: FormData): Promise<ActionR
   const values = productValues(parsed.data);
   if (!values.slug) return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: { slug: "Enter a URL slug" } };
   if (await slugTaken(products, values.slug, id)) return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: { slug: "Another product already uses this URL" } };
-  const updated = await db.update(products).set(values).where(eq(products.id, id)).returning({ id: products.id });
-  if (!updated.length) return { ok: false, error: "Product not found" };
+  let found: boolean;
+  try {
+    found = await db.transaction(async (tx) => {
+      const updated = await tx.update(products).set(values).where(eq(products.id, id)).returning({ id: products.id });
+      if (updated.length) await saveProductImages(tx, id, parsed.data.images);
+      return updated.length > 0;
+    });
+  } catch (e) {
+    if (e instanceof MissingImageError) return missingImage;
+    throw e;
+  }
+  if (!found) return { ok: false, error: "Product not found" };
   revalidateStore(values.slug);
   return { ok: true, data: { id }, message: "Product saved." };
 }
@@ -241,7 +314,7 @@ export async function deleteProduct(id: string): Promise<ActionResult<{ deactiva
 // ---- Categories
 
 const categoryInput = z.object({
-  name: z.string().trim().min(2, "Enter a category name").max(60),
+  name: z.string().trim().min(2, "Enter a collection name").max(60),
   slug: z.string().trim().max(60).optional(),
   description: z.string().trim().max(200).default(""),
   icon: z.enum(ICON_NAMES as [string, ...string[]]),
@@ -256,29 +329,29 @@ export async function saveCategory(id: number | null, input: unknown): Promise<A
   const values = { ...parsed.data, slug: slugify(parsed.data.slug || parsed.data.name) };
   if (!values.slug) return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: { slug: "Enter a URL slug" } };
   if (await slugTaken(categories, values.slug, id ?? undefined)) {
-    return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: { slug: "Another category already uses this URL" } };
+    return { ok: false, error: "Please fix the highlighted fields.", fieldErrors: { slug: "Another collection already uses this URL" } };
   }
   let savedId = id;
   if (id) {
     const updated = await db.update(categories).set(values).where(eq(categories.id, id)).returning({ id: categories.id });
-    if (!updated.length) return { ok: false, error: "Category not found" };
+    if (!updated.length) return { ok: false, error: "Collection not found" };
   } else {
     const [row] = await db.insert(categories).values(values).returning({ id: categories.id });
     savedId = row.id;
   }
   revalidateStore();
   revalidatePath("/admin/categories");
-  return { ok: true, data: { id: savedId! }, message: id ? "Category saved." : "Category created." };
+  return { ok: true, data: { id: savedId! }, message: id ? "Collection saved." : "Collection created." };
 }
 
 export async function deleteCategory(id: number): Promise<ActionResult> {
   await assertAdmin();
   const [{ n }] = await db.select({ n: count() }).from(products).where(eq(products.categoryId, Number(id)));
-  if (n > 0) return { ok: false, error: `This category still has ${n} product${n === 1 ? "" : "s"}. Move or delete them first.` };
+  if (n > 0) return { ok: false, error: `This collection still has ${n} product${n === 1 ? "" : "s"}. Move or delete them first.` };
   await db.delete(categories).where(eq(categories.id, Number(id)));
   revalidateStore();
   revalidatePath("/admin/categories");
-  return { ok: true, data: null, message: "Category deleted." };
+  return { ok: true, data: null, message: "Collection deleted." };
 }
 
 // ---- Customers

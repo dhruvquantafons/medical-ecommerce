@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   customType,
   index,
   integer,
@@ -78,10 +79,32 @@ export const products = pgTable(
     stock: integer("stock").notNull().default(0),
     /** Inactive products are hidden from the store but kept for past orders. */
     active: boolean("active").notNull().default(true),
-    imageUrl: text("image_url"),
     ...timestamps,
   },
   (t) => [index("products_category_idx").on(t.categoryId), index("products_composition_idx").on(t.composition)],
+);
+
+/**
+ * Product photos, in display order (the first is the main image). Each row is either an uploaded
+ * file stored in `data` (served by /api/product-images/[id]) or an external https `url`.
+ * Uploads start with a null `productId` ("staged") and are attached when the product is saved.
+ */
+export const productImages = pgTable(
+  "product_images",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    productId: text("product_id").references(() => products.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").notNull().default(0),
+    url: text("url"),
+    mimeType: text("mime_type"),
+    sizeBytes: integer("size_bytes"),
+    data: bytea("data"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("product_images_product_idx").on(t.productId, t.sortOrder),
+    check("product_images_source_check", sql`(${t.url} is null) <> (${t.data} is null)`),
+  ],
 );
 
 export const addresses = pgTable(
@@ -186,8 +209,12 @@ export const orderPrescriptions = pgTable(
 );
 
 export const categoriesRelations = relations(categories, ({ many }) => ({ products: many(products) }));
-export const productsRelations = relations(products, ({ one }) => ({
+export const productsRelations = relations(products, ({ one, many }) => ({
   category: one(categories, { fields: [products.categoryId], references: [categories.id] }),
+  images: many(productImages),
+}));
+export const productImagesRelations = relations(productImages, ({ one }) => ({
+  product: one(products, { fields: [productImages.productId], references: [products.id] }),
 }));
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   user: one(user, { fields: [orders.userId], references: [user.id] }),

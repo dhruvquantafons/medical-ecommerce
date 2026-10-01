@@ -16,7 +16,7 @@ export function Field({ label, error, className, ...props }: InputHTMLAttributes
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
         className={clsx(
-          "h-11 w-full rounded-lg border px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100",
+          "h-12 w-full rounded-full border bg-white px-4 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100",
           error ? "border-red-400" : "border-line",
         )}
       />
@@ -34,7 +34,7 @@ export function PasswordField(props: InputHTMLAttributes<HTMLInputElement> & { l
         type="button"
         onClick={() => setShow((s) => !s)}
         aria-label={show ? "Hide password" : "Show password"}
-        className="absolute top-[1.85rem] right-2 rounded p-1.5 text-muted hover:text-ink"
+        className="absolute top-[1.95rem] right-3 rounded-full p-1.5 text-muted hover:text-ink"
       >
         {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
       </button>

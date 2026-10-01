@@ -1,48 +1,52 @@
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { site } from "@/config/site";
 import { getCategories } from "@/lib/catalog";
-import { SearchBox } from "./SearchBox";
-import { PincodeChip } from "./PincodeChip";
-import { CartLink } from "./CartLink";
 import { getSession } from "@/lib/session";
+import { SearchBox } from "./SearchBox";
+import { CartLink } from "./CartLink";
 import { AccountMenu } from "./AccountMenu";
-import { CategoryNav } from "./CategoryNav";
+import { CollectionsMenu } from "./CollectionsMenu";
+import { MobileMenu } from "./MobileMenu";
 
-export function Logo() {
+export function Logo({ light = true }: { light?: boolean }) {
   return (
-    <Link href="/" className="flex shrink-0 items-center gap-2">
-      <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm shadow-brand-900/20">
-        <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
-          <path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor" />
-        </svg>
-      </span>
-      <span className="text-xl leading-none font-extrabold tracking-tight text-brand-700">{site.name}</span>
+    <Link href="/" className={`display text-[28px] leading-none md:text-[32px] ${light ? "text-white" : "text-brand-800"}`} aria-label={`${site.name} home`}>
+      {site.shortName}
     </Link>
   );
 }
 
+const navLink = "rounded-full px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white";
+
+/** Floating dark nav bar. On the home page the hero slides underneath it. */
 export async function Header() {
   const [categories, session] = await Promise.all([getCategories(), getSession()]);
   const user = session && { name: session.user.name, email: session.user.email, isAdmin: session.user.role === "admin" };
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 md:gap-5">
+    <header className="sticky top-3 z-40 px-3 md:top-4 md:px-6">
+      <div className="mx-auto grid h-[60px] max-w-7xl grid-cols-[1fr_auto_1fr] items-center rounded-2xl bg-brand-800/95 px-2 shadow-lg shadow-brand-900/10 backdrop-blur md:h-[64px] md:px-4">
+        <nav className="flex items-center gap-1" aria-label="Main">
+          <MobileMenu categories={categories} user={user} />
+          <div className="hidden items-center gap-0.5 lg:flex">
+            <Link href="/shop" className={navLink}>Shop</Link>
+            <CollectionsMenu categories={categories} />
+            <Link href="/#science" className={navLink}>Our science</Link>
+            <Link href="/#faq" className={navLink}>FAQ</Link>
+          </div>
+        </nav>
         <Logo />
-        <div className="hidden lg:block">
-          <PincodeChip />
-        </div>
-        <div className="hidden flex-1 md:block">
-          <SearchBox />
-        </div>
-        <div className="ml-auto flex items-center gap-1 md:ml-0">
+        <div className="flex items-center justify-end gap-0.5">
+          <div className="hidden w-60 xl:block">
+            <SearchBox variant="nav" />
+          </div>
+          <Link href="/search" aria-label="Search" className="hidden size-10 place-items-center rounded-full text-white hover:bg-white/10 lg:grid xl:hidden">
+            <Search className="size-5" />
+          </Link>
           <AccountMenu user={user} />
           <CartLink />
         </div>
       </div>
-      <div className="px-4 pb-2.5 md:hidden">
-        <SearchBox />
-      </div>
-      <CategoryNav categories={categories} />
     </header>
   );
 }

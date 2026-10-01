@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Instrument_Sans, Instrument_Serif } from "next/font/google";
 import { site } from "@/config/site";
 import { ToastViewport } from "@/components/ui/Toast";
 import "./globals.css";
 
-const sans = Plus_Jakarta_Sans({ variable: "--font-brand", subsets: ["latin"] });
+const sans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
+const serif = Instrument_Serif({ variable: "--font-serif", subsets: ["latin"], weight: "400", style: ["normal", "italic"] });
 
 // Pages read live prices, stock, orders and sessions from the database on every request.
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} h-full scroll-smooth antialiased`}>
+    <html lang="en" className={`${sans.variable} ${serif.variable} h-full scroll-smooth antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         {children}
         <ToastViewport />

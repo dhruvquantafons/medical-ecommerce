@@ -1,24 +1,24 @@
 "use client";
 
+import type { SortKey } from "@/lib/catalog-types";
 import { useQueryNav } from "./useQueryNav";
 
-const options = [
-  { v: "relevance", l: "Relevance" },
+const options: { v: SortKey; l: string }[] = [
+  { v: "featured", l: "Featured" },
+  { v: "rating", l: "Top rated" },
   { v: "price-asc", l: "Price: low to high" },
   { v: "price-desc", l: "Price: high to low" },
-  { v: "discount", l: "Discount" },
-  { v: "rating", l: "Customer rating" },
 ];
 
 export function SortSelect({ basePath, params: current }: { basePath: string; params: Record<string, string> }) {
   const { params, update } = useQueryNav(basePath, current);
   return (
     <label className="flex items-center gap-2 text-sm">
-      <span className="hidden text-muted sm:inline">Sort by</span>
+      <span className="text-muted">Sort</span>
       <select
-        value={params.sort ?? "relevance"}
-        onChange={(e) => update({ sort: e.target.value === "relevance" ? null : e.target.value })}
-        className="h-9 rounded-lg border border-line bg-white px-2 text-sm font-medium outline-none focus:border-brand-500"
+        value={params.sort ?? "featured"}
+        onChange={(e) => update({ sort: e.target.value === "featured" ? null : e.target.value })}
+        className="h-10 rounded-full border border-line bg-white px-4 text-sm font-medium outline-none focus:border-brand-500"
       >
         {options.map((o) => (
           <option key={o.v} value={o.v}>

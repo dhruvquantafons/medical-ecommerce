@@ -1,15 +1,17 @@
 # Syncytium Health
 
-Online pharmacy storefront, similar to PharmEasy, Netmeds and Truemeds, with customer accounts, checkout (Razorpay or cash on delivery), prescription uploads and an admin panel.
+Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a small range of about 5–10 products), with customer accounts, checkout (Razorpay or cash on delivery) and an admin panel. The design follows a premium editorial look: floating dark nav, serif display type, forest green, sage and lime.
 
-The product catalogue is **demo data** (`src/db/seed/`). Payments run in **Razorpay test mode**.
+- **Demo content:** the 8 products and 4 collections are placeholders (`src/db/seed/`). Replace them from the admin panel.
+- **Images:** each product can have up to 8 photos, uploaded in the admin panel. Products without photos, and the hero images, show drawn placeholders (see [Images](#images)).
+- **Payments:** run in **Razorpay test mode**.
 
 ## Stack
 
 | Area | Choice |
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript |
-| Styling | Tailwind CSS 4 (theme tokens in `src/app/globals.css`) |
+| Styling | Tailwind CSS 4. Design tokens (colours, fonts) live in `src/app/globals.css`. Fonts: Instrument Serif (headings, `display` class) and Instrument Sans (text) via `next/font` |
 | Database | Postgres (Neon) via **Drizzle ORM**; migrations in `drizzle/` |
 | Auth | **Better Auth**: email + password, admin plugin (roles, bans) |
 | Payments | Razorpay (Checkout.js + server-side order creation and signature verification) |
@@ -26,7 +28,7 @@ Requirements: **Node 20.9+** and a Postgres database (a free [Neon](https://neon
 npm install
 cp .env.example .env.local   # then fill in the values (see below)
 npm run db:migrate           # create the tables
-npm run db:seed              # load demo categories and products
+npm run db:seed              # load the demo collections and products
 npm run dev                  # http://localhost:3000
 ```
 
@@ -57,7 +59,7 @@ Secrets are never committed: `.env.local` is git-ignored, and only `.env.example
 | `npm run lint` | ESLint |
 | `npm run db:generate` | Create a SQL migration from changes in `src/db/schema.ts` |
 | `npm run db:migrate` | Apply pending migrations to `DATABASE_URL` |
-| `npm run db:seed` | Insert or refresh the demo catalogue. **Resets demo products' stock and prices** to seed values. |
+| `npm run db:seed` | Insert or refresh the demo catalogue. **Resets the demo products' prices and stock** to seed values. Also removes the old pharmacy demo data (deactivating anything that's in past orders). Never touches products or collections created in the admin panel. |
 | `npm run db:studio` | Browse the database in Drizzle Studio |
 | `npm run auth:generate` | Regenerate `src/db/auth-schema.ts` after changing Better Auth plugins |
 | `npm run make-admin -- <email>` | Give an existing user the admin role |
@@ -68,10 +70,11 @@ Secrets are never committed: `.env.local` is git-ignored, and only `.env.example
 src/
   app/
     (store)/             Customer-facing pages (share the header/footer layout)
-      page.tsx           Home
-      category/[slug]    Category listing (filters and sort are in the URL)
-      search/            Search and "shop by health concern"
-      product/[slug]     Product detail, substitutes, related
+      page.tsx           Home: hero slider, product tabs, collections, spotlight, reviews, FAQ
+      shop/              All products (collection tabs, sort)
+      collections/[slug] One collection (the `categories` table)
+      search/            Search results
+      product/[slug]     Product detail, accordions, related
       cart/, checkout/   Cart (guest) and checkout (login required)
       order-success/[id] Order confirmation
       account/           My orders, saved addresses
@@ -83,14 +86,16 @@ src/
       auth/[...all]      Better Auth handler
       payments/          create-order, verify, webhook (Razorpay)
       prescriptions/     Upload (POST) and download (GET, owner or admin only)
+      admin/product-images  Product photo upload (POST, admin only)
+      product-images/[id]   Serves an uploaded product photo (public, cached)
       search/suggest     Header search suggestions
-  components/            UI by area: layout, product, listing, checkout, orders, admin, auth, rx, ui
+  components/            UI by area: layout, home, product, listing, checkout, orders, admin, auth, rx, ui
   db/
     schema.ts            Store tables (products, categories, orders, …)
     auth-schema.ts       Better Auth tables (generated, don't edit)
-    seed/                Demo categories and products used by db:seed
+    seed/                Demo collections and products used by db:seed
   lib/
-    catalog.ts           All catalogue queries (search, filters, substitutes, …)
+    catalog.ts           All catalogue queries (search, sort, best sellers, new arrivals, related)
     pricing.ts           Pure bill/coupon/delivery calculations (shared by browser and server)
     checkout.server.ts   Server-side cart pricing and stock checks
     orders.server.ts     Order creation, payment confirmation, order reads
@@ -98,8 +103,9 @@ src/
     auth.ts, session.ts  Better Auth config and session helpers (requireUser, requireAdmin)
   data/
     types.ts             Shared TypeScript types
-    home.ts              Banners, coupons, FAQs, concerns (still in code)
-  config/site.ts         Brand name, support contacts, delivery fee settings
+    home.ts              Hero slides, collection art, reviews, promises, FAQs, discount codes (in code)
+  config/site.ts         Brand name and wordmark, tagline, support contacts, delivery fee settings
+public/images/placeholders/  Placeholder hero and collection artwork (SVG)
 scripts/                 seed, make-admin, auth schema config
 drizzle/                 Generated SQL migrations (commit these)
 ```
@@ -115,20 +121,36 @@ drizzle/                 Generated SQL migrations (commit these)
     2. After payment, `verify` checks Razorpay's signature and calls `markOrderPaid()`, which sets `paid` and deducts stock.
     3. `markOrderPaid()` is **idempotent**. The webhook calls it too, as a backup for customers who close the tab.
   - **Hidden orders:** unpaid online orders are hidden from customers but visible to admins.
-- **Prescriptions:**
-  - **Upload:** validated by their real file signature (JPG, PNG, WEBP or PDF, up to 2 MB) and stored in Postgres (`bytea`).
-  - **Download:** only the owner or an admin can open them, through `/api/prescriptions/[id]`.
-  - **Checkout:** carts with Rx items require one.
+- **Product photos** (`product_images` table, up to 8 per product, in display order; the first is the main photo):
+  - In the admin product form, **Photos** accepts JPG, PNG or WEBP files (pick or drag-and-drop) and https:// image URLs. Drag a photo, or use its arrows or **Main** button, to reorder. Changes apply when you click **Save**.
+  - Photos over 1 MB are downscaled in the browser (longest edge 2000 px) before upload. Each upload is one request of at most 3 MB, which keeps it under Vercel's 4.5 MB request limit. The server checks the real file signature.
+  - An upload is stored in Postgres (`bytea`) with no product (staged) and is attached when the product is saved. Staged photos that are never saved are deleted after a day. Removing a photo and saving deletes it.
+  - Photos are served by `/api/product-images/[id]` with a one-year immutable cache header. A replaced photo gets a new id, so caches never show stale images.
+  - The product page shows a gallery (thumbnails, arrows, swipe). Product cards fade to the second photo on hover.
+- **Collections:** the store only shows collections that have at least one visible product, so a new collection appears once you add a product to it.
+- **Badges:** "Sale" appears when MRP is higher than the price. "Best seller" marks the top 3 products by review count.
+- **Discount codes:** stored in `src/data/home.ts` (`coupons`) and entered at the cart's "Have a discount code?". They aren't advertised on the site.
+- **Prescriptions (dormant):** kept from the original pharmacy build in case prescription products are ever added (tick "Prescription required" on a product).
+  - With no Rx products, the checkout Rx step never appears, and the admin "Prescriptions" page shows only when something is pending.
+  - Uploads are validated by their real file signature (JPG, PNG, WEBP or PDF, up to 2 MB) and stored in Postgres (`bytea`).
+  - Files are served only to their owner or an admin, through `/api/prescriptions/[id]`.
 - **Admin rules** (enforced on the server in `app/admin/actions.ts`):
   - Rx orders can't be packed, shipped or delivered until the prescription is approved. Rejecting a prescription cancels the order.
   - Cancelling returns stock. Delivered and cancelled orders are final. Paid orders must be refunded manually in the Razorpay dashboard.
   - Deleting a product that appears in past orders **deactivates** it (hidden from the store) instead of deleting it.
-  - A category that still has products can't be deleted.
+  - A collection that still has products can't be deleted.
   - Admins can't ban themselves or other admins. Banning signs the customer out everywhere.
 - **Security:**
   - Every admin page is checked by `requireAdmin()` in `app/admin/layout.tsx`, and every admin action re-checks the role, because server actions are public HTTP endpoints. Non-admins get a 404.
   - Customer data is always filtered by the signed-in user's id.
 - **Rendering:** pages are rendered on each request (`dynamic = "force-dynamic"` in the root layout), so price, stock and admin changes show immediately.
+
+## Images
+
+All imagery is placeholder until real photography is ready:
+
+- **Product images:** add photos in the admin product form under **Photos** (see [How it works](#how-it-works)). Square photos on a plain light background look best. A product with no photos shows a drawn placeholder from `src/components/product/ProductImage.tsx`: a branded jar, canister, dropper bottle, pouch or tube, based on its "Pack type".
+- **Hero slides and collection cards:** SVG files in `public/images/placeholders/`, referenced from `src/data/home.ts` (`heroSlides[].image` and `collectionImages`). To replace them, put your photos in `public/images/` (e.g. `hero-gut.jpg`, ideally 2400×1350 for heroes and 1200×1500 for collections) and update the paths. They're rendered with `next/image`, so JPG/WebP photos are optimised automatically.
 
 ## Changing the database
 
@@ -163,8 +185,8 @@ For Better Auth tables, change the plugins in both `src/lib/auth.ts` and `script
 ## Known limitations and next steps
 
 - **No email provider yet.** Password-reset links are printed to the server log (`[auth] Password reset link …`). Add one (e.g. Resend) in `sendResetPassword` in `src/lib/auth.ts`, and consider enabling email verification.
-- **Coupons, banners and FAQs** are still in `src/data/home.ts` (no admin UI).
-- **Product images:** set as an image URL in the admin panel, with a drawn placeholder by default. Direct image upload would need object storage (e.g. S3, Vercel Blob or Supabase Storage).
+- **Home page content** (hero slides, reviews, promises, FAQs) and **discount codes** are in `src/data/home.ts` (no admin UI). **The reviews are samples:** replace them with real customer reviews before launch.
+- **Product photos** live in Postgres, which is fine for a small catalogue because responses are cached. With many products or very large photos, move them to object storage (e.g. S3, Vercel Blob or Supabase Storage); only `/api/admin/product-images` and `/api/product-images/[id]` would change.
 - **Prescription files** live in Postgres. Move them to object storage if volume grows.
 - **Rate limiting:** Better Auth's default limiter (about 3 sign-in attempts per 10 seconds per IP) keeps its counters in memory. On multi-instance or serverless hosting, configure database or Redis storage for it.
 - **No caching:** pages render per request. If traffic grows, add caching for catalogue reads and revalidate on admin changes.

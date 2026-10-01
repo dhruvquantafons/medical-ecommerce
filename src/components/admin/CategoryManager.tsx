@@ -39,7 +39,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
   return (
     <>
       <div className="mb-4 flex justify-end">
-        <Button onClick={() => open(blank((categories.at(-1)?.sortOrder ?? -1) + 1))}>+ New category</Button>
+        <Button onClick={() => open(blank((categories.at(-1)?.sortOrder ?? -1) + 1))}>+ New collection</Button>
       </div>
       <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {categories.map((c) => (
@@ -53,7 +53,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
                 <Link href={`/admin/products?category=${c.id}`} className="hover:text-brand-700 hover:underline">
                   {c.productCount} product{c.productCount === 1 ? "" : "s"}
                 </Link>{" "}
-                · /category/{c.slug}
+                · /collections/{c.slug}
               </p>
             </div>
             <button aria-label={`Edit ${c.name}`} onClick={() => open({ ...c })} className="rounded p-1.5 text-muted hover:bg-gray-100 hover:text-ink">
@@ -63,7 +63,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
               aria-label={`Delete ${c.name}`}
               disabled={pending || c.productCount > 0}
               title={c.productCount > 0 ? "Move or delete its products first" : undefined}
-              onClick={() => confirm(`Delete the "${c.name}" category?`) && run(() => deleteCategory(c.id))}
+              onClick={() => confirm(`Delete the "${c.name}" collection?`) && run(() => deleteCategory(c.id))}
               className="rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
             >
               <Trash2 className="size-4" />
@@ -75,7 +75,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
       <Modal
         open={!!draft}
         onClose={() => setDraft(null)}
-        title={draft?.id ? "Edit category" : "New category"}
+        title={draft?.id ? "Edit collection" : "New collection"}
         footer={
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setDraft(null)}>Cancel</Button>
@@ -89,7 +89,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
               <span className="grid size-12 place-items-center rounded-2xl" style={{ background: `${draft.color}18`, color: draft.color }}>
                 <Icon name={draft.icon} className="size-6" />
               </span>
-              <span className="text-sm font-semibold">{draft.name || "Category name"}</span>
+              <span className="text-sm font-semibold">{draft.name || "Collection name"}</span>
             </div>
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-gray-600">Name</span>
@@ -111,7 +111,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
                 }}
                 className={clsx(inputClass, "w-full", errors.slug && "border-red-400")}
               />
-              <span className={clsx("text-xs", errors.slug ? "text-red-600" : "text-muted")}>{errors.slug || `/category/${draft.slug || "…"}`}</span>
+              <span className={clsx("text-xs", errors.slug ? "text-red-600" : "text-muted")}>{errors.slug || `/collections/${draft.slug || "…"}`}</span>
             </label>
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-gray-600">Description</span>

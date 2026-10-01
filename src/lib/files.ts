@@ -10,3 +10,10 @@ export function sniffType(buf: Uint8Array): (typeof PRESCRIPTION_TYPES)[number] 
   if (starts(0x52, 0x49, 0x46, 0x46) && buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50) return "image/webp";
   return null;
 }
+
+// Product photos: each upload is one request, kept well under Vercel's 4.5 MB request body limit.
+export const PRODUCT_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
+export const PRODUCT_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const MAX_PRODUCT_IMAGES = 8;
+/** Public URL of an uploaded product photo. */
+export const productImagePath = (id: string) => `/api/product-images/${id}`;

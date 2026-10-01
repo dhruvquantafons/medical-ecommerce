@@ -16,6 +16,8 @@ export interface Product {
   brand: string;
   manufacturer: string;
   categorySlug: string;
+  /** Collection display name (filled in by the catalogue queries). */
+  categoryName?: string;
   form: ProductForm;
   packSize: string;
   mrp: number;
@@ -34,7 +36,8 @@ export interface Product {
   inStock: boolean;
   stock: number;
   tags: string[];
-  imageUrl?: string | null;
+  /** Photo URLs in display order (the first is the main image). Empty = drawn placeholder. */
+  images: string[];
 }
 
 export interface Category {
@@ -45,14 +48,16 @@ export interface Category {
   description: string;
 }
 
-export interface Banner {
+export interface HeroSlide {
   id: string;
+  eyebrow: string;
+  /** Headline; the part in `emphasis` is set in italic. */
   title: string;
-  subtitle: string;
+  emphasis: string;
   cta: string;
   href: string;
-  from: string;
-  to: string;
+  /** Image path under /public. Replace placeholders with real photography. */
+  image: string;
 }
 
 export interface Coupon {
@@ -62,13 +67,6 @@ export interface Coupon {
   value: number;
   minOrder: number;
   maxDiscount?: number;
-}
-
-export interface HealthConcern {
-  slug: string;
-  name: string;
-  icon: string;
-  tag: string;
 }
 
 export interface CartItem {

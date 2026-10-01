@@ -1,71 +1,79 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import clsx from "clsx";
 import type { Product } from "@/data/types";
 import { formatPrice } from "@/lib/format";
 import { ProductImage } from "./ProductImage";
-import { Rating, RxBadge } from "./Badges";
 import { AddToCart } from "./AddToCart";
 import { RailScroller } from "./RailScroller";
 
-export function ProductCard({ product }: { product: Product }) {
+export function SaleBadge({ className }: { className?: string }) {
+  return <span className={clsx("rounded-full bg-sale px-2.5 py-1 text-xs font-semibold text-white", className)}>Sale</span>;
+}
+
+export function ProductCard({ product, bestseller }: { product: Product; bestseller?: boolean }) {
   const href = `/product/${product.slug}`;
+  const sale = product.discountPct > 0;
   return (
-    <div className="card group relative flex h-full flex-col p-3 transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-900/5">
+    <div className="group relative flex h-full flex-col rounded-2xl bg-tile p-3 transition duration-300 hover:shadow-lg hover:shadow-brand-900/5">
       <Link href={href} className="relative block" tabIndex={-1} aria-hidden>
-        <ProductImage product={product} className={clsx("transition duration-300 group-hover:scale-[1.02]", !product.inStock && "opacity-50 grayscale")} />
-        {product.rxRequired && <RxBadge className="absolute top-2 left-2" />}
+        <ProductImage product={product} hoverSwap className={clsx("transition duration-500 group-hover:scale-[1.03]", !product.inStock && "opacity-50 grayscale")} />
+        <span className="absolute top-2 left-2 flex gap-1.5">
+          {sale && <SaleBadge />}
+          {!sale && bestseller && <span className="rounded-full bg-sage px-2.5 py-1 text-xs font-semibold text-white">Best seller</span>}
+        </span>
         {!product.inStock && (
-          <span className="absolute inset-x-2 bottom-2 rounded-md bg-white/90 py-1 text-center text-[11px] font-semibold text-muted">Currently unavailable</span>
+          <span className="absolute inset-x-3 bottom-3 rounded-full bg-white/90 py-1 text-center text-xs font-semibold text-muted">Out of stock</span>
         )}
       </Link>
-      <Link href={href} className="mt-3 flex-1">
-        <h3 className="line-clamp-2 min-h-10 text-sm leading-5 font-semibold text-ink group-hover:text-brand-700">{product.name}</h3>
-        <p className="mt-0.5 line-clamp-1 text-xs text-muted">{product.packSize}</p>
-        <div className="mt-2 h-5">
-          {product.ratingCount > 0 && <Rating rating={product.rating} count={product.ratingCount} />}
-        </div>
-      </Link>
-      <div className="mt-3 border-t border-dashed border-line pt-3">
-        <p className="flex flex-wrap items-baseline gap-x-1.5 leading-tight">
-          <span className="text-base font-bold text-ink">{formatPrice(product.price)}</span>
-          {product.discountPct > 0 && <span className="text-[11px] text-muted line-through">{formatPrice(product.mrp)}</span>}
-        </p>
-        <p className="mt-0.5 h-4 text-[11px] font-bold text-save">{product.discountPct > 0 && `${product.discountPct}% off`}</p>
-        <AddToCart productId={product.id} inStock={product.inStock} block className="mt-2" />
+      <div className="mt-auto flex items-end justify-between gap-3 px-2 pt-4 pb-1">
+        <Link href={href} className="min-w-0">
+          {product.categoryName && <p className="text-xs text-muted">{product.categoryName}</p>}
+          <h3 className="mt-0.5 line-clamp-2 text-sm font-medium text-ink group-hover:underline md:text-[15px]">{product.name}</h3>
+          <p className="mt-1 text-sm">
+            <span className="font-semibold">{formatPrice(product.price)}</span>
+            {sale && <span className="ml-1.5 text-muted line-through">{formatPrice(product.mrp)}</span>}
+          </p>
+        </Link>
+        <AddToCart productId={product.id} productName={product.name} inStock={product.inStock} variant="icon" />
       </div>
     </div>
   );
 }
 
-export function ProductGrid({ products }: { products: Product[] }) {
+export function ProductGrid({ products, bestsellerIds = [] }: { products: Product[]; bestsellerIds?: string[] }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
       {products.map((p) => (
-        <ProductCard key={p.id} product={p} />
+        <ProductCard key={p.id} product={p} bestseller={bestsellerIds.includes(p.id)} />
       ))}
     </div>
   );
 }
 
-export function ProductRail({ title, subtitle, products, href }: { title: string; subtitle?: string; products: Product[]; href?: string }) {
+/** Horizontal product carousel with a serif heading and an optional right-hand slot (tabs, links). */
+export function ProductRail({
+  title,
+  products,
+  bestsellerIds = [],
+  aside,
+}: {
+  title: string;
+  products: Product[];
+  bestsellerIds?: string[];
+  aside?: ReactNode;
+}) {
   if (!products.length) return null;
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-3 flex items-end justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-bold tracking-tight md:text-xl">{title}</h2>
-          {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
-        </div>
-        {href && (
-          <Link href={href} className="shrink-0 rounded-full px-3 py-1 text-sm font-semibold text-brand-700 ring-1 ring-brand-200 hover:bg-brand-50">
-            View all
-          </Link>
-        )}
+    <section className="mx-auto max-w-7xl px-4 md:px-10 py-10 md:py-14">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <h2 className="display text-4xl md:text-5xl">{title}</h2>
+        {aside}
       </div>
       <RailScroller label={title}>
         {products.map((p) => (
-          <div key={p.id} className="w-[46%] shrink-0 snap-start sm:w-[30%] md:w-[23%] lg:w-[18.5%]">
-            <ProductCard product={p} />
+          <div key={p.id} className="w-[72%] shrink-0 snap-start sm:w-[42%] md:w-[31%] lg:w-[23.5%]">
+            <ProductCard product={p} bestseller={bestsellerIds.includes(p.id)} />
           </div>
         ))}
       </RailScroller>

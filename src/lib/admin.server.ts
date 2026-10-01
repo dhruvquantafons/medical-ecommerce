@@ -1,9 +1,10 @@
 import "server-only";
 import { and, asc, count, desc, eq, ilike, inArray, lte, ne, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { categories, orderItems, orderPrescriptions, orders, prescriptions, products, user } from "@/db/schema";
+import { categories, orderItems, orderPrescriptions, orders, prescriptions, productImages, products, user } from "@/db/schema";
 import type { OrderStatus, PaymentStatus } from "@/data/types";
-import { toProduct } from "./catalog";
+import { productImageUrls, toProduct } from "./catalog";
+import { productImagePath } from "./files";
 import { getOrderDetail } from "./orders.server";
 
 export const PAGE_SIZE = 20;
@@ -23,7 +24,7 @@ const todayIst = sql`(now() at time zone 'Asia/Kolkata')::date`;
 
 export async function getDashboard() {
   const revenue = sql<number>`coalesce(sum(${orders.totalPaise}), 0)::int`;
-  const [[today], [last30], [pendingRx], [customers], [lowStockCount], lowStock, daily, recent] = await Promise.all([
+  const [[today], [last30], [pendingRx], [toFulfil], [customers], [lowStockCount], lowStock, daily, recent] = await Promise.all([
     db
       .select({ revenue, orders: count() })
       .from(orders)
@@ -33,6 +34,7 @@ export async function getDashboard() {
       .from(orders)
       .where(and(realOrder, notCancelled, sql`${istDate(orders.createdAt)} > ${todayIst} - 30`)),
     db.select({ n: count() }).from(orders).where(and(realOrder, notCancelled, eq(orders.rxStatus, "pending"))),
+    db.select({ n: count() }).from(orders).where(and(realOrder, inArray(orders.status, ["placed", "confirmed", "packed"]))),
     db.select({ n: count() }).from(user).where(or(sql`${user.role} is null`, ne(user.role, "admin"))),
     db.select({ n: count() }).from(products).where(and(eq(products.active, true), lte(products.stock, LOW_STOCK))),
     db
@@ -59,6 +61,7 @@ export async function getDashboard() {
     today: { revenue: rupees(today.revenue), orders: today.orders },
     last30: { revenue: rupees(last30.revenue), orders: last30.orders },
     pendingRx: pendingRx.n,
+    toFulfil: toFulfil.n,
     customers: customers.n,
     lowStockCount: lowStockCount.n,
     lowStock,
@@ -170,7 +173,7 @@ export async function listAdminProducts(f: ProductListFilters) {
 
   const [rows, [{ total }]] = await Promise.all([
     db
-      .select({ product: products, categoryName: categories.name, categorySlug: categories.slug })
+      .select({ product: products, categoryName: categories.name, categorySlug: categories.slug, images: productImageUrls })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .where(cond)
@@ -180,7 +183,7 @@ export async function listAdminProducts(f: ProductListFilters) {
     db.select({ total: count() }).from(products).where(cond),
   ]);
   return {
-    rows: rows.map((r) => ({ ...toProduct({ ...r.product, categorySlug: r.categorySlug }), active: r.product.active, categoryName: r.categoryName })),
+    rows: rows.map((r) => ({ ...toProduct({ ...r.product, categorySlug: r.categorySlug, images: r.images }), active: r.product.active, categoryName: r.categoryName })),
     total,
     pages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
   };
@@ -188,7 +191,13 @@ export async function listAdminProducts(f: ProductListFilters) {
 
 export async function getAdminProduct(id: string) {
   const [row] = await db.select().from(products).where(eq(products.id, id)).limit(1);
-  return row ?? null;
+  if (!row) return null;
+  const images = await db
+    .select({ id: productImages.id, url: productImages.url })
+    .from(productImages)
+    .where(eq(productImages.productId, id))
+    .orderBy(asc(productImages.sortOrder), asc(productImages.createdAt));
+  return { ...row, images: images.map((i) => ({ id: i.id, src: i.url ?? productImagePath(i.id), external: !!i.url })) };
 }
 
 export async function listAdminCategories() {

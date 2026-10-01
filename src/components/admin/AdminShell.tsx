@@ -13,7 +13,7 @@ const nav = [
   { href: "/admin/orders", label: "Orders", icon: ReceiptText },
   { href: "/admin/prescriptions", label: "Prescriptions", icon: ClipboardCheck, badge: "rx" as const },
   { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/categories", label: "Categories", icon: LayoutGrid },
+  { href: "/admin/categories", label: "Collections", icon: LayoutGrid },
   { href: "/admin/customers", label: "Customers", icon: Users },
 ];
 
@@ -34,7 +34,8 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
         </button>
       </div>
       <nav className="flex-1 space-y-1 px-3">
-        {nav.map(({ href, label, icon: I, exact, badge }) => {
+        {/* Prescriptions are dormant for the supplement range: only show the queue when something is waiting. */}
+        {nav.filter((n) => n.badge !== "rx" || pendingRx > 0 || path.startsWith(n.href)).map(({ href, label, icon: I, exact, badge }) => {
           const active = exact ? path === href : path.startsWith(href);
           return (
             <Link
@@ -50,7 +51,7 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
               <I className="size-4.5" />
               <span className="flex-1">{label}</span>
               {badge === "rx" && pendingRx > 0 && (
-                <span className="rounded-full bg-accent-500 px-2 py-0.5 text-[11px] font-bold text-white">{pendingRx}</span>
+                <span className="rounded-full bg-lime px-2 py-0.5 text-[11px] font-bold text-brand-800">{pendingRx}</span>
               )}
             </Link>
           );

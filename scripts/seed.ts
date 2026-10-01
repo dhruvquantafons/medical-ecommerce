@@ -1,13 +1,46 @@
-// Fills the database with the demo categories and products from src/db/seed/.
+// Fills the database with the demo collections and products from src/db/seed/.
 // Safe to run repeatedly: existing rows (matched by slug / id) are updated, not duplicated.
+// Products and collections created in the admin panel are never touched.
 import "./env";
-import { sql } from "drizzle-orm";
+import { count, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../src/db";
-import { categories, products } from "../src/db/schema";
+import { categories, orderItems, products } from "../src/db/schema";
 import { categories as seedCategories } from "../src/db/seed/categories";
 import { products as seedProducts } from "../src/db/seed/products";
 
 const paise = (rupees: number) => Math.round(rupees * 100);
+
+// The original pharmacy demo catalogue (before the switch to own-brand supplements).
+const LEGACY_PRODUCT_ID = /^p\d{3}$/;
+const LEGACY_CATEGORY_SLUGS = [
+  "medicines", "healthcare-devices", "vitamins-supplements", "diabetes-care", "personal-care",
+  "skin-care", "ayurveda", "baby-mom-care", "covid-essentials", "sexual-wellness",
+];
+
+/** Removes the legacy demo data. Products that appear in past orders are deactivated instead of deleted. */
+async function retireLegacyDemo() {
+  const legacy = (await db.select({ id: products.id }).from(products)).map((p) => p.id).filter((id) => LEGACY_PRODUCT_ID.test(id));
+  if (legacy.length) {
+    const ordered = new Set(
+      (await db.selectDistinct({ id: orderItems.productId }).from(orderItems).where(inArray(orderItems.productId, legacy))).map((r) => r.id),
+    );
+    const removable = legacy.filter((id) => !ordered.has(id));
+    if (removable.length) await db.delete(products).where(inArray(products.id, removable));
+    if (ordered.size) await db.update(products).set({ active: false }).where(inArray(products.id, [...ordered]));
+    console.log(`Legacy demo products: ${removable.length} deleted, ${ordered.size} deactivated (kept for order history).`);
+  }
+  const emptyLegacy = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .leftJoin(products, eq(products.categoryId, categories.id))
+    .where(inArray(categories.slug, LEGACY_CATEGORY_SLUGS))
+    .groupBy(categories.id)
+    .having(eq(count(products.id), 0));
+  if (emptyLegacy.length) {
+    await db.delete(categories).where(inArray(categories.id, emptyLegacy.map((c) => c.id)));
+    console.log(`Legacy demo categories deleted: ${emptyLegacy.length}.`);
+  }
+}
 
 async function main() {
   const catRows = await db
@@ -74,7 +107,8 @@ async function main() {
       ),
     });
 
-  console.log(`Seeded ${catRows.length} categories and ${values.length} products.`);
+  await retireLegacyDemo();
+  console.log(`Seeded ${catRows.length} collections and ${values.length} products.`);
 }
 
 main()

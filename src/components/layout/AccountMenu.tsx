@@ -35,9 +35,8 @@ export function AccountMenu({ user }: { user: MenuUser | null }) {
   if (!user) {
     const next = path === "/login" || path === "/signup" ? "/" : path;
     return (
-      <Link href={`/login?next=${encodeURIComponent(next)}`} className="flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-gray-100">
+      <Link href={`/login?next=${encodeURIComponent(next)}`} aria-label="Login" className="grid size-10 place-items-center rounded-full text-white hover:bg-white/10">
         <User className="size-5" />
-        <span className="hidden md:inline">Login</span>
       </Link>
     );
   }
@@ -49,14 +48,14 @@ export function AccountMenu({ user }: { user: MenuUser | null }) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-gray-100"
+        aria-label={`Account menu for ${firstName}`}
+        className="flex items-center gap-1 rounded-full p-1.5 text-white hover:bg-white/10"
       >
-        <span className="grid size-7 place-items-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">{firstName[0]?.toUpperCase()}</span>
-        <span className="hidden max-w-24 truncate md:inline">{firstName}</span>
+        <span className="grid size-7 place-items-center rounded-full bg-lime text-xs font-bold text-brand-800">{firstName[0]?.toUpperCase()}</span>
         <ChevronDown className="hidden size-4 md:block" />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 z-40 mt-2 w-60 rounded-xl border border-line bg-white p-2 shadow-lg" onClick={() => setOpen(false)}>
+        <div role="menu" className="absolute right-0 z-50 mt-3 w-64 rounded-2xl border border-line bg-white p-2 text-ink shadow-xl" onClick={() => setOpen(false)}>
           <div className="border-b border-line px-3 pt-1 pb-2">
             <p className="truncate text-sm font-bold">{user.name}</p>
             <p className="truncate text-xs text-muted">{user.email}</p>

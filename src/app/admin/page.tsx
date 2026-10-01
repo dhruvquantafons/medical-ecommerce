@@ -18,13 +18,17 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Sales today" value={formatPrice(d.today.revenue)} hint={plural(d.today.orders, "order")} />
         <StatCard label="Sales, last 30 days" value={formatPrice(d.last30.revenue)} hint={plural(d.last30.orders, "order")} />
-        <StatCard
-          label="Prescriptions to review"
-          value={String(d.pendingRx)}
-          hint={d.pendingRx ? "Waiting for a pharmacist" : "All caught up"}
-          tone={d.pendingRx ? "warn" : "default"}
-          href="/admin/prescriptions"
-        />
+        {d.pendingRx > 0 ? (
+          <StatCard label="Prescriptions to review" value={String(d.pendingRx)} hint="Waiting for a pharmacist" tone="warn" href="/admin/prescriptions" />
+        ) : (
+          <StatCard
+            label="Orders to fulfil"
+            value={String(d.toFulfil)}
+            hint={d.toFulfil ? "Placed, confirmed or packed" : "All shipped"}
+            tone={d.toFulfil ? "warn" : "default"}
+            href="/admin/orders?status=placed"
+          />
+        )}
         <StatCard
           label="Low-stock products"
           value={String(d.lowStockCount)}

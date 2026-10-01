@@ -31,8 +31,8 @@ export function ToastViewport() {
   if (!message) return null;
   const Icon = tone === "error" ? CircleAlert : CircleCheck;
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-[60] flex justify-center px-4 md:bottom-6" role={tone === "error" ? "alert" : "status"}>
-      <div key={key} className={clsx("flex max-w-lg items-start gap-2 rounded-lg px-4 py-3 text-sm text-white shadow-lg", tone === "error" ? "bg-red-700" : "bg-gray-900")}>
+    <div className="pointer-events-none fixed inset-x-0 bottom-6 z-[60] flex justify-center px-4" role={tone === "error" ? "alert" : "status"}>
+      <div key={key} className={clsx("flex max-w-lg items-start gap-2 rounded-full px-5 py-3 text-sm text-white shadow-lg", tone === "error" ? "bg-red-700" : "bg-ink")}>
         <Icon className={clsx("mt-0.5 size-4 shrink-0", tone === "error" ? "text-red-100" : "text-brand-200")} />
         {message}
       </div>

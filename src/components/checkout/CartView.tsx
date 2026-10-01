@@ -1,14 +1,13 @@
 "use client";
 
-import { ShoppingCart, Tag, Trash2 } from "lucide-react";
+import { ShoppingBag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { coupons } from "@/data/home";
-import { useCart } from "@/store/cart";
 import type { Product } from "@/data/types";
-import { ProductRail } from "@/components/product/ProductCard";
+import { useCart } from "@/store/cart";
 import { useHydrated } from "@/lib/useHydrated";
 import { formatPrice } from "@/lib/format";
+import { ProductRail } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { QuantityStepper } from "@/components/product/AddToCart";
 import { RxBadge } from "@/components/product/Badges";
@@ -18,11 +17,11 @@ import { useCartBill } from "./useCartBill";
 
 export function PageSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl animate-pulse px-4 py-6">
-      <div className="h-7 w-40 rounded bg-gray-200" />
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
-        <div className="h-72 rounded-xl bg-gray-200" />
-        <div className="h-56 rounded-xl bg-gray-200" />
+    <div className="mx-auto max-w-7xl animate-pulse px-4 py-10">
+      <div className="h-12 w-56 rounded-full bg-tile" />
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
+        <div className="h-72 rounded-2xl bg-tile" />
+        <div className="h-56 rounded-2xl bg-tile" />
       </div>
     </div>
   );
@@ -30,70 +29,66 @@ export function PageSkeleton() {
 
 export function EmptyCart() {
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center gap-3 px-4 py-20 text-center">
-      <span className="grid size-20 place-items-center rounded-full bg-brand-50">
-        <ShoppingCart className="size-10 text-brand-600" />
+    <div className="mx-auto flex max-w-md flex-col items-center gap-3 px-4 py-24 text-center">
+      <span className="grid size-20 place-items-center rounded-full bg-tile">
+        <ShoppingBag className="size-9 text-brand-800" />
       </span>
-      <h1 className="text-xl font-bold">Your cart is empty</h1>
-      <p className="text-sm text-muted">Search for medicines or browse categories to add items.</p>
-      <ButtonLink href="/" className="mt-2">Start shopping</ButtonLink>
+      <h1 className="display mt-2 text-5xl">Your cart is empty</h1>
+      <p className="text-[15px] text-muted">Find the right supplement for your daily ritual.</p>
+      <ButtonLink href="/shop" size="lg" className="mt-3">Shop all products</ButtonLink>
     </div>
   );
 }
 
-function CouponBox() {
+/** Collapsed "Have a discount code?" field. Codes aren't advertised on the site. */
+function DiscountCode() {
   const couponCode = useCart((s) => s.couponCode);
   const applyCoupon = useCart((s) => s.applyCoupon);
   const { bill } = useCartBill();
+  const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
 
-  return (
-    <div className="card p-5">
-      <h2 className="mb-3 flex items-center gap-2 font-bold">
-        <Tag className="size-4 text-accent-500" /> Apply coupon
-      </h2>
-      {couponCode ? (
-        <div className="flex items-center justify-between rounded-lg border border-dashed border-accent-500 bg-orange-50 px-3 py-2">
-          <div>
-            <p className="text-sm font-bold text-accent-600">{couponCode}</p>
-            {bill.couponError ? (
-              <p className="text-xs text-red-600">{bill.couponError}</p>
-            ) : (
-              <p className="text-xs text-save">You saved {formatPrice(bill.couponDiscount)}</p>
-            )}
-          </div>
-          <button onClick={() => applyCoupon(undefined)} className="text-xs font-semibold text-red-600 hover:underline">Remove</button>
+  if (couponCode) {
+    return (
+      <div className="flex items-center justify-between rounded-2xl bg-tile px-4 py-3 text-sm">
+        <div>
+          <p className="font-semibold">Code {couponCode}</p>
+          {bill.couponError ? <p className="text-xs text-sale">{bill.couponError}</p> : <p className="text-xs text-save">You saved {formatPrice(bill.couponDiscount)}</p>}
         </div>
-      ) : (
-        <>
-          <form
-            className="flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (code.trim()) applyCoupon(code);
-              setCode("");
-            }}
-          >
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="Enter coupon code"
-              aria-label="Coupon code"
-              className="h-10 min-w-0 flex-1 rounded-lg border border-line px-3 text-sm uppercase outline-none focus:border-brand-500"
-            />
-            <Button type="submit" variant="outline" disabled={!code.trim()}>Apply</Button>
-          </form>
-          <ul className="mt-3 space-y-2">
-            {coupons.map((c) => (
-              <li key={c.code} className="flex items-center justify-between gap-2 text-xs">
-                <span><span className="font-bold text-accent-600">{c.code}</span> · <span className="text-muted">{c.description}</span></span>
-                <button onClick={() => applyCoupon(c.code)} className="shrink-0 font-semibold text-brand-700 hover:underline">Apply</button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+        <button onClick={() => applyCoupon(undefined)} className="text-xs font-semibold underline underline-offset-4 hover:text-sale">
+          Remove
+        </button>
+      </div>
+    );
+  }
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="text-sm font-medium underline underline-offset-4 hover:text-brand-700">
+        Have a discount code?
+      </button>
+    );
+  }
+  return (
+    <form
+      className="flex gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (code.trim()) applyCoupon(code);
+        setCode("");
+      }}
+    >
+      <input
+        value={code}
+        onChange={(e) => setCode(e.target.value.toUpperCase())}
+        placeholder="Discount code"
+        aria-label="Discount code"
+        autoFocus
+        className="h-11 min-w-0 flex-1 rounded-full border border-line bg-white px-4 text-sm uppercase outline-none focus:border-brand-500"
+      />
+      <Button type="submit" variant="outline" size="md" className="h-11" disabled={!code.trim()}>
+        Apply
+      </Button>
+    </form>
   );
 }
 
@@ -107,61 +102,55 @@ export function CartView({ suggestions }: { suggestions: Product[] }) {
   if (!lines.length) return <EmptyCart />;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <h1 className="text-xl font-bold md:text-2xl">Cart ({bill.itemCount} item{bill.itemCount === 1 ? "" : "s"})</h1>
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-4">
-          <ul className="card divide-y divide-line">
+    <>
+      <div className="mx-auto max-w-7xl px-4 md:px-10 pt-10 md:pt-14">
+        <h1 className="display text-5xl md:text-6xl">
+          Your cart <span className="text-muted">({bill.itemCount})</span>
+        </h1>
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
+          <ul className="space-y-3">
             {lines.map(({ product: p, qty }) => (
-              <li key={p.id} className="flex gap-3 p-4 sm:gap-4">
-                <Link href={`/product/${p.slug}`} className="w-20 shrink-0 sm:w-24">
-                  <ProductImage product={p} />
+              <li key={p.id} className="flex gap-4 rounded-2xl bg-tile p-3 sm:p-4">
+                <Link href={`/product/${p.slug}`} className="w-24 shrink-0 sm:w-28">
+                  <ProductImage product={p} className="!bg-white" />
                 </Link>
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex min-w-0 flex-1 flex-col">
                   <div className="flex items-start justify-between gap-2">
-                    <Link href={`/product/${p.slug}`} className="text-sm font-semibold hover:text-brand-700">{p.name}</Link>
-                    <button onClick={() => remove(p.id)} aria-label={`Remove ${p.name}`} className="rounded p-1 text-muted hover:bg-red-50 hover:text-red-600">
+                    <div className="min-w-0">
+                      {p.categoryName && <p className="text-xs text-muted">{p.categoryName}</p>}
+                      <Link href={`/product/${p.slug}`} className="font-medium hover:underline">{p.name}</Link>
+                      <p className="flex items-center gap-2 text-xs text-muted">
+                        {p.packSize} {p.rxRequired && <RxBadge />}
+                      </p>
+                    </div>
+                    <button onClick={() => remove(p.id)} aria-label={`Remove ${p.name}`} className="grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-white hover:text-sale">
                       <Trash2 className="size-4" />
                     </button>
                   </div>
-                  <p className="flex items-center gap-2 text-xs text-muted">{p.packSize} {p.rxRequired && <RxBadge />}</p>
-                  <div className="mt-auto flex flex-wrap items-end justify-between gap-2 pt-2">
-                    <div>
-                      <p className="font-bold">{formatPrice(p.price * qty)}</p>
-                      {p.discountPct > 0 && (
-                        <p className="text-xs"><span className="text-muted line-through">{formatPrice(p.mrp * qty)}</span> <span className="font-semibold text-save">{p.discountPct}% off</span></p>
-                      )}
-                    </div>
+                  <div className="mt-auto flex flex-wrap items-end justify-between gap-2 pt-3">
                     <QuantityStepper qty={qty} onChange={(n) => setQty(p.id, n)} />
+                    <p className="text-right">
+                      <span className="font-semibold">{formatPrice(p.price * qty)}</span>
+                      {p.discountPct > 0 && <span className="ml-1.5 text-sm text-muted line-through">{formatPrice(p.mrp * qty)}</span>}
+                    </p>
                   </div>
                 </div>
               </li>
             ))}
           </ul>
-        </div>
-        <div className="space-y-4 lg:sticky lg:top-32 lg:self-start">
-          <CouponBox />
-          <BillSummary bill={bill}>
-            <ButtonLink href="/checkout" size="lg" className="w-full">Proceed to checkout</ButtonLink>
-          </BillSummary>
+          <div className="space-y-4 lg:sticky lg:top-28 lg:self-start">
+            <BillSummary bill={bill}>
+              <div className="mb-4">
+                <DiscountCode />
+              </div>
+              <ButtonLink href="/checkout" size="lg" className="w-full">
+                Checkout · {formatPrice(bill.total)}
+              </ButtonLink>
+            </BillSummary>
+          </div>
         </div>
       </div>
-      {/* Mobile sticky checkout bar */}
-      <div className="fixed inset-x-0 bottom-16 z-20 flex items-center justify-between gap-3 border-t border-line bg-white px-4 py-3 lg:hidden">
-        <div>
-          <p className="font-bold">{formatPrice(bill.total)}</p>
-          {bill.savings > 0 && <p className="text-xs font-semibold text-save">Saving {formatPrice(bill.savings)}</p>}
-        </div>
-        <ButtonLink href="/checkout">Checkout</ButtonLink>
-      </div>
-      <div className="-mx-4 mt-4">
-        <ProductRail
-          title="You may also like"
-          subtitle="Top deals on everyday essentials"
-          products={suggestions.filter((p) => !lines.some((l) => l.product.id === p.id)).slice(0, 10)}
-        />
-      </div>
-      <div className="h-20 lg:hidden" />
-    </div>
+      <ProductRail title="You may also like" products={suggestions.filter((p) => !lines.some((l) => l.product.id === p.id)).slice(0, 8)} />
+    </>
   );
 }

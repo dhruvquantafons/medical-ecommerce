@@ -1,6 +1,8 @@
 export const site = {
   name: "Syncytium Health",
-  tagline: "India's trusted online pharmacy",
+  /** Wordmark shown in the header. */
+  shortName: "Syncytium",
+  tagline: "Science-backed daily supplements",
   supportPhone: "1800-000-0000",
   supportEmail: "care@syncytiumhealth.example",
   freeDeliveryAbove: 499,

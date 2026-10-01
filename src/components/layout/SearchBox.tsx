@@ -16,7 +16,9 @@ interface Suggestion {
   rxRequired: boolean;
 }
 
-export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; autoFocus?: boolean }) {
+/** Product search with live suggestions. `nav` sits on the dark header; `field` is a light input. */
+export function SearchBox({ variant = "field", autoFocus }: { variant?: "nav" | "field"; autoFocus?: boolean }) {
+  const nav = variant === "nav";
   const router = useRouter();
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -70,11 +72,12 @@ export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; auto
           submit();
         }}
         className={clsx(
-          "flex items-center gap-2 rounded-lg border border-line bg-white pl-3 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100",
-          size === "lg" ? "h-14" : "h-10",
+          "flex items-center gap-2",
+          nav
+            ? "h-10 rounded-full pr-1 pl-3 text-white transition focus-within:bg-white/10"
+            : "h-12 rounded-full border border-line bg-white pr-1.5 pl-4 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100",
         )}
       >
-        <Search className="size-5 shrink-0 text-muted" />
         <input
           value={q}
           autoFocus={autoFocus}
@@ -93,8 +96,9 @@ export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; auto
               setActive((a) => Math.max(a - 1, -1));
             } else if (e.key === "Escape") setOpen(false);
           }}
-          placeholder="Search for medicines, health products and more"
-          className="h-full min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
+          placeholder="What are you looking for?"
+          aria-label="Search products"
+          className={clsx("h-full min-w-0 flex-1 bg-transparent text-sm outline-none", nav ? "placeholder:text-white/75" : "placeholder:text-muted")}
           role="combobox"
           aria-expanded={open && results.length > 0}
           aria-controls={listId}
@@ -102,17 +106,15 @@ export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; auto
         />
         <button
           type="submit"
-          className={clsx(
-            "h-full rounded-r-lg bg-brand-600 font-semibold text-white hover:bg-brand-700",
-            size === "lg" ? "px-6" : "px-4 text-sm",
-          )}
+          aria-label="Search"
+          className={clsx("grid size-9 shrink-0 place-items-center rounded-full", nav ? "hover:bg-white/10" : "bg-ink text-white hover:bg-brand-800")}
         >
-          Search
+          <Search className="size-[18px]" />
         </button>
       </form>
 
       {open && debounced.trim() && (
-        <div className="absolute inset-x-0 top-full z-40 mt-1 overflow-hidden rounded-lg border border-line bg-white shadow-lg">
+        <div className={clsx("absolute top-full z-50 mt-2 overflow-hidden rounded-2xl border border-line bg-white text-ink shadow-xl", nav ? "right-0 w-[22rem]" : "inset-x-0")}>
           {results.length === 0 ? (
             <p className="px-4 py-3 text-sm text-muted">No matches for “{debounced}”</p>
           ) : (
@@ -140,7 +142,7 @@ export function SearchBox({ size = "md", autoFocus }: { size?: "md" | "lg"; auto
                 <button
                   type="button"
                   onClick={() => go(`/search?q=${encodeURIComponent(debounced.trim())}`)}
-                  className="w-full border-t border-line px-4 py-2.5 text-left text-sm font-semibold text-brand-700 hover:bg-brand-50"
+                  className="w-full border-t border-line px-4 py-3 text-left text-sm font-semibold text-brand-800 hover:bg-brand-50"
                 >
                   See all results for “{debounced.trim()}”
                 </button>
