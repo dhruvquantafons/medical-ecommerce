@@ -16,7 +16,7 @@ export function BillSummary({ bill, children }: { bill: Bill; children?: ReactNo
   const toFree = site.freeDeliveryAbove - bill.subtotal;
   return (
     <div className="rounded-2xl border border-line bg-white p-6">
-      <h2 className="display text-3xl">Order summary</h2>
+      <h2 className="display text-2xl">Order summary</h2>
       <div className="mt-4 space-y-2.5 text-ink/80">
         <Row label={`Subtotal · ${bill.itemCount} item${bill.itemCount === 1 ? "" : "s"}`} value={formatPrice(bill.mrpTotal)} />
         {bill.productDiscount > 0 && <Row label="Discount" value={`− ${formatPrice(bill.productDiscount)}`} className="text-save" />}

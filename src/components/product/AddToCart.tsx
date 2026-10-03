@@ -40,8 +40,8 @@ export function QuantityStepper({
 }
 
 /**
- * Add-to-cart control. `icon` is the round black cart button used on product cards;
- * `pill` is the full-width button with a quantity stepper once added (product page).
+ * Add-to-cart control. `card` is the compact button on product cards (a quantity stepper once added);
+ * `icon` is a round cart button; `pill` is the full-width button with a stepper once added (product page).
  */
 export function AddToCart({
   productId,
@@ -53,7 +53,7 @@ export function AddToCart({
   productId: string;
   productName: string;
   inStock: boolean;
-  variant?: "icon" | "pill";
+  variant?: "icon" | "pill" | "card";
   className?: string;
 }) {
   const hydrated = useHydrated();
@@ -87,6 +87,25 @@ export function AddToCart({
             {inCart}
           </span>
         )}
+      </button>
+    );
+  }
+
+  if (variant === "card") {
+    if (!inStock) return <span className={clsx("inline-flex h-10 items-center rounded-full bg-gray-100 px-4 text-xs font-semibold text-muted", className)}>Out of stock</span>;
+    if (inCart > 0) return <QuantityStepper qty={inCart} onChange={(n) => setQty(productId, n)} />;
+    return (
+      <button
+        type="button"
+        onClick={addOne}
+        aria-label={`Add ${productName} to cart`}
+        className={clsx(
+          "inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-brand-800 px-3.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-95 sm:px-4",
+          className,
+        )}
+      >
+        <ShoppingCart className="size-4" />
+        <span>Add<span className="hidden sm:inline"> to cart</span></span>
       </button>
     );
   }

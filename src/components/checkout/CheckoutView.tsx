@@ -150,7 +150,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
   let n = 1;
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-10 pt-10 pb-6 md:pt-14">
-      <h1 className="display text-5xl md:text-6xl">Checkout</h1>
+      <h1 className="display text-3xl md:text-4xl">Checkout</h1>
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
         <div className="space-y-4">
           <Step n={n++} title="Delivery address" done={!!selectedAddress && !showForm}>

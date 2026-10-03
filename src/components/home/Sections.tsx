@@ -7,6 +7,7 @@ import type { Category, Product } from "@/data/types";
 import { collectionImages, faqs, promises, reviews } from "@/data/home";
 import { site } from "@/config/site";
 import { formatPrice } from "@/lib/format";
+import { descriptionSummary } from "@/lib/description";
 import { Icon } from "@/components/ui/Icon";
 import { ButtonLink } from "@/components/ui/Button";
 import { ProductImage } from "@/components/product/ProductImage";
@@ -17,18 +18,47 @@ export function SectionHeading({ eyebrow, title, subtitle, align = "center" }: {
   return (
     <div className={clsx("mb-10 md:mb-12", align === "center" && "mx-auto max-w-2xl text-center")}>
       {eyebrow && <p className="text-xs font-medium tracking-[0.2em] text-ink/80 uppercase">{eyebrow}</p>}
-      <h2 className="display mt-3 text-4xl md:text-6xl">{title}</h2>
+      <h2 className="display mt-3 text-3xl md:text-4xl">{title}</h2>
       {subtitle && <p className={clsx("mt-4 text-[15px] leading-relaxed text-muted", align === "center" && "mx-auto max-w-md")}>{subtitle}</p>}
     </div>
   );
 }
 
-/** Tall collection cards over placeholder art, each showing one of its products. */
+function CollectionCaption({ c }: { c: Category }) {
+  return (
+    <div className="flex items-end justify-between gap-3 p-5 text-white">
+      <div className="min-w-0">
+        <p className="display text-2xl">{c.name}</p>
+        <p className="mt-1 line-clamp-1 text-sm text-white/75">{c.description}</p>
+      </div>
+      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-ink transition group-hover:bg-lime">
+        <ArrowUpRight className="size-5" />
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Collection cards. With a product photo: the square photo on top and the caption on a solid green panel.
+ * Without one: the drawn placeholder product over the collection's background art.
+ */
 export function CollectionCards({ categories, featured }: { categories: Category[]; featured: Record<string, Product | undefined> }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {categories.map((c) => {
         const product = featured[c.slug];
+        const photo = product?.images[0];
+        if (photo) {
+          return (
+            <Link key={c.slug} href={`/collections/${c.slug}`} className="group flex flex-col overflow-hidden rounded-2xl bg-brand-800">
+              <span className="relative block aspect-square overflow-hidden bg-tile">
+                {/* eslint-disable-next-line @next/next/no-img-element -- uploads and admin-provided URLs on any host */}
+                <img src={photo} alt="" loading="lazy" className="size-full object-cover transition duration-700 group-hover:scale-105" />
+              </span>
+              <CollectionCaption c={c} />
+            </Link>
+          );
+        }
         const image = collectionImages[c.slug];
         return (
           <Link key={c.slug} href={`/collections/${c.slug}`} className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-brand-800">
@@ -36,17 +66,11 @@ export function CollectionCards({ categories, featured }: { categories: Category
             <span className="absolute top-4 left-4 rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">{c.name}</span>
             {product && (
               <div className="absolute inset-x-10 top-14 bottom-24 transition duration-700 group-hover:-translate-y-1">
-                <ProductImage product={product} className="!bg-transparent" />
+                <ProductImage product={product} fit="contain" className="!bg-transparent" />
               </div>
             )}
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-white">
-              <div>
-                <p className="display text-3xl">{c.name}</p>
-                <p className="mt-1 line-clamp-1 text-sm text-white/75">{c.description}</p>
-              </div>
-              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-ink transition group-hover:bg-lime">
-                <ArrowUpRight className="size-5" />
-              </span>
+            <div className="absolute inset-x-0 bottom-0">
+              <CollectionCaption c={c} />
             </div>
           </Link>
         );
@@ -59,14 +83,17 @@ export function CollectionCards({ categories, featured }: { categories: Category
 export function Spotlight({ product }: { product: Product }) {
   return (
     <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
-      <Link href={`/product/${product.slug}`} className="relative block rounded-3xl bg-tile p-8">
-        <ProductImage product={product} className="mx-auto max-w-md" />
+      <Link
+        href={`/product/${product.slug}`}
+        className={product.images.length ? "relative block overflow-hidden rounded-3xl" : "relative block rounded-3xl bg-tile p-8"}
+      >
+        <ProductImage product={product} className={product.images.length ? "" : "mx-auto max-w-md"} />
         {product.discountPct > 0 && <SaleBadge className="absolute top-6 left-6" />}
       </Link>
       <div>
         <p className="text-xs font-medium tracking-[0.2em] text-ink/80 uppercase">Our bestseller</p>
-        <h2 className="display mt-3 text-5xl md:text-6xl">{product.name}</h2>
-        <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-muted">{product.description}</p>
+        <h2 className="display mt-3 text-3xl md:text-4xl">{product.name}</h2>
+        <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-muted">{descriptionSummary(product.description)}</p>
         <ul className="mt-6 space-y-2.5">
           {product.uses.slice(0, 4).map((u) => (
             <li key={u} className="flex items-center gap-3 text-[15px]">
@@ -97,8 +124,8 @@ export function Promises() {
   return (
     <div className="rounded-3xl bg-brand-800 px-6 py-12 text-white md:px-12 md:py-16">
       <p className="text-center text-xs font-medium tracking-[0.2em] text-white/70 uppercase">Why Syncytium</p>
-      <h2 className="display mx-auto mt-3 max-w-2xl text-center text-4xl md:text-6xl">
-        Made with care, <em>backed by science.</em>
+      <h2 className="display mx-auto mt-3 max-w-2xl text-center text-3xl md:text-4xl">
+        Made with care, <em className="text-lime">backed by science.</em>
       </h2>
       <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {promises.map((p) => (
@@ -106,7 +133,7 @@ export function Promises() {
             <span className="grid size-11 place-items-center rounded-full bg-lime text-brand-800">
               <Icon name={p.icon} className="size-5" />
             </span>
-            <p className="display mt-5 text-4xl">{p.stat}</p>
+            <p className="display mt-5 text-3xl">{p.stat}</p>
             <p className="mt-1 font-medium">{p.title}</p>
             <p className="mt-2 text-sm leading-relaxed text-white/65">{p.text}</p>
           </div>
@@ -128,7 +155,7 @@ export function Reviews() {
                 <Star key={i} className={clsx("size-4", i < r.rating ? "fill-current" : "opacity-25")} />
               ))}
             </div>
-            <blockquote className="display mt-4 flex-1 text-2xl leading-snug">“{r.text}”</blockquote>
+            <blockquote className="display mt-4 flex-1 text-lg leading-snug font-semibold">“{r.text}”</blockquote>
             <figcaption className="mt-6 text-sm">
               <span className="font-medium">{r.name}</span> <span className="text-muted">· {r.city}</span>
               <span className="block text-xs text-muted">on {r.product}</span>
@@ -166,7 +193,7 @@ export function CtaBand() {
   return (
     <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-lime px-6 py-10 md:flex-row md:items-center md:px-12 md:py-14">
       <div>
-        <h2 className="display text-4xl text-brand-800 md:text-5xl">
+        <h2 className="display text-2xl text-brand-800 md:text-3xl">
           Start your <em>daily ritual.</em>
         </h2>
         <p className="mt-2 text-[15px] text-brand-800/75">Free delivery above ₹{site.freeDeliveryAbove} · Ships within 24 hours</p>

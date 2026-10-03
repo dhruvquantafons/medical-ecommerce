@@ -14,12 +14,13 @@ export function ProductGallery({ product }: { product: Product }) {
   const count = images.length;
   const go = (i: number) => setIndex((i + count) % count);
 
-  if (count <= 1) return <ProductImage product={product} className="mx-auto max-w-lg" priority />;
+  // Real photos fill the frame; the drawn placeholder sits centred in its tile.
+  if (count <= 1) return <ProductImage product={product} className={count ? "rounded-3xl" : "mx-auto max-w-lg"} priority />;
 
   return (
     <div>
       <div
-        className="group/main relative mx-auto max-w-lg"
+        className="group/main relative overflow-hidden rounded-3xl"
         role="region"
         aria-roledescription="carousel"
         aria-label={`${product.name} photos`}
@@ -63,10 +64,10 @@ export function ProductGallery({ product }: { product: Product }) {
               onClick={() => setIndex(i)}
               aria-label={`Show photo ${i + 1}`}
               aria-current={i === index}
-              className={clsx("block size-16 overflow-hidden rounded-xl border-2 bg-white/60 transition md:size-20", i === index ? "border-brand-800" : "border-transparent hover:border-brand-800/30")}
+              className={clsx("block size-16 overflow-hidden rounded-xl border-2 bg-tile transition md:size-20", i === index ? "border-brand-800" : "border-transparent hover:border-brand-800/30")}
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- uploads and admin-provided URLs on any host */}
-              <img src={src} alt="" className="size-full object-contain p-1.5" loading="lazy" />
+              <img src={src} alt="" className="size-full object-cover" loading="lazy" />
             </button>
           </li>
         ))}

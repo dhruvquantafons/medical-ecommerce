@@ -45,7 +45,7 @@ function labelLines(name: string, max = 14) {
   return lines.slice(0, 2);
 }
 
-const serif = { fontFamily: "var(--font-serif), Georgia, serif" };
+const serif = { fontFamily: "var(--font-brand), system-ui, sans-serif", fontWeight: 700 };
 const sans = { fontFamily: "var(--font-brand), system-ui, sans-serif" };
 
 function Wordmark({ x, y, size, tone, lines }: { x: number; y: number; size: number; tone: Tone; lines: string[] }) {
@@ -66,6 +66,8 @@ function Wordmark({ x, y, size, tone, lines }: { x: number; y: number; size: num
 /**
  * Shows `src` (default: the product's main photo), or the drawn placeholder when there are no photos.
  * `hoverSwap` fades to the second photo while a parent `.group` is hovered.
+ * Photos fill the frame edge to edge (`fit="cover"`, the default), because product shots have their own
+ * studio background; `fit="contain"` shows the whole photo with padding (e.g. for cut-out PNGs).
  */
 export function ProductImage({
   product,
@@ -74,6 +76,8 @@ export function ProductImage({
   alt = product.name,
   hoverSwap,
   priority,
+  fit = "cover",
+  aspect = "aspect-square",
 }: {
   product: Product;
   className?: string;
@@ -81,16 +85,20 @@ export function ProductImage({
   alt?: string;
   hoverSwap?: boolean;
   priority?: boolean;
+  fit?: "contain" | "cover";
+  /** Tailwind aspect-ratio class for the frame. */
+  aspect?: string;
 }) {
   if (src) {
     const second = hoverSwap ? product.images[1] : undefined;
+    const imgClass = fit === "cover" ? "size-full object-cover" : "size-full object-contain p-4";
     return (
-      <div className={clsx("relative aspect-square w-full overflow-hidden rounded-xl bg-tile", className)}>
+      <div className={clsx("relative w-full overflow-hidden rounded-xl bg-tile", aspect, className)}>
         {/* eslint-disable-next-line @next/next/no-img-element -- uploads and admin-provided URLs on any host */}
-        <img src={src} alt={alt} className={clsx("size-full object-contain p-4", second && "transition-opacity duration-500 group-hover:opacity-0")} loading={priority ? "eager" : "lazy"} />
+        <img src={src} alt={alt} className={clsx(imgClass, second && "transition-opacity duration-500 group-hover:opacity-0")} loading={priority ? "eager" : "lazy"} />
         {second && (
           // eslint-disable-next-line @next/next/no-img-element -- see above
-          <img src={second} alt="" aria-hidden className="absolute inset-0 size-full object-contain p-4 opacity-0 transition-opacity duration-500 group-hover:opacity-100" loading="lazy" />
+          <img src={second} alt="" aria-hidden className={clsx("absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100", imgClass)} loading="lazy" />
         )}
       </div>
     );
@@ -98,7 +106,7 @@ export function ProductImage({
   const tone = tones[hash(product.name) % tones.length];
   const id = `sh-${product.id}`;
   return (
-    <div className={clsx("relative aspect-square w-full overflow-hidden rounded-xl bg-tile", className)}>
+    <div className={clsx("relative w-full overflow-hidden rounded-xl bg-tile", aspect, className)}>
       <svg viewBox="0 0 200 200" className="size-full" role="img" aria-label={product.name}>
         <defs>
           <linearGradient id={id} x1="0" x2="1">

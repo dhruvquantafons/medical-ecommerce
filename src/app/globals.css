@@ -22,7 +22,7 @@
   --color-muted: #686f69;
   --color-line: #e4e4df;
   --font-sans: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-serif), ui-serif, Georgia, serif;
+  --font-display: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
@@ -64,7 +64,13 @@ body {
   @apply rounded-2xl border border-line bg-white;
 }
 
-/* Serif display headings, tight like the brand's editorial style. */
+/* Display headings: bold Plus Jakarta Sans. Emphasis (<em>) is shown in brand green, not italic. */
 .display {
-  @apply font-display leading-[1.02] font-normal tracking-[-0.01em];
+  @apply font-display leading-[1.1] font-bold tracking-tight;
+}
+.display em {
+  font-style: normal;
+}
+.display em:not([class*="text-"]) {
+  color: var(--color-brand-500);
 }

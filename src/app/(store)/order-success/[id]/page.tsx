@@ -20,7 +20,7 @@ export default async function OrderSuccessPage({ params }: PageProps<"/order-suc
         <span className="grid size-16 place-items-center rounded-full bg-green-100">
           <CircleCheck className="size-9 text-save" />
         </span>
-        <h1 className="display mt-4 text-5xl">Thank you, order placed</h1>
+        <h1 className="display mt-4 text-3xl md:text-4xl">Thank you, order placed</h1>
         <p className="mt-1 text-sm text-muted">We&apos;ve received your order and will keep you updated at every step.</p>
       </div>
       <OrderDetailView order={order} />

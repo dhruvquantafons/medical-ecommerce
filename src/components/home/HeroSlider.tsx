@@ -55,8 +55,8 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/35" />
           <div className="relative flex h-full flex-col items-center justify-center px-6 pt-16 text-center text-white">
             <p className="text-xs font-medium tracking-[0.2em] uppercase md:text-sm">{s.eyebrow}</p>
-            <h1 className="display mt-4 max-w-3xl text-5xl text-balance sm:text-6xl md:text-7xl lg:text-[5.5rem]">
-              {s.title} <em>{s.emphasis}</em>
+            <h1 className="display mt-4 max-w-3xl text-4xl text-balance sm:text-5xl lg:text-6xl">
+              {s.title} <em className="text-lime">{s.emphasis}</em>
             </h1>
             <Link
               href={s.href}

@@ -3,17 +3,16 @@ import type { Coupon, HeroSlide } from "./types";
 // Home page content. Images are placeholders in /public/images/placeholders/; swap in real photography later.
 
 export const heroSlides: HeroSlide[] = [
-  { id: "gut", eyebrow: "Formulations", title: "Whole body health starts", emphasis: "in the gut.", cta: "Shop now", href: "/collections/gut-health", image: "/images/placeholders/hero-gut.svg" },
-  { id: "skin", eyebrow: "Beauty from within", title: "Radiant skin is an", emphasis: "inside job.", cta: "Shop skin & hair", href: "/collections/skin-hair", image: "/images/placeholders/hero-skin.svg" },
-  { id: "sleep", eyebrow: "Rest & recover", title: "Better days begin with", emphasis: "deeper sleep.", cta: "Shop sleep", href: "/collections/sleep-stress", image: "/images/placeholders/hero-sleep.svg" },
+  { id: "gut", eyebrow: "Gut health", title: "Whole body health starts", emphasis: "in the gut.", cta: "Shop gut health", href: "/collections/gut-health", image: "/images/placeholders/hero-gut.svg" },
+  { id: "bone", eyebrow: "Bone & joint", title: "Strong bones, easy", emphasis: "movement.", cta: "Shop bone & joint", href: "/collections/bone-joint", image: "/images/placeholders/hero-bone.svg" },
 ];
 
 /** Collection card art for the home page (keyed by collection slug). */
 export const collectionImages: Record<string, string> = {
+  "liver-care": "/images/placeholders/collection-immunity.svg",
   "gut-health": "/images/placeholders/collection-gut.svg",
-  "immunity-energy": "/images/placeholders/collection-immunity.svg",
-  "skin-hair": "/images/placeholders/collection-skin.svg",
-  "sleep-stress": "/images/placeholders/collection-sleep.svg",
+  "bone-joint": "/images/placeholders/collection-skin.svg",
+  "heart-omega": "/images/placeholders/collection-sleep.svg",
 };
 
 /** Discount codes accepted at checkout (not advertised on the site). */

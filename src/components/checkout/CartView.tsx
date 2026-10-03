@@ -33,7 +33,7 @@ export function EmptyCart() {
       <span className="grid size-20 place-items-center rounded-full bg-tile">
         <ShoppingBag className="size-9 text-brand-800" />
       </span>
-      <h1 className="display mt-2 text-5xl">Your cart is empty</h1>
+      <h1 className="display mt-2 text-3xl md:text-4xl">Your cart is empty</h1>
       <p className="text-[15px] text-muted">Find the right supplement for your daily ritual.</p>
       <ButtonLink href="/shop" size="lg" className="mt-3">Shop all products</ButtonLink>
     </div>
@@ -104,7 +104,7 @@ export function CartView({ suggestions }: { suggestions: Product[] }) {
   return (
     <>
       <div className="mx-auto max-w-7xl px-4 md:px-10 pt-10 md:pt-14">
-        <h1 className="display text-5xl md:text-6xl">
+        <h1 className="display text-3xl md:text-4xl">
           Your cart <span className="text-muted">({bill.itemCount})</span>
         </h1>
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">

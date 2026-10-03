@@ -28,7 +28,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
         bestsellerIds={top.map((p) => p.id)}
         empty={
           <div className="rounded-2xl bg-tile px-6 py-16 text-center">
-            <p className="display text-3xl">{q ? "No products found" : "What are you looking for?"}</p>
+            <p className="display text-2xl">{q ? "No products found" : "What are you looking for?"}</p>
             <p className="mt-2 text-sm text-muted">Try an ingredient like “magnesium” or a goal like “sleep”.</p>
           </div>
         }

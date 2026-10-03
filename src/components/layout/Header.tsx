@@ -11,7 +11,7 @@ import { MobileMenu } from "./MobileMenu";
 
 export function Logo({ light = true }: { light?: boolean }) {
   return (
-    <Link href="/" className={`display text-[28px] leading-none md:text-[32px] ${light ? "text-white" : "text-brand-800"}`} aria-label={`${site.name} home`}>
+    <Link href="/" className={`display text-2xl leading-none md:text-[26px] ${light ? "text-white" : "text-brand-800"}`} aria-label={`${site.name} home`}>
       {site.shortName}
     </Link>
   );

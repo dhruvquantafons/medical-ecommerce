@@ -23,8 +23,8 @@ export async function Footer() {
       <div className="mx-auto max-w-7xl px-6 pt-14 pb-8 md:px-10">
         <div className="grid gap-10 lg:grid-cols-[1.3fr_2fr]">
           <div>
-            <p className="display text-4xl text-white md:text-5xl">
-              Health that starts <em>from within.</em>
+            <p className="display text-3xl text-white md:text-4xl">
+              Health that starts <em className="text-lime">from within.</em>
             </p>
             <p className="mt-4 max-w-sm text-sm text-white/70">{site.tagline}, made in India and delivered to your door.</p>
             <ButtonLink href="/shop" variant="lime" size="lg" className="mt-6">
@@ -69,7 +69,7 @@ export async function Footer() {
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-white/50">
           <span>© {new Date().getFullYear()} {site.name}</span>
-          <span className="display text-2xl text-white/80">{site.shortName}</span>
+          <span className="display text-xl text-white/80">{site.shortName}</span>
         </div>
       </div>
     </footer>
