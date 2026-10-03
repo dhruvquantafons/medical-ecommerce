@@ -64,9 +64,9 @@ body {
   @apply rounded-2xl border border-line bg-white;
 }
 
-/* Display headings: bold Plus Jakarta Sans. Emphasis (<em>) is shown in brand green, not italic. */
+/* Display headings: extra-bold Nunito Sans. Emphasis (<em>) is shown in brand green, not italic. */
 .display {
-  @apply font-display leading-[1.1] font-bold tracking-tight;
+  @apply font-display leading-[1.1] font-extrabold tracking-tight;
 }
 .display em {
   font-style: normal;

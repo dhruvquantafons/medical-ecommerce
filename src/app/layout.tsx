@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import { site } from "@/config/site";
 import { ToastViewport } from "@/components/ui/Toast";
 import "./globals.css";
 
-const sans = Plus_Jakarta_Sans({ variable: "--font-brand", subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
+const sans = Nunito_Sans({ variable: "--font-brand", subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
 
 // Pages read live prices, stock, orders and sessions from the database on every request.
 export const dynamic = "force-dynamic";
