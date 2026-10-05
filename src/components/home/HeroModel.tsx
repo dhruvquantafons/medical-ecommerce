@@ -230,7 +230,7 @@ export default function HeroModel({ slide, models, still }: { slide?: HeroSlide;
   return (
     <div ref={wrap} aria-hidden className={clsx("absolute inset-0 transition-opacity duration-700", ready && slide?.model ? "opacity-100" : "opacity-0")}>
       <Boundary>
-        <Canvas frameloop={visible ? "always" : "never"} dpr={[1, 1.75]} camera={{ position: [0, 0.3, 4.5], fov: 35 }} gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}>
+        <Canvas frameloop={visible ? "always" : "never"} dpr={[1, 1.5]} camera={{ position: [0, 0.3, 4.5], fov: 35 }} gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}>
           <ambientLight intensity={0.4} />
           <directionalLight position={[3, 4, 5]} intensity={2} />
           <pointLight position={[-3, -1, 2]} intensity={20} color="#a78bfa" />

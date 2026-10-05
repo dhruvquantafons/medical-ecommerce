@@ -5,8 +5,8 @@ import type { HeroCallout } from "@/data/types";
 
 const ICONS: Record<string, LucideIcon> = { Bone, Dna, Droplet, Footprints, HeartPulse, Pill, Sun };
 
-/** Orbit radius shared by the ring and the callouts sitting on it. */
-const RADIUS = "min(19vw, 30svh)";
+/** Orbit radius shared by the ring and the callouts sitting on it; set per breakpoint on the hero section. */
+const RADIUS = "var(--hero-orbit)";
 
 const glass = "border border-white/30 bg-white/12 shadow-[0_8px_32px_rgb(30_10_80/0.25),inset_0_1px_0_rgb(255_255_255/0.35)] backdrop-blur-md";
 
@@ -77,7 +77,8 @@ function Callout({ c }: { c: HeroCallout }) {
 /** Glass bubbles and stat cards placed on the orbit ring; they rise in one after another and then drift. */
 export function HeroCallouts({ callouts, active }: { callouts: HeroCallout[]; active: boolean }) {
   return (
-    <div aria-hidden className="absolute inset-0">
+    // Desktop only: on a phone the model area is too small for cards around it.
+    <div aria-hidden className="absolute inset-0 hidden lg:block">
       {callouts.map((c, i) => {
         const rad = (c.angle * Math.PI) / 180;
         const pos: CSSProperties = {
