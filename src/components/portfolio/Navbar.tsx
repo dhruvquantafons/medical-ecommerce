@@ -52,25 +52,25 @@ export function Navbar({ onSearchClick }: NavbarProps) {
         left: 0,
         right: 0,
         zIndex: 1000,
-        padding: scrolled ? '12px 32px' : '22px 40px',
+        padding: scrolled ? '10px 20px' : '16px 24px',
         transition: 'all 0.3s ease',
-        background: scrolled ? 'rgba(255,255,255,0.88)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(226,232,240,0.8)' : '1px solid transparent',
+        background: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.6)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: scrolled ? '1px solid rgba(226,232,240,0.8)' : '1px solid rgba(226,232,240,0.4)',
       }}
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/portfolio" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-          <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(124,58,237,0.3)' }}>
-            <Pill size={22} color="#ffffff" style={{ transform: 'rotate(-45deg)' }} />
+        <Link href="/portfolio" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(124,58,237,0.3)', flexShrink: 0 }}>
+            <Pill size={20} color="#ffffff" style={{ transform: 'rotate(-45deg)' }} />
           </div>
-          <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0f172a' }}>
-            SYNCTIUM <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7c3aed', letterSpacing: '0.05em' }}>HEALTH</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0f172a', whiteSpace: 'nowrap' }}>
+            SYNCTIUM <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed', letterSpacing: '0.05em' }}>HEALTH</span>
           </span>
         </Link>
 
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '32px' }} className="pf-desktop-nav">
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }} className="pf-desktop-nav">
           {[
             { label: 'Home', page: 'home', href: '/portfolio' },
             { label: 'About Us', page: 'about', href: '/portfolio/about' },
@@ -96,39 +96,39 @@ export function Navbar({ onSearchClick }: NavbarProps) {
           </button>
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <button onClick={onSearchClick} className="glass-button-secondary" style={{ padding: '9px 16px', fontSize: '0.88rem' }}>
-            <Search size={15} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button onClick={onSearchClick} className="glass-button-secondary" style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '9999px' }} aria-label="Search Salts">
+            <Search size={16} color="#7c3aed" />
             <span className="pf-search-text">Search Salts</span>
           </button>
-          <Link href="/store" className="glass-button" style={{ padding: '10px 22px', fontSize: '0.88rem', textDecoration: 'none' }}>
+          <Link href="/store" className="glass-button pf-header-get-started" style={{ padding: '9px 18px', fontSize: '0.85rem', textDecoration: 'none' }}>
             <span>Get Started</span>
-            <ArrowRight size={15} />
+            <ArrowRight size={14} />
           </Link>
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: 'none', border: 'none', color: '#0f172a', cursor: 'pointer', display: 'none' }} className="pf-mobile-btn">
-            {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#0f172a', cursor: 'pointer', display: 'none', width: '38px', height: '38px', borderRadius: '10px', alignItems: 'center', justifyContent: 'center', padding: 0 }} className="pf-mobile-btn" aria-label="Toggle Navigation Menu">
+            {mobileMenuOpen ? <X size={22} color="#0f172a" /> : <Menu size={22} color="#0f172a" />}
           </button>
         </div>
       </div>
 
       {mobileMenuOpen && (
-        <div style={{ marginTop: '16px', background: '#ffffff', borderRadius: '20px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ marginTop: '12px', background: '#ffffff', borderRadius: '18px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {[
             { label: 'Home', href: '/portfolio' },
             { label: 'About Us', href: '/portfolio/about' },
             { label: 'Digital Catalog', href: '/portfolio/catalog' },
             { label: 'Team & Employ', href: '/portfolio/team' },
           ].map(({ label, href }) => (
-            <button key={href} onClick={() => navTo(href)} style={{ background: 'none', border: 'none', color: '#0f172a', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', textAlign: 'left' }}>
+            <button key={href} onClick={() => navTo(href)} style={{ background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px', padding: '10px 14px', color: '#0f172a', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', textAlign: 'left' }}>
               {label}
             </button>
           ))}
-          <button onClick={() => scrollToAnchor('salt-inspector')} style={{ background: 'none', border: 'none', color: '#0f172a', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', textAlign: 'left' }}>
+          <button onClick={() => scrollToAnchor('salt-inspector')} style={{ background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px', padding: '10px 14px', color: '#0f172a', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', textAlign: 'left' }}>
             Salt Inspector
           </button>
-          <Link href="/store" onClick={() => setMobileMenuOpen(false)} className="glass-button" style={{ padding: '10px 20px', fontSize: '0.95rem', justifyContent: 'center', textDecoration: 'none', marginTop: '6px' }}>
+          <Link href="/store" onClick={() => setMobileMenuOpen(false)} className="glass-button" style={{ padding: '12px 20px', fontSize: '0.95rem', justifyContent: 'center', textDecoration: 'none', marginTop: '4px' }}>
             <span>Get Started</span>
-            <ArrowRight size={15} />
+            <ArrowRight size={16} />
           </Link>
         </div>
       )}
@@ -136,8 +136,11 @@ export function Navbar({ onSearchClick }: NavbarProps) {
       <style>{`
         @media (max-width: 900px) {
           .pf-desktop-nav { display: none !important; }
-          .pf-mobile-btn { display: block !important; }
-          .pf-search-text { display: none; }
+          .pf-mobile-btn { display: flex !important; }
+          .pf-search-text { display: none !important; }
+        }
+        @media (max-width: 640px) {
+          .pf-header-get-started { display: none !important; }
         }
       `}</style>
     </header>

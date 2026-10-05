@@ -166,3 +166,102 @@
 [data-portfolio] ::-webkit-scrollbar-track { background: var(--bg-main); }
 [data-portfolio] ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 [data-portfolio] ::-webkit-scrollbar-thumb:hover { background: var(--primary-accent); }
+
+/* ---- Responsive Mobile Enhancements ---- */
+
+@media (max-width: 900px) {
+  .pf-desktop-nav { display: none !important; }
+  .pf-mobile-btn { display: flex !important; }
+  .pf-search-text { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  [data-portfolio] section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  [data-portfolio] .pf-hero-section {
+    padding-top: 100px !important;
+    padding-bottom: 40px !important;
+    min-height: auto !important;
+  }
+
+  [data-portfolio] .pf-hero-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 12px !important;
+  }
+
+  [data-portfolio] .pf-hero-buttons button,
+  [data-portfolio] .pf-hero-buttons a {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  [data-portfolio] .pf-pill-canvas-container {
+    min-height: 380px !important;
+    height: 380px !important;
+    margin-top: 10px !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-top {
+    top: 8px !important;
+    right: 8px !important;
+    padding: 12px 14px !important;
+    width: 190px !important;
+    max-width: calc(100% - 16px) !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-bottom {
+    bottom: 8px !important;
+    left: 8px !important;
+    padding: 8px 12px !important;
+    max-width: calc(100% - 16px) !important;
+  }
+
+  [data-portfolio] .pf-banner-card {
+    padding: 24px 16px !important;
+  }
+
+  [data-portfolio] .pf-sync-arrow {
+    display: none !important;
+  }
+
+  [data-portfolio] .pf-footer {
+    flex-direction: column !important;
+    text-align: center !important;
+    justify-content: center !important;
+    gap: 14px !important;
+  }
+
+  [data-portfolio] .pf-footer-links {
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-portfolio] .pf-header-get-started {
+    display: none !important;
+  }
+
+  [data-portfolio] .glass-panel {
+    border-radius: 18px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  [data-portfolio] h1 {
+    font-size: 2rem !important;
+  }
+
+  [data-portfolio] h2 {
+    font-size: 1.7rem !important;
+  }
+
+  [data-portfolio] .pf-pill-canvas-container {
+    min-height: 340px !important;
+    height: 340px !important;
+  }
+}
