@@ -143,7 +143,7 @@ export function ProductImagesField({
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- uploads, blob previews and admin URLs on any host */}
               <img src={item.src} alt={`Photo ${i + 1}`} className={clsx("size-full object-contain p-1.5", item.uploading && "opacity-50")} draggable={false} />
-              {i === 0 && <span className="absolute top-1.5 left-1.5 rounded-full bg-brand-800 px-2 py-0.5 text-[10px] font-semibold text-white">Main</span>}
+              {i === 0 && <span className="absolute top-1.5 left-1.5 rounded-full bg-brand-gradient px-2 py-0.5 text-[10px] font-semibold text-white">Main</span>}
               {item.uploading ? (
                 <span className="absolute inset-0 grid place-items-center">
                   <Loader2 className="size-6 animate-spin text-brand-800" aria-label="Uploading" />

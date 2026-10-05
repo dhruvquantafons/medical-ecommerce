@@ -30,7 +30,7 @@ function Step({ n, title, done, children }: { n: number; title: string; done?: b
   return (
     <section className="card p-6">
       <h2 className="mb-5 flex items-center gap-3 text-lg font-semibold">
-        <span className={clsx("grid size-8 place-items-center rounded-full text-sm", done ? "bg-brand-800 text-lime" : "bg-tile text-ink")}>
+        <span className={clsx("grid size-8 place-items-center rounded-full text-sm", done ? "bg-brand-gradient text-white" : "bg-tile text-ink")}>
           {done ? <CircleCheck className="size-4" /> : n}
         </span>
         {title}
@@ -112,7 +112,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
           name: site.name,
           description: `Order of ${bill.itemCount} item${bill.itemCount === 1 ? "" : "s"}`,
           prefill: { name: selectedAddress.name, contact: `+91${selectedAddress.phone}` },
-          theme: { color: "#10847e" },
+          theme: { color: "#7c6bf0" },
           handler: async (success) => {
             try {
               const v = await fetch("/api/payments/verify", {

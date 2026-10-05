@@ -35,7 +35,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
     <section
       aria-roledescription="carousel"
       aria-label="Featured"
-      className="relative -mt-[72px] h-[88svh] max-h-[820px] min-h-[560px] overflow-hidden bg-brand-800 md:-mt-[80px]"
+      className="relative -mt-[72px] h-[88svh] max-h-[820px] min-h-[560px] overflow-hidden bg-brand-gradient-glow md:-mt-[80px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -56,11 +56,11 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           <div className="relative flex h-full flex-col items-center justify-center px-6 pt-16 text-center text-white">
             <p className="text-xs font-medium tracking-[0.2em] uppercase md:text-sm">{s.eyebrow}</p>
             <h1 className="display mt-4 max-w-3xl text-4xl text-balance sm:text-5xl lg:text-6xl">
-              {s.title} <em className="text-lime">{s.emphasis}</em>
+              {s.title} <em className="text-accent">{s.emphasis}</em>
             </h1>
             <Link
               href={s.href}
-              className="mt-8 inline-flex items-center gap-3 rounded-full bg-lime py-1.5 pr-1.5 pl-5 text-[15px] font-semibold text-brand-800 transition hover:bg-lime-strong"
+              className="mt-8 inline-flex items-center gap-3 rounded-full bg-accent py-1.5 pr-1.5 pl-5 text-[15px] font-semibold text-brand-800 transition hover:bg-accent-strong"
             >
               {s.cta}
               <span className="grid size-8 place-items-center rounded-full bg-ink text-white">

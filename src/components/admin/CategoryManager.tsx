@@ -13,7 +13,7 @@ import { useAdminAction } from "./useAdminAction";
 import { inputClass } from "./ui";
 
 type Draft = { id: number | null; name: string; slug: string; description: string; icon: string; color: string; sortOrder: number };
-const blank = (sortOrder: number): Draft => ({ id: null, name: "", slug: "", description: "", icon: "Pill", color: "#10847e", sortOrder });
+const blank = (sortOrder: number): Draft => ({ id: null, name: "", slug: "", description: "", icon: "Pill", color: "#7c6bf0", sortOrder });
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 export function CategoryManager({ categories }: { categories: AdminCategory[] }) {
@@ -128,7 +128,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
                     aria-label={n}
                     aria-pressed={draft.icon === n}
                     onClick={() => set({ icon: n })}
-                    className={clsx("grid aspect-square place-items-center rounded-lg ring-1", draft.icon === n ? "bg-brand-600 text-white ring-brand-600" : "text-gray-600 ring-line hover:ring-brand-500")}
+                    className={clsx("grid aspect-square place-items-center rounded-lg ring-1", draft.icon === n ? "bg-brand-gradient text-white ring-brand-600" : "text-gray-600 ring-line hover:ring-brand-500")}
                   >
                     <Icon name={n} className="size-4" />
                   </button>

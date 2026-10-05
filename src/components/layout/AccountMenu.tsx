@@ -51,7 +51,7 @@ export function AccountMenu({ user }: { user: MenuUser | null }) {
         aria-label={`Account menu for ${firstName}`}
         className="flex items-center gap-1 rounded-full p-1.5 text-white hover:bg-white/10"
       >
-        <span className="grid size-7 place-items-center rounded-full bg-lime text-xs font-bold text-brand-800">{firstName[0]?.toUpperCase()}</span>
+        <span className="grid size-7 place-items-center rounded-full bg-accent text-xs font-bold text-brand-800">{firstName[0]?.toUpperCase()}</span>
         <ChevronDown className="hidden size-4 md:block" />
       </button>
       {open && (

@@ -25,7 +25,7 @@ export async function Header() {
   const user = session && { name: session.user.name, email: session.user.email, isAdmin: session.user.role === "admin" };
   return (
     <header className="sticky top-3 z-40 px-3 md:top-4 md:px-6">
-      <div className="mx-auto grid h-[60px] max-w-7xl grid-cols-[1fr_auto_1fr] items-center rounded-2xl bg-brand-800/95 px-2 shadow-lg shadow-brand-900/10 backdrop-blur md:h-[64px] md:px-4">
+      <div className="mx-auto grid h-[60px] max-w-7xl grid-cols-[1fr_auto_1fr] items-center rounded-2xl bg-brand-gradient px-2 shadow-lg shadow-brand-900/15 backdrop-blur md:h-[64px] md:px-4">
         <nav className="flex items-center gap-1" aria-label="Main">
           <MobileMenu categories={categories} user={user} />
           <div className="hidden items-center gap-0.5 lg:flex">

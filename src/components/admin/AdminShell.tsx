@@ -51,13 +51,13 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
               <I className="size-4.5" />
               <span className="flex-1">{label}</span>
               {badge === "rx" && pendingRx > 0 && (
-                <span className="rounded-full bg-lime px-2 py-0.5 text-[11px] font-bold text-brand-800">{pendingRx}</span>
+                <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-brand-800">{pendingRx}</span>
               )}
             </Link>
           );
         })}
       </nav>
-      <div className="space-y-1 border-t border-white/10 p-3">
+      <div className="space-y-1 border-t border-white/25 p-3">
         <Link href="/" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-brand-100 hover:bg-white/10 hover:text-white">
           <ExternalLink className="size-4" /> View store
         </Link>
@@ -81,12 +81,12 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
   return (
     <div className="flex min-h-screen bg-page">
       {/* The column carries the background for the full page height; the sidebar itself stays pinned. */}
-      <div className="hidden w-64 shrink-0 bg-brand-800 lg:block">
+      <div className="hidden w-64 shrink-0 bg-brand-gradient-y lg:block">
         <aside className="sticky top-0 h-screen">{sidebar}</aside>
       </div>
       {open && (
         <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setOpen(false)}>
-          <aside className="h-full w-72 bg-brand-800" onClick={(e) => e.stopPropagation()}>
+          <aside className="h-full w-72 bg-brand-gradient-y" onClick={(e) => e.stopPropagation()}>
             {sidebar}
           </aside>
         </div>

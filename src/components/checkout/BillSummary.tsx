@@ -28,7 +28,7 @@ export function BillSummary({ bill, children }: { bill: Bill; children?: ReactNo
         <span className="tabular-nums">{formatPrice(bill.total)}</span>
       </div>
       {bill.deliveryFee > 0 && toFree > 0 && (
-        <p className="mt-3 rounded-xl bg-lime/60 px-3 py-2 text-center text-xs font-medium text-brand-800">
+        <p className="mt-3 rounded-xl bg-accent/60 px-3 py-2 text-center text-xs font-medium text-brand-800">
           Add {formatPrice(toFree)} more for free delivery
         </p>
       )}

@@ -2,15 +2,15 @@ import clsx from "clsx";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 
-type Variant = "primary" | "lime" | "outline" | "ghost" | "dark";
+type Variant = "primary" | "accent" | "outline" | "ghost" | "dark";
 type Size = "sm" | "md" | "lg";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-brand-800 text-white hover:bg-brand-700 disabled:bg-gray-300",
-  lime: "bg-lime text-brand-800 hover:bg-lime-strong disabled:bg-gray-200 disabled:text-gray-500",
+  primary: "bg-brand-gradient text-white hover:bg-brand-gradient-strong disabled:bg-gray-300",
+  accent: "bg-accent text-brand-800 hover:bg-accent-strong disabled:bg-gray-200 disabled:text-gray-500",
   dark: "bg-ink text-white hover:bg-brand-800 disabled:bg-gray-300",
-  outline: "border border-brand-800/25 text-brand-800 hover:border-brand-800 hover:bg-brand-50 disabled:border-gray-300 disabled:text-gray-400",
-  ghost: "text-brand-800 hover:bg-brand-50",
+  outline: "border border-brand-600/30 text-brand-700 hover:border-brand-600 hover:bg-brand-50 disabled:border-gray-300 disabled:text-gray-400",
+  ghost: "text-brand-700 hover:bg-brand-50",
 };
 const sizes: Record<Size, string> = {
   sm: "h-8 px-3.5 text-sm",

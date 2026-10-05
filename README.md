@@ -1,6 +1,6 @@
 # Syncytium Health
 
-Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a small range of about 5–10 products), with customer accounts, checkout (Razorpay or cash on delivery) and an admin panel. The design follows a premium editorial look: floating dark nav, serif display type, forest green, sage and lime.
+Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a small range of about 5–10 products), with customer accounts, checkout (Razorpay or cash on delivery) and an admin panel. The design is a clean pharmacy look: Nunito Sans type, a soft-violet palette built on `#8B5CF6`, `#7C6BF0` and `#EDE9FE`. Colours are tokens in `src/app/globals.css` (`brand-*`, `accent`), so a retheme starts there.
 
 - **Catalogue:** 6 real products in 4 collections, with photos (`src/db/seed/`, photos in `src/db/seed/photos/`). **MRP, prices and stock are placeholders**, and so is LYCOTIUM's pack count. Set the real values in the admin panel. Calcitium-D3 is marked "Prescription required", so customers upload a prescription at checkout.
 - **Images:** each product can have up to 8 photos, uploaded in the admin panel. Products without photos, and the hero images, show drawn placeholders (see [Images](#images)).
