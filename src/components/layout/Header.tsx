@@ -31,8 +31,8 @@ export async function Header() {
           <div className="hidden items-center gap-0.5 lg:flex">
             <Link href="/shop" className={navLink}>Shop</Link>
             <CollectionsMenu categories={categories} />
-            <Link href="/store#science" className={navLink}>Our science</Link>
-            <Link href="/store#faq" className={navLink}>FAQ</Link>
+            <Link href="/#science" className={navLink}>Our science</Link>
+            <Link href="/#faq" className={navLink}>FAQ</Link>
           </div>
         </nav>
         <Logo />

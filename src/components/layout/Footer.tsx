@@ -41,7 +41,7 @@ export async function Footer() {
               <li><Link className={link} href="/shop">All products</Link></li>
             </Column>
             <Column title="Help">
-              <li><Link className={link} href="/store#faq">FAQ</Link></li>
+              <li><Link className={link} href="/#faq">FAQ</Link></li>
               <li><a className={link} href={`mailto:${site.supportEmail}`}>Contact us</a></li>
               <li><span className="text-white/85">Shipping & returns</span></li>
               <li><span className="text-white/85">Privacy policy</span></li>
