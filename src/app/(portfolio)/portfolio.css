@@ -169,10 +169,21 @@
 
 /* ---- Responsive Mobile Enhancements ---- */
 
+[data-portfolio] .pf-hero-grid {
+  display: grid !important;
+  grid-template-columns: 1.05fr 0.95fr !important;
+  gap: 30px !important;
+  align-items: center !important;
+}
+
 @media (max-width: 900px) {
   .pf-desktop-nav { display: none !important; }
   .pf-mobile-btn { display: flex !important; }
   .pf-search-text { display: none !important; }
+  [data-portfolio] .pf-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -185,6 +196,8 @@
     padding-top: 100px !important;
     padding-bottom: 40px !important;
     min-height: auto !important;
+    display: block !important;
+    overflow: visible !important;
   }
 
   [data-portfolio] .pf-hero-buttons {
@@ -201,17 +214,26 @@
   }
 
   [data-portfolio] .pf-pill-canvas-container {
-    min-height: 380px !important;
-    height: 380px !important;
+    min-height: 480px !important;
+    height: 480px !important;
     margin-top: 10px !important;
+    overflow: visible !important;
+    position: relative !important;
+  }
+
+  /* Keep the WebGL canvas below the floating badges */
+  [data-portfolio] .pf-pill-canvas-container > div:first-child {
+    z-index: 0 !important;
   }
 
   [data-portfolio] .pf-floating-badge-top {
     top: 8px !important;
     right: 8px !important;
     padding: 12px 14px !important;
-    width: 190px !important;
+    width: 180px !important;
     max-width: calc(100% - 16px) !important;
+    z-index: 20 !important;
+    pointer-events: none !important;
   }
 
   [data-portfolio] .pf-floating-badge-bottom {
@@ -219,6 +241,8 @@
     left: 8px !important;
     padding: 8px 12px !important;
     max-width: calc(100% - 16px) !important;
+    z-index: 20 !important;
+    pointer-events: none !important;
   }
 
   [data-portfolio] .pf-banner-card {
@@ -261,7 +285,44 @@
   }
 
   [data-portfolio] .pf-pill-canvas-container {
-    min-height: 340px !important;
-    height: 340px !important;
+    min-height: 420px !important;
+    height: 420px !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-top {
+    width: 160px !important;
+    padding: 10px 12px !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-top > div:nth-child(2) {
+    font-size: 1.4rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  [data-portfolio] .pf-pill-canvas-container {
+    min-height: 380px !important;
+    height: 380px !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-top {
+    width: 145px !important;
+    padding: 8px 10px !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-top > div:nth-child(2) {
+    font-size: 1.2rem !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-bottom {
+    padding: 6px 10px !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-bottom > div > div:first-child {
+    font-size: 0.7rem !important;
+  }
+
+  [data-portfolio] .pf-floating-badge-bottom > div > div:last-child {
+    font-size: 0.62rem !important;
   }
 }

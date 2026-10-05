@@ -35,7 +35,7 @@ function SplitPillCapsule({ theme }: { theme: ThemeMode }) {
   });
 
   return (
-    <group ref={pillGroupRef} position={[0, -0.4, 0]} scale={1.05}>
+    <group ref={pillGroupRef} position={[0, -0.05, 0]} scale={1.5}>
       <mesh position={[0, 0.75, 0]}>
         <cylinderGeometry args={[0.7, 0.7, 1.0, 32]} />
         <meshPhysicalMaterial color={capColor} roughness={0.1} metalness={0.15} clearcoat={1.0} clearcoatRoughness={0.05} reflectivity={0.9} />
@@ -168,14 +168,14 @@ export function PillCanvas({ theme, particleCount = 200 }: PillCanvasProps) {
   const pointColor  = theme === 'emerald' ? '#34d399' : theme === 'beige' ? '#f59e0b' : '#a855f7';
 
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: '580px', position: 'relative', overflow: 'visible' }}>
-      <Canvas camera={{ position: [0, 0, 7.8], fov: 45 }} gl={{ antialias: true, alpha: true }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'visible' }}>
+      <Canvas camera={{ position: [0, 0, 7.0], fov: 45 }} gl={{ antialias: true, alpha: true }}>
         <ambientLight intensity={1.5} />
         <directionalLight position={[6, 9, 6]} intensity={2.2} color="#ffffff" />
         <directionalLight position={[-6, -4, -6]} intensity={1.0} color="#c084fc" />
         <pointLight position={[0, 0, 3]} intensity={3.0} color={pointColor} />
         <Environment preset="city" />
-        <Float speed={2.0} rotationIntensity={0.3} floatIntensity={0.4}>
+        <Float speed={2.0} rotationIntensity={0.3} floatIntensity={0.1}>
           <SplitPillCapsule theme={theme} />
           <SaltParticleEmitter theme={theme} particleCount={particleCount} isEmitting={isEmitting} />
         </Float>
