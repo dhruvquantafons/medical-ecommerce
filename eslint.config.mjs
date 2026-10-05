@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Portfolio Vite source — linted separately
+    "_portfolio-source/**",
   ]),
 ]);
 
