@@ -229,3 +229,46 @@ export const orderPrescriptionsRelations = relations(orderPrescriptions, ({ one 
   order: one(orders, { fields: [orderPrescriptions.orderId], references: [orders.id] }),
   prescription: one(prescriptions, { fields: [orderPrescriptions.prescriptionId], references: [prescriptions.id] }),
 }));
+
+// ---- Employees (admin-managed team members)
+
+export const employees = pgTable("employees", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  bio: text("bio").notNull().default(""),
+  photoUrl: text("photo_url"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  ...timestamps,
+});
+
+// ---- Catalog Items (portfolio medicine showcase, managed from admin)
+
+export const catalogItems = pgTable("catalog_items", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  brand: text("brand").notNull(),
+  /** One of: 'Prescription (Rx)' | 'Over-The-Counter (OTC)' | 'Biotech Formulations' | 'Nutraceuticals' */
+  category: text("category").notNull(),
+  description: text("description").notNull().default(""),
+  /** One of: 'Capsule' | 'Tablet' | 'Syrup' | 'Injectable' | 'Ointment' */
+  dosageForm: text("dose_form").notNull(),
+  digitalVerifiedId: text("digital_verified_id").notNull().default(""),
+  googleIndexed: boolean("google_indexed").notNull().default(true),
+  eCommerceReady: boolean("e_commerce_ready").notNull().default(true),
+  rating: real("rating").notNull().default(0),
+  reviewsCount: integer("reviews_count").notNull().default(0),
+  priceEstimate: text("price_estimate").notNull().default(""),
+  availability: text("availability").notNull().default("In Stock"),
+  imageUrl: text("image_url"),
+  imageGradient: text("image_gradient").notNull().default(""),
+  molecularFormula: text("molecular_formula").notNull().default(""),
+  bioavailability: text("bioavailability").notNull().default(""),
+  halfLife: text("half_life").notNull().default(""),
+  /** JSON array of ActiveSalt objects: [{name,amount,percentage,purpose,casNumber},...] */
+  salts: text("salts").notNull().default("[]"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  ...timestamps,
+});

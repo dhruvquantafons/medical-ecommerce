@@ -40,8 +40,8 @@ export function MobileMenu({ categories, user }: { categories: Category[]; user:
                 <Icon name={c.icon} className="size-4 text-brand-600" /> {c.name}
               </Link>
             ))}
-            <Link href="/#science" className={row}>Our science</Link>
-            <Link href="/#faq" className={row}>FAQ</Link>
+            <Link href="/store#science" className={row}>Our science</Link>
+            <Link href="/store#faq" className={row}>FAQ</Link>
           </nav>
           <div className="space-y-0.5 border-t border-line pt-4">
             {user ? (
