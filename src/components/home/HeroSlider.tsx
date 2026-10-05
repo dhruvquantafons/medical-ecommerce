@@ -4,7 +4,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import clsx from "clsx";
 import type { HeroSlide } from "@/data/types";
 import { HeroCallouts, HeroOrbit } from "./HeroCallouts";
@@ -30,6 +30,25 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
 
   const models = useMemo(() => slides.flatMap((s) => (s.model ? [s.model] : [])), [slides]);
 
+  // On phones the model sits under the text, so track where the tallest slide's text ends (it changes with wrapping
+  // and font loading) and start the model area below it.
+  const sectionRef = useRef<HTMLElement>(null);
+  const [textBottom, setTextBottom] = useState(0);
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || models.length === 0) return;
+    const measure = () => {
+      const top = section.getBoundingClientRect().top;
+      const ctas = section.querySelectorAll<HTMLElement>("[data-hero-cta]");
+      setTextBottom(Math.max(0, ...Array.from(ctas, (el) => el.getBoundingClientRect().bottom - top)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(section);
+    section.querySelectorAll("h1").forEach((h) => ro.observe(h));
+    return () => ro.disconnect();
+  }, [models.length]);
+
   useEffect(() => {
     if (paused || reduceMotion || slides.length < 2) return;
     const t = setTimeout(() => setIndex((i) => (i + 1) % slides.length), INTERVAL);
@@ -42,11 +61,22 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
     <section
       aria-roledescription="carousel"
       aria-label="Featured"
-      className="relative -mt-[72px] h-[88svh] max-h-[820px] min-h-[560px] overflow-hidden bg-brand-gradient-glow [--hero-orbit:min(38vw,20svh)] md:-mt-[80px] lg:[--hero-orbit:min(19vw,30svh)]"
-      // Slides with a model: on phones the text sits at the top and the model fills the lower half. On desktop they lay
-      // out inside the header's max-w-7xl column: text on the left 45%, model on the right 55%, so the two stay
-      // together on wide screens. Percentages resolve against the section's width.
-      style={{ "--hero-edge": "max(1.5rem, calc((100% - 80rem) / 2))", "--hero-model-w": "calc((100% - 2 * var(--hero-edge)) * 0.55)" } as CSSProperties}
+      ref={sectionRef}
+      className={clsx(
+        "relative -mt-[72px] h-[88svh] max-h-[820px] min-h-[560px] overflow-hidden bg-brand-gradient-glow md:-mt-[80px] lg:[--hero-orbit:min(19vw,30svh)]",
+        // Phones: full screen height so the model under the text gets room; the orbit ring fits the model area.
+        models.length > 0 && "max-lg:h-[100svh] max-lg:max-h-none max-lg:min-h-[640px] [--hero-orbit:min(40cqw,40cqh)]",
+      )}
+      // Slides with a model: on phones the text sits at the top and the model fills the space between it and the slide
+      // controls. On desktop they lay out inside the header's max-w-7xl column: text on the left 45%, model on the
+      // right 55%, so the two stay together on wide screens. Percentages resolve against the section's width.
+      style={
+        {
+          "--hero-edge": "max(1.5rem, calc((100% - 80rem) / 2))",
+          "--hero-model-w": "calc((100% - 2 * var(--hero-edge)) * 0.55)",
+          "--hero-text-bottom": `${textBottom}px`,
+        } as CSSProperties
+      }
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -77,7 +107,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           <div
             className={clsx(
               "relative flex h-full flex-col items-center justify-center px-6 pt-16 text-center text-white",
-              s.model && "max-lg:justify-start max-lg:pt-[max(7rem,15svh)] lg:items-start lg:pr-[calc(var(--hero-edge)+var(--hero-model-w))] lg:pl-[calc(var(--hero-edge)+1rem)] lg:text-left",
+              s.model && "max-lg:justify-start max-lg:pt-[max(6rem,12svh)] lg:items-start lg:pr-[calc(var(--hero-edge)+var(--hero-model-w))] lg:pl-[calc(var(--hero-edge)+1rem)] lg:text-left",
             )}
           >
             <p className="text-xs font-medium tracking-[0.2em] uppercase md:text-sm">{s.eyebrow}</p>
@@ -86,6 +116,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
             </h1>
             <Link
               href={s.href}
+              data-hero-cta
               className="mt-8 inline-flex items-center gap-3 rounded-full bg-accent py-1.5 pr-1.5 pl-5 text-[15px] font-semibold text-brand-800 transition hover:bg-accent-strong"
             >
               {s.cta}
@@ -98,7 +129,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       ))}
 
       {models.length > 0 && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-20 h-[52%] lg:inset-y-0 lg:right-(--hero-edge) lg:left-auto lg:h-auto lg:w-(--hero-model-w)">
+        <div className="pointer-events-none absolute inset-x-0 top-[calc(var(--hero-text-bottom)+0.75rem)] bottom-24 [container-type:size] lg:inset-y-0 lg:right-(--hero-edge) lg:left-auto lg:w-(--hero-model-w)">
           {slides.map((s, i) => (
             <div
               key={s.id}
