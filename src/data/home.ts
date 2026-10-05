@@ -3,8 +3,42 @@ import type { Coupon, HeroSlide } from "./types";
 // Home page content. Images are placeholders in /public/images/placeholders/; swap in real photography later.
 
 export const heroSlides: HeroSlide[] = [
-  { id: "gut", eyebrow: "Gut health", title: "Whole body health starts", emphasis: "in the gut.", cta: "Shop gut health", href: "/collections/gut-health", image: "/images/placeholders/hero-gut.svg" },
-  { id: "bone", eyebrow: "Bone & joint", title: "Strong bones, easy", emphasis: "movement.", cta: "Shop bone & joint", href: "/collections/bone-joint", image: "/images/placeholders/hero-bone.svg" },
+  {
+    id: "bone",
+    eyebrow: "Bone & joint",
+    title: "Strong bones, easy",
+    emphasis: "movement.",
+    cta: "Shop bone & joint",
+    href: "/collections/bone-joint",
+    image: "/images/placeholders/hero-bone.svg",
+    model: "/models/knee.glb",
+    finish: "frosted",
+    pedestal: true,
+    glow: "rgb(204 251 241 / 0.45)",
+    callouts: [
+      { kind: "bubble", icon: "Bone", label: "Bone density", angle: -145 },
+      { kind: "bubble", icon: "Footprints", label: "Easy movement", angle: -35 },
+      { kind: "bubble", icon: "Dna", label: "Collagen support", angle: 160 },
+      { kind: "card", label: "Calcium + D3", value: "Daily support", viz: "bars", angle: 25 },
+    ],
+  },
+  {
+    id: "heart",
+    eyebrow: "Heart & omega-3",
+    title: "Keep your heart",
+    emphasis: "in rhythm.",
+    cta: "Shop heart health",
+    href: "/collections/heart-omega",
+    model: "/models/heart.glb",
+    finish: "glass",
+    glow: "rgb(244 114 182 / 0.4)",
+    callouts: [
+      { kind: "card", label: "Heart rhythm", value: "72 bpm", viz: "pulse", angle: -150 },
+      { kind: "card", label: "Omega-3", value: "EPA + DHA", viz: "bars", angle: -25 },
+      { kind: "bubble", icon: "Droplet", label: "Circulation", angle: 155 },
+      { kind: "bubble", icon: "HeartPulse", label: "Heart health", angle: 35 },
+    ],
+  },
 ];
 
 /** Collection card art for the home page (keyed by collection slug). */
