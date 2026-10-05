@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../src/db";
-import { categories, catalogItems, employees, orderItems, products } from "../src/db/schema";
+import { categories, catalogItems, employees, orderItems, productImages, products } from "../src/db/schema";
 import { categories as seedCategories } from "../src/db/seed/categories";
 import { productPhotos, products as seedProducts } from "../src/db/seed/products";
 import { PRODUCT_IMAGE_TYPES, sniffType } from "../src/lib/files";
