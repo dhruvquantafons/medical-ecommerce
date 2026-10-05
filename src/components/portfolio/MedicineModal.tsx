@@ -1,20 +1,21 @@
 "use client";
 
 import { useState } from 'react';
-import type { Medicine } from './types/pharmacy';
-import { PRODUCT_IMAGES } from './data/pharmacyData';
+import type { CatalogItem } from '@/lib/catalog-item-types';
+import { parseSalts } from '@/lib/catalog-item-types';
 import { X, ShieldCheck, ShoppingCart, Code2 } from 'lucide-react';
 
 interface MedicineModalProps {
-  medicine: Medicine | null;
+  item: CatalogItem | null;
   onClose: () => void;
-  onAddToCart: (medicine: Medicine) => void;
+  onAddToCart: (item: CatalogItem) => void;
 }
 
-export function MedicineModal({ medicine, onClose, onAddToCart }: MedicineModalProps) {
+export function MedicineModal({ item, onClose, onAddToCart }: MedicineModalProps) {
   const [showJsonLd, setShowJsonLd] = useState(false);
 
-  if (!medicine) return null;
+  if (!item) return null;
+  const salts = parseSalts(item.salts);
 
   return (
     <div
@@ -31,24 +32,26 @@ export function MedicineModal({ medicine, onClose, onAddToCart }: MedicineModalP
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: 'var(--badge-bg)', color: 'var(--secondary-accent)', border: '1px solid var(--border-color)' }}>{medicine.category}</span>
-          <span style={{ fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}><ShieldCheck size={14} /> Verified Salt Formula</span>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: 'var(--badge-bg)', color: 'var(--secondary-accent)', border: '1px solid var(--border-color)' }}>{item.category}</span>
+          {item.googleIndexed && (
+            <span style={{ fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}><ShieldCheck size={14} /> Verified Salt Formula</span>
+          )}
         </div>
 
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px' }}>{medicine.name}</h2>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px' }}>{item.name}</h2>
         <div style={{ fontSize: '0.9rem', color: 'var(--text-subtle)', marginBottom: '24px' }}>
-          Manufactured by <strong>{medicine.brand}</strong> • Digital ID: <code style={{ color: 'var(--secondary-accent)' }}>{medicine.digitalVerifiedId}</code>
+          Manufactured by <strong>{item.brand}</strong> • Digital ID: <code style={{ color: 'var(--secondary-accent)' }}>{item.digitalVerifiedId}</code>
         </div>
 
-        {PRODUCT_IMAGES[medicine.id] && (
+        {item.imageUrl && (
           <div style={{ width: '100%', marginBottom: '24px', background: '#ffffff', borderRadius: '16px', padding: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid var(--border-color)' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={PRODUCT_IMAGES[medicine.id]} alt={medicine.name} style={{ width: '100%', maxHeight: '300px', objectFit: 'contain' }} />
+            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', maxHeight: '300px', objectFit: 'contain' }} />
           </div>
         )}
 
         <div style={{ padding: '20px', background: 'var(--bg-secondary)', borderRadius: '16px', border: '1px solid var(--border-color)', marginBottom: '24px', color: 'var(--text-main)', lineHeight: 1.65, fontSize: '0.95rem', whiteSpace: 'pre-line' }}>
-          {medicine.description}
+          {item.description}
         </div>
 
         <div style={{ marginBottom: '28px' }}>
@@ -60,11 +63,11 @@ export function MedicineModal({ medicine, onClose, onAddToCart }: MedicineModalP
           </div>
           {showJsonLd ? (
             <div style={{ background: '#0b0717', padding: '16px', borderRadius: '12px', fontFamily: 'monospace', fontSize: '0.78rem', color: '#a7f3d0' }}>
-              <pre>{JSON.stringify({ "@context": "https://schema.org", "@type": "MedicalEntity", name: medicine.name, salts: medicine.salts, bioavailability: medicine.bioavailability }, null, 2)}</pre>
+              <pre>{JSON.stringify({ "@context": "https://schema.org", "@type": "MedicalEntity", name: item.name, salts, bioavailability: item.bioavailability }, null, 2)}</pre>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {medicine.salts.map((s, idx) => (
+              {salts.map((s, idx) => (
                 <div key={idx} style={{ background: 'var(--bg-secondary)', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.9rem' }}>{s.name}</div>
@@ -80,11 +83,11 @@ export function MedicineModal({ medicine, onClose, onAddToCart }: MedicineModalP
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>Retail Price Estimate</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>{medicine.priceEstimate}</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>{item.priceEstimate}</div>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button onClick={onClose} className="glass-button-secondary">Close</button>
-            <button onClick={() => { onAddToCart(medicine); onClose(); }} className="glass-button">
+            <button onClick={() => { onAddToCart(item); onClose(); }} className="glass-button">
               <ShoppingCart size={16} /><span>Sync to Store Cart</span>
             </button>
           </div>

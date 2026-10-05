@@ -101,10 +101,10 @@ export function Navbar({ onSearchClick }: NavbarProps) {
             <Search size={15} />
             <span className="pf-search-text">Search Salts</span>
           </button>
-          <button onClick={() => scrollToAnchor('contact')} className="glass-button" style={{ padding: '10px 22px', fontSize: '0.88rem' }}>
+          <Link href="/store" className="glass-button" style={{ padding: '10px 22px', fontSize: '0.88rem', textDecoration: 'none' }}>
             <span>Get Started</span>
             <ArrowRight size={15} />
-          </button>
+          </Link>
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: 'none', border: 'none', color: '#0f172a', cursor: 'pointer', display: 'none' }} className="pf-mobile-btn">
             {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
@@ -126,6 +126,10 @@ export function Navbar({ onSearchClick }: NavbarProps) {
           <button onClick={() => scrollToAnchor('salt-inspector')} style={{ background: 'none', border: 'none', color: '#0f172a', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', textAlign: 'left' }}>
             Salt Inspector
           </button>
+          <Link href="/store" onClick={() => setMobileMenuOpen(false)} className="glass-button" style={{ padding: '10px 20px', fontSize: '0.95rem', justifyContent: 'center', textDecoration: 'none', marginTop: '6px' }}>
+            <span>Get Started</span>
+            <ArrowRight size={15} />
+          </Link>
         </div>
       )}
 

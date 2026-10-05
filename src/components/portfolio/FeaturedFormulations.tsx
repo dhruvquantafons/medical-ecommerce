@@ -1,13 +1,18 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { MEDICINES_DATA, PRODUCT_IMAGES } from './data/pharmacyData';
+import type { CatalogItem } from '@/lib/catalog-item-types';
+import { parseSalts } from '@/lib/catalog-item-types';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ShoppingCart, ShieldCheck, ArrowRight, Star, CheckCircle2, Zap } from 'lucide-react';
 
-export function FeaturedFormulations() {
+interface FeaturedFormulationsProps {
+  items: CatalogItem[];
+}
+
+export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
   const router = useRouter();
-  const featuredMeds = MEDICINES_DATA.slice(0, 3);
+  const featuredItems = items.slice(0, 3);
 
   return (
     <section id="featured-formulations" style={{ padding: '90px 24px', position: 'relative', background: 'linear-gradient(180deg, rgba(248,250,252,0) 0%, rgba(241,245,249,0.5) 100%)' }}>
@@ -36,7 +41,7 @@ export function FeaturedFormulations() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ShieldCheck size={18} color="#7c3aed" /><span>CAS Indexed & Registered</span></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Zap size={18} color="#f59e0b" /><span>Rapid Express Dispatch</span></div>
               </div>
-              <button onClick={() => router.push('/portfolio/catalog')} className="glass-button" style={{ padding: '16px 36px', fontSize: '1.05rem', fontWeight: 800, borderRadius: '16px', background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', color: '#ffffff', border: 'none', boxShadow: '0 10px 25px rgba(124,58,237,0.35)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button onClick={() => router.push('/store')} className="glass-button" style={{ padding: '16px 36px', fontSize: '1.05rem', fontWeight: 800, borderRadius: '16px', background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', color: '#ffffff', border: 'none', boxShadow: '0 10px 25px rgba(124,58,237,0.35)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <ShoppingCart size={20} /><span>Shop Now</span><ArrowRight size={18} />
               </button>
             </div>
@@ -60,49 +65,57 @@ export function FeaturedFormulations() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '20px' }}>
-          {featuredMeds.map((med, idx) => (
-            <motion.div
-              key={med.id}
-              initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: idx * 0.1 }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="glass-panel"
-              onClick={() => router.push('/portfolio/catalog')}
-              style={{ borderRadius: '18px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
-            >
-              <div>
-                <div style={{ width: '100%', aspectRatio: '1/1', maxHeight: '260px', borderRadius: '16px', overflow: 'hidden', marginBottom: '14px', position: 'relative', background: '#ffffff' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={PRODUCT_IMAGES[med.id]} alt={med.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-                  <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '3px 8px', borderRadius: '9999px', background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(8px)', color: '#ffffff' }}>{med.category}</span>
-                  </div>
-                  <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#ffffff', borderRadius: '9999px', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '0.72rem', fontWeight: 700, color: '#0f172a', boxShadow: '0 2px 6px rgba(0,0,0,0.08)' }}>
-                    <Star size={12} color="#f59e0b" fill="#f59e0b" /><span>{med.rating}</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{med.brand}</span>
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>{med.dosageForm}</span>
-                </div>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '6px', lineHeight: 1.25 }}>{med.name}</h4>
-                <div style={{ marginBottom: '14px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                  {med.salts.map((salt, sIdx) => (
-                    <span key={sIdx} style={{ fontSize: '0.68rem', fontWeight: 600, background: '#f1f5f9', color: '#334155', padding: '2px 6px', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{salt.name} ({salt.amount})</span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ paddingTop: '12px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+          {featuredItems.map((item, idx) => {
+            const salts = parseSalts(item.salts);
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: idx * 0.1 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="glass-panel"
+                onClick={() => router.push('/portfolio/catalog')}
+                style={{ borderRadius: '18px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
+              >
                 <div>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>Price</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a' }}>{med.priceEstimate}</div>
+                  <div style={{ width: '100%', aspectRatio: '1/1', maxHeight: '260px', borderRadius: '16px', overflow: 'hidden', marginBottom: '14px', position: 'relative', background: '#ffffff' }}>
+                    {item.imageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                    )}
+                    <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '3px 8px', borderRadius: '9999px', background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(8px)', color: '#ffffff' }}>{item.category}</span>
+                    </div>
+                    <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#ffffff', borderRadius: '9999px', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '0.72rem', fontWeight: 700, color: '#0f172a', boxShadow: '0 2px 6px rgba(0,0,0,0.08)' }}>
+                      <Star size={12} color="#f59e0b" fill="#f59e0b" /><span>{item.rating}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item.brand}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>{item.dosageForm}</span>
+                  </div>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '6px', lineHeight: 1.25 }}>{item.name}</h4>
+                  <p style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: 1.4, marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {item.description}
+                  </p>
+                  <div style={{ marginBottom: '14px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {salts.map((salt, sIdx) => (
+                      <span key={sIdx} style={{ fontSize: '0.68rem', fontWeight: 600, background: '#f1f5f9', color: '#334155', padding: '2px 6px', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{salt.name} ({salt.amount})</span>
+                    ))}
+                  </div>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); router.push('/portfolio/catalog'); }} className="glass-button" style={{ padding: '8px 16px', fontSize: '0.82rem', fontWeight: 700, borderRadius: '10px', background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', color: '#ffffff', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <ShoppingCart size={14} /><span>Shop Now</span>
-                </button>
-              </div>
-            </motion.div>
-          ))}
+                <div style={{ paddingTop: '12px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>Price</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a' }}>{item.priceEstimate}</div>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); router.push('/store'); }} className="glass-button" style={{ padding: '8px 16px', fontSize: '0.82rem', fontWeight: 700, borderRadius: '10px', background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', color: '#ffffff', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <ShoppingCart size={14} /><span>Shop Now</span>
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
