@@ -229,3 +229,16 @@ export const orderPrescriptionsRelations = relations(orderPrescriptions, ({ one 
   order: one(orders, { fields: [orderPrescriptions.orderId], references: [orders.id] }),
   prescription: one(prescriptions, { fields: [orderPrescriptions.prescriptionId], references: [prescriptions.id] }),
 }));
+
+// ---- Employees (admin-managed team members)
+
+export const employees = pgTable("employees", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  bio: text("bio").notNull().default(""),
+  photoUrl: text("photo_url"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  ...timestamps,
+});

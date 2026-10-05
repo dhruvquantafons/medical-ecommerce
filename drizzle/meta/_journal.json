@@ -15,6 +15,13 @@
       "when": 1790833096305,
       "tag": "0001_product_images",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791181985580,
+      "tag": "0002_odd_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

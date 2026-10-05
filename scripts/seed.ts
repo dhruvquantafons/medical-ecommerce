@@ -4,7 +4,7 @@
 import "./env";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../src/db";
-import { categories, orderItems, products } from "../src/db/schema";
+import { categories, employees, orderItems, products } from "../src/db/schema";
 import { categories as seedCategories } from "../src/db/seed/categories";
 import { products as seedProducts } from "../src/db/seed/products";
 
@@ -109,6 +109,57 @@ async function main() {
 
   await retireLegacyDemo();
   console.log(`Seeded ${catRows.length} collections and ${values.length} products.`);
+
+  // ---- Employees (skip if already seeded)
+  const [{ n: empCount }] = await db.select({ n: count() }).from(employees);
+  if (empCount === 0) {
+    const seedEmployees = [
+      {
+        name: "Dr. Ananya Sharma",
+        role: "Chief Medical Officer",
+        bio: "Board-certified physician with 15 years in integrative medicine. Leads all clinical formulation decisions at Syncytium Health.",
+        photoUrl: null,
+        sortOrder: 0,
+        active: true,
+      },
+      {
+        name: "Rohan Mehta",
+        role: "Head of Research & Development",
+        bio: "PhD in Nutritional Biochemistry from IISc Bangalore. Oversees ingredient sourcing, efficacy studies, and third-party testing.",
+        photoUrl: null,
+        sortOrder: 1,
+        active: true,
+      },
+      {
+        name: "Priya Nair",
+        role: "Regulatory Affairs Lead",
+        bio: "Specialist in FSSAI compliance and nutraceutical regulations. Ensures every product meets the highest safety standards before launch.",
+        photoUrl: null,
+        sortOrder: 2,
+        active: true,
+      },
+      {
+        name: "Vikram Rao",
+        role: "Director of Operations",
+        bio: "15 years in supply chain management across healthcare and FMCG. Manages manufacturing partners and quality audits.",
+        photoUrl: null,
+        sortOrder: 3,
+        active: true,
+      },
+      {
+        name: "Meera Iyer",
+        role: "Customer Wellness Advisor",
+        bio: "Certified nutritionist who handles personalised supplement guidance and customer health queries.",
+        photoUrl: null,
+        sortOrder: 4,
+        active: true,
+      },
+    ];
+    await db.insert(employees).values(seedEmployees);
+    console.log(`Seeded ${seedEmployees.length} employees.`);
+  } else {
+    console.log(`Employees already seeded (${empCount} rows), skipping.`);
+  }
 }
 
 main()
