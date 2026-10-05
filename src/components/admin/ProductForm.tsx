@@ -229,7 +229,11 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
 
         <Section title="Product details">
           {field("composition", "Key ingredients", { wide: true })}
-          {field("description", "Description", { wide: true, textarea: 3 })}
+          {field("description", "Description", {
+            wide: true,
+            textarea: 10,
+            hint: "The first paragraph is shown at the top of the product page. Then add sections: a heading on its own line, followed by bullets starting with \"- \". Leave a blank line between sections.",
+          })}
           {field("uses", "Benefits (one per line)", { textarea: 4 })}
           {field("sideEffects", "Side effects (one per line)", { textarea: 4 })}
           {field("howToUse", "How to use", { wide: true, textarea: 2 })}

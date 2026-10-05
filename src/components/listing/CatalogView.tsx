@@ -32,12 +32,12 @@ export function CatalogView({
   empty?: ReactNode;
 }) {
   const tab = (active: boolean) =>
-    clsx("shrink-0 rounded-full px-4 py-2 text-sm transition", active ? "bg-brand-800 text-white" : "bg-tile text-ink hover:bg-brand-100");
+    clsx("shrink-0 rounded-full px-4 py-2 text-sm transition", active ? "bg-brand-gradient text-white" : "bg-tile text-ink hover:bg-brand-100");
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-10 pt-10 pb-6 md:pt-14">
       <div className="max-w-2xl">
         {eyebrow && <p className="text-xs font-medium tracking-[0.2em] text-ink/80 uppercase">{eyebrow}</p>}
-        <h1 className="display mt-3 text-5xl md:text-7xl">{title}</h1>
+        <h1 className="display mt-3 text-3xl md:text-5xl">{title}</h1>
         {description && <p className="mt-4 text-[15px] leading-relaxed text-muted">{description}</p>}
       </div>
 
@@ -66,7 +66,7 @@ export function CatalogView({
       ) : (
         empty ?? (
           <div className="rounded-2xl bg-tile px-6 py-16 text-center">
-            <p className="display text-3xl">Nothing here yet</p>
+            <p className="display text-2xl">Nothing here yet</p>
             <ButtonLink href="/shop" className="mt-5">Browse all products</ButtonLink>
           </div>
         )

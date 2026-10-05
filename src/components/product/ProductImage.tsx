@@ -16,12 +16,12 @@ interface Tone {
 
 // Muted brand tones; each product gets a stable one based on its name.
 const tones: Tone[] = [
-  { body: "#2f5a3f", label: "#2f5a3f", ink: "#f1f4ef", sub: "#c7d4bd", cap: "#1b3526" },
-  { body: "#dfe9dc", label: "#f7f9f5", ink: "#22452f", sub: "#6f8f4e", cap: "#22452f" },
-  { body: "#95a27a", label: "#95a27a", ink: "#f7f9f2", sub: "#eef3df", cap: "#4d5c3a" },
-  { body: "#f1eee6", label: "#f1eee6", ink: "#2f5a3f", sub: "#8b927f", cap: "#2f5a3f" },
-  { body: "#1f3a29", label: "#1f3a29", ink: "#e4f5a1", sub: "#a6b89a", cap: "#0f2a1d" },
-  { body: "#cfe0d2", label: "#cfe0d2", ink: "#1f3a29", sub: "#4d7a58", cap: "#2f5a3f" },
+  { body: "#392e5b", label: "#392e5b", ink: "#f1f4ef", sub: "#c2bcd5", cap: "#211a36" },
+  { body: "#dfdce9", label: "#f7f9f5", ink: "#2a2146", sub: "#5d4c91", cap: "#2a2146" },
+  { body: "#8479a3", label: "#8479a3", ink: "#f7f9f2", sub: "#e4def3", cap: "#42395d" },
+  { body: "#e9e6f1", label: "#e9e6f1", ink: "#392e5b", sub: "#847f92", cap: "#392e5b" },
+  { body: "#251e3b", label: "#251e3b", ink: "#b59ff7", sub: "#a199b9", cap: "#150e2b" },
+  { body: "#d3cfe0", label: "#d3cfe0", ink: "#251e3b", sub: "#584c7b", cap: "#392e5b" },
 ];
 
 function hash(s: string) {
@@ -45,7 +45,7 @@ function labelLines(name: string, max = 14) {
   return lines.slice(0, 2);
 }
 
-const serif = { fontFamily: "var(--font-serif), Georgia, serif" };
+const serif = { fontFamily: "var(--font-brand), system-ui, sans-serif", fontWeight: 700 };
 const sans = { fontFamily: "var(--font-brand), system-ui, sans-serif" };
 
 function Wordmark({ x, y, size, tone, lines }: { x: number; y: number; size: number; tone: Tone; lines: string[] }) {
@@ -66,6 +66,8 @@ function Wordmark({ x, y, size, tone, lines }: { x: number; y: number; size: num
 /**
  * Shows `src` (default: the product's main photo), or the drawn placeholder when there are no photos.
  * `hoverSwap` fades to the second photo while a parent `.group` is hovered.
+ * Photos fill the frame edge to edge (`fit="cover"`, the default), because product shots have their own
+ * studio background; `fit="contain"` shows the whole photo with padding (e.g. for cut-out PNGs).
  */
 export function ProductImage({
   product,
@@ -74,6 +76,8 @@ export function ProductImage({
   alt = product.name,
   hoverSwap,
   priority,
+  fit = "cover",
+  aspect = "aspect-square",
 }: {
   product: Product;
   className?: string;
@@ -81,16 +85,20 @@ export function ProductImage({
   alt?: string;
   hoverSwap?: boolean;
   priority?: boolean;
+  fit?: "contain" | "cover";
+  /** Tailwind aspect-ratio class for the frame. */
+  aspect?: string;
 }) {
   if (src) {
     const second = hoverSwap ? product.images[1] : undefined;
+    const imgClass = fit === "cover" ? "size-full object-cover" : "size-full object-contain p-4";
     return (
-      <div className={clsx("relative aspect-square w-full overflow-hidden rounded-xl bg-tile", className)}>
+      <div className={clsx("relative w-full overflow-hidden rounded-xl bg-tile", aspect, className)}>
         {/* eslint-disable-next-line @next/next/no-img-element -- uploads and admin-provided URLs on any host */}
-        <img src={src} alt={alt} className={clsx("size-full object-contain p-4", second && "transition-opacity duration-500 group-hover:opacity-0")} loading={priority ? "eager" : "lazy"} />
+        <img src={src} alt={alt} className={clsx(imgClass, second && "transition-opacity duration-500 group-hover:opacity-0")} loading={priority ? "eager" : "lazy"} />
         {second && (
           // eslint-disable-next-line @next/next/no-img-element -- see above
-          <img src={second} alt="" aria-hidden className="absolute inset-0 size-full object-contain p-4 opacity-0 transition-opacity duration-500 group-hover:opacity-100" loading="lazy" />
+          <img src={second} alt="" aria-hidden className={clsx("absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100", imgClass)} loading="lazy" />
         )}
       </div>
     );
@@ -98,7 +106,7 @@ export function ProductImage({
   const tone = tones[hash(product.name) % tones.length];
   const id = `sh-${product.id}`;
   return (
-    <div className={clsx("relative aspect-square w-full overflow-hidden rounded-xl bg-tile", className)}>
+    <div className={clsx("relative w-full overflow-hidden rounded-xl bg-tile", aspect, className)}>
       <svg viewBox="0 0 200 200" className="size-full" role="img" aria-label={product.name}>
         <defs>
           <linearGradient id={id} x1="0" x2="1">
@@ -107,7 +115,7 @@ export function ProductImage({
             <stop offset="1" stopColor="#000" stopOpacity=".14" />
           </linearGradient>
         </defs>
-        <ellipse cx="100" cy="172" rx="56" ry="6" fill="#1f2a22" opacity=".12" />
+        <ellipse cx="100" cy="172" rx="56" ry="6" fill="#221f2a" opacity=".12" />
         <Container form={product.form} tone={tone} sheen={`url(#${id})`} lines={labelLines(product.name)} />
       </svg>
     </div>

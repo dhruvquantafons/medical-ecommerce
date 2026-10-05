@@ -30,7 +30,7 @@ function Step({ n, title, done, children }: { n: number; title: string; done?: b
   return (
     <section className="card p-6">
       <h2 className="mb-5 flex items-center gap-3 text-lg font-semibold">
-        <span className={clsx("grid size-8 place-items-center rounded-full text-sm", done ? "bg-brand-800 text-lime" : "bg-tile text-ink")}>
+        <span className={clsx("grid size-8 place-items-center rounded-full text-sm", done ? "bg-brand-gradient text-white" : "bg-tile text-ink")}>
           {done ? <CircleCheck className="size-4" /> : n}
         </span>
         {title}
@@ -112,7 +112,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
           name: site.name,
           description: `Order of ${bill.itemCount} item${bill.itemCount === 1 ? "" : "s"}`,
           prefill: { name: selectedAddress.name, contact: `+91${selectedAddress.phone}` },
-          theme: { color: "#10847e" },
+          theme: { color: "#7c6bf0" },
           handler: async (success) => {
             try {
               const v = await fetch("/api/payments/verify", {
@@ -150,7 +150,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
   let n = 1;
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-10 pt-10 pb-6 md:pt-14">
-      <h1 className="display text-5xl md:text-6xl">Checkout</h1>
+      <h1 className="display text-3xl md:text-4xl">Checkout</h1>
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
         <div className="space-y-4">
           <Step n={n++} title="Delivery address" done={!!selectedAddress && !showForm}>

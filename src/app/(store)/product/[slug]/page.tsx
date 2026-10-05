@@ -10,10 +10,13 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { AddToCart } from "@/components/product/AddToCart";
 import { DeliveryCheck } from "@/components/product/DeliveryCheck";
 import { ProductRail, SaleBadge } from "@/components/product/ProductCard";
+import { RxBadge } from "@/components/product/Badges";
+import { ProductDescription } from "@/components/product/ProductDescription";
+import { descriptionSummary, splitDescription } from "@/lib/description";
 
 export async function generateMetadata({ params }: PageProps<"/product/[slug]">): Promise<Metadata> {
   const p = await getProductBySlug((await params).slug);
-  return p ? { title: p.name, description: p.description } : {};
+  return p ? { title: p.name, description: descriptionSummary(p.description, 160) } : {};
 }
 
 function Accordion({ title, open, children }: { title: string; open?: boolean; children: React.ReactNode }) {
@@ -46,6 +49,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   // Small range: top up closely related products with best sellers.
   const related = [...relatedFirst, ...top.filter((p) => p.id !== product.id && !relatedFirst.some((r) => r.id === p.id))].slice(0, 8);
   const sale = product.discountPct > 0;
+  const description = splitDescription(product.description);
 
   return (
     <>
@@ -63,7 +67,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
         </nav>
 
         <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-14">
-          <div className="relative self-start rounded-3xl bg-tile p-6 md:p-10 lg:sticky lg:top-28">
+          <div className={clsx("relative self-start lg:sticky lg:top-28", product.images.length ? "overflow-hidden rounded-3xl" : "rounded-3xl bg-tile p-6 md:p-10")}>
             <ProductGallery product={product} />
             {sale && <SaleBadge className="absolute top-5 left-5" />}
           </div>
@@ -74,7 +78,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
                 {product.categoryName}
               </Link>
             )}
-            <h1 className="display mt-3 text-5xl md:text-6xl">{product.name}</h1>
+            <h1 className="display mt-3 text-3xl md:text-4xl">{product.name}</h1>
             {product.ratingCount > 0 && (
               <p className="mt-3 flex items-center gap-2 text-sm">
                 <Stars rating={product.rating} />
@@ -93,7 +97,14 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
               )}
             </p>
             <p className="mt-1 text-xs text-muted">{product.packSize} · Inclusive of all taxes</p>
-            <p className="mt-5 text-[15px] leading-relaxed text-ink/80">{product.description}</p>
+            {product.rxRequired && (
+              <p className="mt-4 flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800">
+                <RxBadge /> Prescription required. You&apos;ll upload a valid prescription at checkout.
+              </p>
+            )}
+            {description.summary.map((text, i) => (
+              <p key={i} className="mt-5 text-[15px] leading-relaxed text-ink/80">{text}</p>
+            ))}
 
             {product.uses.length > 0 && (
               <ul className="mt-5 flex flex-wrap gap-2">
@@ -121,8 +132,13 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
             </div>
 
             <div className="mt-6 border-t border-line">
+              {description.details.length > 0 && (
+                <Accordion title="Description" open>
+                  <ProductDescription blocks={description.details} />
+                </Accordion>
+              )}
               {product.uses.length > 0 && (
-                <Accordion title="Benefits" open>
+                <Accordion title="Benefits" open={!description.details.length}>
                   <ul className="list-disc space-y-1 pl-5">{product.uses.map((u) => <li key={u}>{u}</li>)}</ul>
                 </Accordion>
               )}

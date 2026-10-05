@@ -142,7 +142,7 @@ const productInput = z
     rxRequired: z.boolean(),
     active: z.boolean(),
     composition: z.string().trim().max(300).default(""),
-    description: z.string().trim().max(4000).default(""),
+    description: z.string().trim().max(8000).default(""),
     howToUse: z.string().trim().max(2000).default(""),
     storage: z.string().trim().max(500).default(""),
     uses: z.array(z.string().max(200)).max(30),

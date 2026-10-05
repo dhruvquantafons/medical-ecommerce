@@ -1,26 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
   <defs>
     <pattern id="frond" width="64" height="64" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
-      <rect width="64" height="64" fill="#1c3a25"/>
-      <rect width="26" height="64" fill="#264b30"/>
-      <rect x="26" width="2" height="64" fill="#8fa35c" opacity=".55"/>
-      <rect x="44" width="14" height="64" fill="#21432b"/>
+      <rect width="64" height="64" fill="#5b3c9f"/>
+      <rect width="26" height="64" fill="#6241ac"/>
+      <rect x="26" width="2" height="64" fill="#967ece" opacity=".55"/>
+      <rect x="44" width="14" height="64" fill="#5f3fa6"/>
     </pattern>
     <linearGradient id="caps" x1="0" x2="1">
-      <stop offset="0" stop-color="#6b8f2c"/>
-      <stop offset=".55" stop-color="#3f6a1d"/>
-      <stop offset="1" stop-color="#27470f"/>
+      <stop offset="0" stop-color="#7752cd"/>
+      <stop offset=".55" stop-color="#6132ca"/>
+      <stop offset="1" stop-color="#5124b8"/>
     </linearGradient>
     <radialGradient id="glow" cx=".35" cy=".4" r=".7">
-      <stop offset="0" stop-color="#a9b58c"/>
-      <stop offset="1" stop-color="#8d9a70"/>
+      <stop offset="0" stop-color="#b09dda"/>
+      <stop offset="1" stop-color="#9a83d0"/>
     </radialGradient>
   </defs>
   <rect width="800" height="900" fill="url(#glow)"/>
   <rect x="800" width="800" height="900" fill="url(#frond)"/>
-  <rect x="800" width="800" height="900" fill="#0b1c12" opacity=".18"/>
+  <rect x="800" width="800" height="900" fill="#4e3489" opacity=".18"/>
   <g transform="rotate(-18 330 330)">
-    <ellipse cx="338" cy="470" rx="70" ry="16" fill="#3d4a2c" opacity=".25"/>
+    <ellipse cx="338" cy="470" rx="70" ry="16" fill="#6342af" opacity=".25"/>
     <rect x="290" y="150" width="92" height="230" rx="46" fill="url(#caps)"/>
     <ellipse cx="318" cy="220" rx="12" ry="46" fill="#fff" opacity=".35"/>
     <ellipse cx="358" cy="300" rx="6" ry="22" fill="#fff" opacity=".15"/>

@@ -31,7 +31,7 @@ function Timeline({ status }: { status: OrderStatus }) {
     <ol className="grid grid-cols-5 gap-1">
       {ORDER_FLOW.map((s, i) => (
         <li key={s} className="flex flex-col items-center gap-1.5 text-center">
-          <span className={clsx("h-1.5 w-full rounded-full", i <= current ? "bg-brand-600" : "bg-gray-200")} />
+          <span className={clsx("h-1.5 w-full rounded-full", i <= current ? "bg-brand-gradient" : "bg-gray-200")} />
           <span className={clsx("text-[11px] font-semibold sm:text-xs", i <= current ? "text-brand-700" : "text-muted")}>{orderStatusLabel[s]}</span>
         </li>
       ))}

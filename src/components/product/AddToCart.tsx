@@ -40,8 +40,8 @@ export function QuantityStepper({
 }
 
 /**
- * Add-to-cart control. `icon` is the round black cart button used on product cards;
- * `pill` is the full-width button with a quantity stepper once added (product page).
+ * Add-to-cart control. `card` is the compact button on product cards (a quantity stepper once added);
+ * `icon` is a round cart button; `pill` is the full-width button with a stepper once added (product page).
  */
 export function AddToCart({
   productId,
@@ -53,7 +53,7 @@ export function AddToCart({
   productId: string;
   productName: string;
   inStock: boolean;
-  variant?: "icon" | "pill";
+  variant?: "icon" | "pill" | "card";
   className?: string;
 }) {
   const hydrated = useHydrated();
@@ -77,16 +77,35 @@ export function AddToCart({
         aria-label={inStock ? `Add ${productName} to cart` : `${productName} is out of stock`}
         title={inStock ? "Add to cart" : "Out of stock"}
         className={clsx(
-          "relative grid size-10 shrink-0 place-items-center rounded-full bg-ink text-white transition hover:bg-brand-800 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-300",
+          "relative grid size-10 shrink-0 place-items-center rounded-full bg-brand-gradient text-white transition hover:bg-brand-gradient-strong active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-300",
           className,
         )}
       >
         <ShoppingCart className="size-4" />
         {inCart > 0 && (
-          <span className="absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-lime px-1 text-[10px] font-bold text-brand-800 ring-2 ring-tile">
+          <span className="absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-brand-800 ring-2 ring-tile">
             {inCart}
           </span>
         )}
+      </button>
+    );
+  }
+
+  if (variant === "card") {
+    if (!inStock) return <span className={clsx("inline-flex h-10 items-center rounded-full bg-gray-100 px-4 text-xs font-semibold text-muted", className)}>Out of stock</span>;
+    if (inCart > 0) return <QuantityStepper qty={inCart} onChange={(n) => setQty(productId, n)} />;
+    return (
+      <button
+        type="button"
+        onClick={addOne}
+        aria-label={`Add ${productName} to cart`}
+        className={clsx(
+          "inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-brand-gradient px-3.5 text-sm font-semibold text-white transition hover:bg-brand-gradient-strong active:scale-95 sm:px-4",
+          className,
+        )}
+      >
+        <ShoppingCart className="size-4" />
+        <span>Add<span className="hidden sm:inline"> to cart</span></span>
       </button>
     );
   }
@@ -108,7 +127,7 @@ export function AddToCart({
   return (
     <button
       onClick={addOne}
-      className={clsx("inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink px-8 text-base font-semibold text-white transition hover:bg-brand-800 active:scale-[0.98]", className)}
+      className={clsx("inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand-gradient px-8 text-base font-semibold text-white transition hover:bg-brand-gradient-strong active:scale-[0.98]", className)}
     >
       <ShoppingCart className="size-4" /> Add to cart
     </button>

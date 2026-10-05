@@ -3,17 +3,50 @@ import type { Coupon, HeroSlide } from "./types";
 // Home page content. Images are placeholders in /public/images/placeholders/; swap in real photography later.
 
 export const heroSlides: HeroSlide[] = [
-  { id: "gut", eyebrow: "Formulations", title: "Whole body health starts", emphasis: "in the gut.", cta: "Shop now", href: "/collections/gut-health", image: "/images/placeholders/hero-gut.svg" },
-  { id: "skin", eyebrow: "Beauty from within", title: "Radiant skin is an", emphasis: "inside job.", cta: "Shop skin & hair", href: "/collections/skin-hair", image: "/images/placeholders/hero-skin.svg" },
-  { id: "sleep", eyebrow: "Rest & recover", title: "Better days begin with", emphasis: "deeper sleep.", cta: "Shop sleep", href: "/collections/sleep-stress", image: "/images/placeholders/hero-sleep.svg" },
+  {
+    id: "bone",
+    eyebrow: "Bone & joint",
+    title: "Strong bones, easy",
+    emphasis: "movement.",
+    cta: "Shop bone & joint",
+    href: "/collections/bone-joint",
+    image: "/images/placeholders/hero-bone.svg",
+    model: "/models/knee.glb",
+    finish: "frosted",
+    pedestal: true,
+    glow: "rgb(204 251 241 / 0.45)",
+    callouts: [
+      { kind: "bubble", icon: "Bone", label: "Bone density", angle: -145 },
+      { kind: "bubble", icon: "Footprints", label: "Easy movement", angle: -35 },
+      { kind: "bubble", icon: "Dna", label: "Collagen support", angle: 160 },
+      { kind: "card", label: "Calcium + D3", value: "Daily support", viz: "bars", angle: 25 },
+    ],
+  },
+  {
+    id: "heart",
+    eyebrow: "Heart & omega-3",
+    title: "Keep your heart",
+    emphasis: "in rhythm.",
+    cta: "Shop heart health",
+    href: "/collections/heart-omega",
+    model: "/models/heart.glb",
+    finish: "glass",
+    glow: "rgb(244 114 182 / 0.4)",
+    callouts: [
+      { kind: "card", label: "Heart rhythm", value: "72 bpm", viz: "pulse", angle: -150 },
+      { kind: "card", label: "Omega-3", value: "EPA + DHA", viz: "bars", angle: -25 },
+      { kind: "bubble", icon: "Droplet", label: "Circulation", angle: 155 },
+      { kind: "bubble", icon: "HeartPulse", label: "Heart health", angle: 35 },
+    ],
+  },
 ];
 
 /** Collection card art for the home page (keyed by collection slug). */
 export const collectionImages: Record<string, string> = {
+  "liver-care": "/images/placeholders/collection-immunity.svg",
   "gut-health": "/images/placeholders/collection-gut.svg",
-  "immunity-energy": "/images/placeholders/collection-immunity.svg",
-  "skin-hair": "/images/placeholders/collection-skin.svg",
-  "sleep-stress": "/images/placeholders/collection-sleep.svg",
+  "bone-joint": "/images/placeholders/collection-skin.svg",
+  "heart-omega": "/images/placeholders/collection-sleep.svg",
 };
 
 /** Discount codes accepted at checkout (not advertised on the site). */

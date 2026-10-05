@@ -1,8 +1,8 @@
 # Syncytium Health
 
-Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a small range of about 5–10 products), with customer accounts, checkout (Razorpay or cash on delivery) and an admin panel. The design follows a premium editorial look: floating dark nav, serif display type, forest green, sage and lime.
+Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a small range of about 5–10 products), with customer accounts, checkout (Razorpay or cash on delivery) and an admin panel. The design is a clean pharmacy look: Nunito Sans type, a soft-violet palette built on `#8B5CF6`, `#7C6BF0` and `#EDE9FE`. Colours are tokens in `src/app/globals.css` (`brand-*`, `accent`), so a retheme starts there.
 
-- **Demo content:** the 8 products and 4 collections are placeholders (`src/db/seed/`). Replace them from the admin panel.
+- **Catalogue:** 6 real products in 4 collections, with photos (`src/db/seed/`, photos in `src/db/seed/photos/`). **MRP, prices and stock are placeholders**, and so is LYCOTIUM's pack count. Set the real values in the admin panel. Calcitium-D3 is marked "Prescription required", so customers upload a prescription at checkout.
 - **Images:** each product can have up to 8 photos, uploaded in the admin panel. Products without photos, and the hero images, show drawn placeholders (see [Images](#images)).
 - **Payments:** run in **Razorpay test mode**.
 
@@ -28,7 +28,7 @@ Requirements: **Node 20.9+** and a Postgres database (a free [Neon](https://neon
 npm install
 cp .env.example .env.local   # then fill in the values (see below)
 npm run db:migrate           # create the tables
-npm run db:seed              # load the demo collections and products
+npm run db:seed              # load the collections, products and photos
 npm run dev                  # http://localhost:3000
 ```
 
@@ -59,7 +59,7 @@ Secrets are never committed: `.env.local` is git-ignored, and only `.env.example
 | `npm run lint` | ESLint |
 | `npm run db:generate` | Create a SQL migration from changes in `src/db/schema.ts` |
 | `npm run db:migrate` | Apply pending migrations to `DATABASE_URL` |
-| `npm run db:seed` | Insert or refresh the demo catalogue. **Resets the demo products' prices and stock** to seed values. Also removes the old pharmacy demo data (deactivating anything that's in past orders). Never touches products or collections created in the admin panel. |
+| `npm run db:seed` | Insert or refresh the catalogue from `src/db/seed/`. **Resets the seeded products' details, prices and stock** to the seed values, so after the first run, edit products in the admin panel instead. Photos are only added to products that have none. Also removes the older demo data (deactivating anything that's in past orders). Never touches products or collections created in the admin panel. |
 | `npm run db:studio` | Browse the database in Drizzle Studio |
 | `npm run auth:generate` | Regenerate `src/db/auth-schema.ts` after changing Better Auth plugins |
 | `npm run make-admin -- <email>` | Give an existing user the admin role |
@@ -93,7 +93,7 @@ src/
   db/
     schema.ts            Store tables (products, categories, orders, …)
     auth-schema.ts       Better Auth tables (generated, don't edit)
-    seed/                Demo collections and products used by db:seed
+    seed/                Collections, products and product photos used by db:seed
   lib/
     catalog.ts           All catalogue queries (search, sort, best sellers, new arrivals, related)
     pricing.ts           Pure bill/coupon/delivery calculations (shared by browser and server)
@@ -178,7 +178,7 @@ For Better Auth tables, change the plugins in both `src/lib/auth.ts` and `script
 ## Deploying (e.g. Vercel)
 
 1. Set all the environment variables above on the host. `BETTER_AUTH_URL` must be the real `https://` domain.
-2. Run `npm run db:migrate` against the production database (and `db:seed` only if you want the demo catalogue).
+2. Run `npm run db:migrate` against the production database and `npm run db:seed` once to load the catalogue.
 3. Register the Razorpay webhook.
 4. Before accepting real payments, complete Razorpay KYC and switch to live keys.
 
