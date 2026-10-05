@@ -4,7 +4,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import clsx from "clsx";
 import type { HeroSlide } from "@/data/types";
 import { HeroCallouts, HeroOrbit } from "./HeroCallouts";
@@ -52,6 +52,9 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       aria-roledescription="carousel"
       aria-label="Featured"
       className="relative -mt-[72px] h-[88svh] max-h-[820px] min-h-[560px] overflow-hidden bg-brand-gradient-glow md:-mt-[80px]"
+      // Desktop slides with a model lay out inside the header's max-w-7xl column: text on the left 45%, model on the
+      // right 55%, so the two stay together on wide screens. Percentages resolve against the section's width.
+      style={{ "--hero-edge": "max(1.5rem, calc((100% - 80rem) / 2))", "--hero-model-w": "calc((100% - 2 * var(--hero-edge)) * 0.55)" } as CSSProperties}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -82,7 +85,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           <div
             className={clsx(
               "relative flex h-full flex-col items-center justify-center px-6 pt-16 text-center text-white",
-              s.model && "lg:items-start lg:pr-[50%] lg:pl-[8vw] lg:text-left",
+              s.model && "lg:items-start lg:pr-[calc(var(--hero-edge)+var(--hero-model-w))] lg:pl-[calc(var(--hero-edge)+1rem)] lg:text-left",
             )}
           >
             <p className="text-xs font-medium tracking-[0.2em] uppercase md:text-sm">{s.eyebrow}</p>
@@ -103,7 +106,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       ))}
 
       {desktop && models.length > 0 && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 lg:block">
+        <div className="pointer-events-none absolute inset-y-0 hidden lg:block" style={{ right: "var(--hero-edge)", width: "var(--hero-model-w)" }}>
           {slides.map((s, i) => (
             <div
               key={s.id}
