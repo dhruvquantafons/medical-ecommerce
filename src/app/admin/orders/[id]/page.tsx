@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getAdminOrder } from "@/lib/admin.server";
 import { OrderDetailView } from "@/components/orders/OrderDetailView";
 import { OrderActions } from "@/components/admin/OrderActions";
+import { ShipmentPanel } from "@/components/admin/ShipmentPanel";
 
 export const metadata: Metadata = { title: "Order" };
 
@@ -38,6 +39,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
             )}
           </div>
           <OrderActions order={order} />
+          <ShipmentPanel order={order} />
         </div>
       </div>
     </>

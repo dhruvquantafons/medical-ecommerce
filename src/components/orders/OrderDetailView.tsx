@@ -1,4 +1,4 @@
-import { CircleCheck, FileText, MapPin, Wallet } from "lucide-react";
+import { CircleCheck, ExternalLink, FileText, MapPin, Truck, Wallet } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import type { OrderDetail, OrderStatus } from "@/data/types";
@@ -81,6 +81,23 @@ export function OrderDetailView({ order, admin }: { order: OrderDetail; admin?: 
           </p>
         )}
       </div>
+
+      {!admin && order.shipment?.awbCode && order.status !== "cancelled" && (
+        <div className="card flex flex-wrap items-center justify-between gap-3 p-5 text-sm">
+          <div>
+            <p className="flex items-center gap-2 font-bold"><Truck className="size-4 text-brand-600" /> Shipment</p>
+            <p className="mt-1 text-gray-700">
+              {order.shipment.courierName} · AWB <span className="font-mono">{order.shipment.awbCode}</span>
+            </p>
+            {order.shipment.status && <p className="text-xs text-muted">{order.shipment.status}</p>}
+          </div>
+          {order.shipment.trackingUrl && (
+            <a href={order.shipment.trackingUrl} target="_blank" rel="noopener" className="inline-flex items-center gap-1 font-semibold text-brand-700 hover:underline">
+              Track package <ExternalLink className="size-3.5" />
+            </a>
+          )}
+        </div>
+      )}
 
       <div className="card p-5">
         <h2 className="mb-3 font-bold">Items ({order.itemCount})</h2>

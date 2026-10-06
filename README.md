@@ -15,6 +15,7 @@ Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a sma
 | Database | Postgres (Neon) via **Drizzle ORM**; migrations in `drizzle/` |
 | Auth | **Better Auth**: email + password, admin plugin (roles, bans) |
 | Payments | Razorpay (Checkout.js + server-side order creation and signature verification) |
+| Shipping | Shiprocket (REST API: shipments, courier/AWB, pickup, labels, tracking webhook, pincode serviceability) |
 | Validation | zod |
 | Client state | zustand (cart and delivery pincode only, kept in localStorage) |
 
@@ -48,6 +49,9 @@ npm run make-admin -- you@example.com
 | `BETTER_AUTH_URL` | yes | Public base URL, e.g. `http://localhost:3000` or `https://your-domain`. |
 | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | yes | Razorpay API keys (`rzp_test_…` for test mode). |
 | `RAZORPAY_WEBHOOK_SECRET` | no | Only needed for `/api/payments/webhook`. |
+| `SHIPROCKET_API_EMAIL` / `SHIPROCKET_API_PASSWORD` | yes (to ship) | Shiprocket **API user** (Settings → API → Configure), not your main login. |
+| `SHIPROCKET_PICKUP_LOCATION` | no | Pickup address nickname in Shiprocket. Defaults to `Primary`. |
+| `SHIPROCKET_WEBHOOK_TOKEN` | no | Only needed for `/api/shipping/webhook`. |
 
 Secrets are never committed: `.env.local` is git-ignored, and only `.env.example` is tracked.
 
@@ -85,6 +89,7 @@ src/
     api/
       auth/[...all]      Better Auth handler
       payments/          create-order, verify, webhook (Razorpay)
+      shipping/          serviceability (pincode check), webhook (Shiprocket tracking)
       prescriptions/     Upload (POST) and download (GET, owner or admin only)
       admin/product-images  Product photo upload (POST, admin only)
       product-images/[id]   Serves an uploaded product photo (public, cached)
@@ -99,6 +104,8 @@ src/
     pricing.ts           Pure bill/coupon/delivery calculations (shared by browser and server)
     checkout.server.ts   Server-side cart pricing and stock checks
     orders.server.ts     Order creation, payment confirmation, order reads
+    shiprocket.server.ts Shiprocket API client (token cache, orders, AWB, pickup, label, tracking)
+    shipments.server.ts  Order shipping flow and courier-status → order-status mapping
     admin.server.ts      Admin dashboard and list queries
     auth.ts, session.ts  Better Auth config and session helpers (requireUser, requireAdmin)
   data/
@@ -175,11 +182,34 @@ For Better Auth tables, change the plugins in both `src/lib/auth.ts` and `script
   - Put the webhook secret in `RAZORPAY_WEBHOOK_SECRET`.
   - For local testing, expose port 3000 with a tunnel such as ngrok.
 
+## Shiprocket (shipping)
+
+- **Setup:**
+  1. In Shiprocket, go to Settings → API → Configure and create an API user. Use a different email from your main login. Put its email and password in `SHIPROCKET_API_EMAIL` / `SHIPROCKET_API_PASSWORD`.
+  2. Under Settings → Pickup Addresses, add your warehouse address and verify its phone number. Put its nickname in `SHIPROCKET_PICKUP_LOCATION`.
+  3. Recharge the Shiprocket wallet. Courier charges are deducted from it when an AWB is assigned.
+  4. Optional: set courier priority (Settings → Courier Priority). "Ship with Shiprocket" uses Shiprocket's recommended courier.
+- **Shipping an order** (admin → order page → "Shipping (Shiprocket)" card):
+  1. Check the package weight and size, then click **Ship with Shiprocket**. This creates the Shiprocket order (our order id is the channel order id), assigns a courier (AWB) and schedules pickup. The order moves to **Packed**.
+  2. Each step is saved as soon as it succeeds. If one fails (e.g. low wallet balance), fix the cause and click **Retry**.
+  3. Use **Generate label** / **Print label** to get the shipping label PDF.
+  - The same rules as manual status changes apply: online orders must be paid, and Rx orders need an approved prescription.
+- **Tracking:**
+  - The webhook moves the order to **Shipped** (picked up, in transit, out for delivery) and **Delivered**. It never moves an order backwards, and RTO/undelivered statuses are only recorded, not acted on.
+  - Customers see the courier, AWB and a "Track package" link on their order page.
+  - Without the webhook, use **Refresh** on the admin order page.
+- **Webhook:**
+  - URL: `https://<domain>/api/shipping/webhook`. Shiprocket rejects URLs containing "shiprocket", "kartrocket", "sr" or "kr".
+  - Set it under Settings → API → Webhooks, with a token you choose, and put the same token in `SHIPROCKET_WEBHOOK_TOKEN`.
+- **Cancelling:** cancelling an order in the admin panel also cancels its Shiprocket order. If that fails, the message says so and you must cancel it in Shiprocket.
+- **Pincode check:** the product page's "Check delivery" uses live courier serviceability and ETD from the pickup pincode. If Shiprocket is unreachable, it shows a generic message.
+- **Default package size:** set in `src/config/site.ts` (`parcel`).
+
 ## Deploying (e.g. Vercel)
 
 1. Set all the environment variables above on the host. `BETTER_AUTH_URL` must be the real `https://` domain.
 2. Run `npm run db:migrate` against the production database and `npm run db:seed` once to load the catalogue.
-3. Register the Razorpay webhook.
+3. Register the Razorpay webhook and the Shiprocket webhook.
 4. Before accepting real payments, complete Razorpay KYC and switch to live keys.
 
 ## Known limitations and next steps

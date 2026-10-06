@@ -169,6 +169,16 @@ export const orders = pgTable(
     /** Set once stock has been deducted, so payment callbacks and webhooks stay idempotent. */
     stockDeducted: boolean("stock_deducted").notNull().default(false),
     paidAt: timestamp("paid_at", { withTimezone: true }),
+    // Shiprocket shipment (set by the admin "Ship with Shiprocket" action, updated by its webhook).
+    shiprocketOrderId: text("shiprocket_order_id"),
+    shiprocketShipmentId: text("shiprocket_shipment_id"),
+    awbCode: text("awb_code").unique(),
+    courierName: text("courier_name"),
+    pickupRequested: boolean("pickup_requested").notNull().default(false),
+    labelUrl: text("label_url"),
+    /** Latest courier status text from Shiprocket, e.g. "IN TRANSIT". */
+    shipmentStatus: text("shipment_status"),
+    shipmentUpdatedAt: timestamp("shipment_updated_at", { withTimezone: true }),
     ...timestamps,
   },
   (t) => [index("orders_user_idx").on(t.userId), index("orders_created_idx").on(t.createdAt), index("orders_status_idx").on(t.status)],

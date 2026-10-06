@@ -156,4 +156,18 @@ export interface OrderDetail {
   paidAt: string | null;
   items: OrderItemView[];
   prescriptions: Prescription[];
+  shipment: OrderShipment | null;
+}
+
+/** Shiprocket shipment for an order (null until the admin creates one). */
+export interface OrderShipment {
+  shiprocketOrderId: string;
+  shipmentId: string;
+  awbCode: string | null;
+  courierName: string | null;
+  trackingUrl: string | null;
+  status: string | null;
+  updatedAt: string | null;
+  pickupRequested: boolean;
+  labelUrl: string | null;
 }

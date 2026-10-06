@@ -9,6 +9,8 @@ import { categories, orderItems, orders, productImages, products, session, user 
 import { auth } from "@/lib/auth";
 import { currentUser } from "@/lib/session";
 import { MAX_PRODUCT_IMAGES } from "@/lib/files";
+import { ShiprocketError } from "@/lib/shiprocket.server";
+import { cancelShipment, refreshTracking, shipOrder, shippingLabel } from "@/lib/shipments.server";
 import { ICON_NAMES } from "@/components/ui/Icon";
 
 // Every action re-checks the admin role: server actions are public HTTP endpoints.
@@ -54,6 +56,7 @@ export async function updateOrderStatus(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return { ok: false, error: "Invalid status" };
   const { orderId, status } = parsed.data;
 
+  let shipmentToCancel: string | null = null;
   const result = await db.transaction(async (tx): Promise<ActionResult> => {
     const [o] = await tx.select().from(orders).where(eq(orders.id, orderId)).for("update");
     if (!o) return { ok: false, error: "Order not found" };
@@ -68,11 +71,75 @@ export async function updateOrderStatus(input: unknown): Promise<ActionResult> {
     await tx.update(orders).set({ status }).where(eq(orders.id, orderId));
     if (status === "cancelled" && o.stockDeducted) await restock(tx, orderId);
     const refund = status === "cancelled" && o.paymentStatus === "paid" ? " Refund the payment from the Razorpay dashboard." : "";
+    if (status === "cancelled") shipmentToCancel = o.shiprocketOrderId;
     return { ok: true, data: null, message: `Order marked ${status}.${refund}` };
   });
+  if (result.ok && shipmentToCancel) {
+    const error = await cancelShipment(shipmentToCancel);
+    if (error) result.message += ` Shiprocket shipment was NOT cancelled (${error}); cancel it in the Shiprocket panel.`;
+    else {
+      await db.update(orders).set({ shipmentStatus: "CANCELLED", shipmentUpdatedAt: new Date() }).where(eq(orders.id, orderId));
+      result.message += " Shiprocket shipment cancelled.";
+    }
+  }
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin");
   return result;
+}
+
+// ---- Shipping (Shiprocket)
+
+const shipInput = z.object({
+  orderId: z.string().min(1),
+  weightKg: z.coerce.number().min(0.05, "At least 0.05 kg").max(50),
+  lengthCm: z.coerce.number().min(0.5).max(200),
+  breadthCm: z.coerce.number().min(0.5).max(200),
+  heightCm: z.coerce.number().min(0.5).max(200),
+});
+
+const shippingError = (e: unknown): ActionResult<never> => {
+  if (e instanceof ShiprocketError) return { ok: false, error: e.message };
+  throw e;
+};
+
+/** Creates the Shiprocket order, assigns a courier and schedules pickup (whichever steps are still pending). */
+export async function shipWithShiprocket(input: unknown): Promise<ActionResult> {
+  await assertAdmin();
+  const parsed = shipInput.safeParse(input);
+  if (!parsed.success) return fail(parsed.error);
+  const { orderId, ...parcel } = parsed.data;
+  try {
+    const { awbCode } = await shipOrder(orderId, parcel);
+    return { ok: true, data: null, message: `Shipment ready. AWB ${awbCode}, pickup scheduled.` };
+  } catch (e) {
+    return shippingError(e);
+  } finally {
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath("/admin");
+  }
+}
+
+export async function refreshShipment(orderId: string): Promise<ActionResult> {
+  await assertAdmin();
+  try {
+    const status = await refreshTracking(String(orderId));
+    return { ok: true, data: null, message: status ? `Courier status: ${status}` : "No tracking updates yet." };
+  } catch (e) {
+    return shippingError(e);
+  } finally {
+    revalidatePath(`/admin/orders/${orderId}`);
+  }
+}
+
+export async function getShippingLabel(orderId: string): Promise<ActionResult<{ url: string }>> {
+  await assertAdmin();
+  try {
+    const url = await shippingLabel(String(orderId));
+    revalidatePath(`/admin/orders/${orderId}`);
+    return { ok: true, data: { url }, message: "Label ready. Click Print label." };
+  } catch (e) {
+    return shippingError(e);
+  }
 }
 
 const rxInput = z.discriminatedUnion("decision", [

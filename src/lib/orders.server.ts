@@ -5,6 +5,7 @@ import { addresses, orderItems, orderPrescriptions, orders, prescriptions, produ
 import type { OrderDetail, PaymentMethod } from "@/data/types";
 import { toAddress } from "./account.server";
 import { CheckoutError, priceCart } from "./checkout.server";
+import { trackingUrl } from "./shiprocket.server";
 import type { CartLine } from "./pricing";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -233,5 +234,19 @@ export async function getOrderDetail(id: string, userId?: string): Promise<Order
       url: `/api/prescriptions/${p.id}`,
       uploadedAt: p.createdAt.toISOString(),
     })),
+    shipment:
+      o.shiprocketOrderId && o.shiprocketShipmentId
+        ? {
+            shiprocketOrderId: o.shiprocketOrderId,
+            shipmentId: o.shiprocketShipmentId,
+            awbCode: o.awbCode,
+            courierName: o.courierName,
+            trackingUrl: o.awbCode ? trackingUrl(o.awbCode) : null,
+            status: o.shipmentStatus,
+            updatedAt: o.shipmentUpdatedAt?.toISOString() ?? null,
+            pickupRequested: o.pickupRequested,
+            labelUrl: o.labelUrl,
+          }
+        : null,
   };
 }
