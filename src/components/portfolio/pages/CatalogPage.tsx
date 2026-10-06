@@ -77,7 +77,7 @@ export function CatalogPage({ items }: CatalogPageProps) {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleAddToCart = (item: CatalogItem) => {
-    setToastMessage(`Selected "${item.name}" for SYNCTIUM Health digital store!`);
+    setToastMessage(`Selected "${item.name}" for SYNCYTIUM Health digital store!`);
     setTimeout(() => setToastMessage(null), 3500);
   };
 

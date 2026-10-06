@@ -66,7 +66,7 @@ export function Navbar({ onSearchClick }: NavbarProps) {
             <Pill size={20} color="#ffffff" style={{ transform: 'rotate(-45deg)' }} />
           </div>
           <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0f172a', whiteSpace: 'nowrap' }}>
-            SYNCTIUM <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed', letterSpacing: '0.05em' }}>HEALTH</span>
+            SYNCYTIUM <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed', letterSpacing: '0.05em' }}>HEALTH</span>
           </span>
         </Link>
 

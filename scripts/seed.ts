@@ -211,7 +211,7 @@ async function main() {
     const seedCatalogItems = [
       {
         name: "Synspas+",
-        brand: "SYNCTIUM Healthcare",
+        brand: "SYNCYTIUM Healthcare",
         category: "Prescription (Rx)",
         description: "Targeted hepatic lipid and metabolic homeostasis formulation engineered with Oleoylethanolamide, Pantethine, and L-Valine.",
         dosageForm: "Tablet",
@@ -236,7 +236,7 @@ async function main() {
       },
       {
         name: "NACPHYLIN",
-        brand: "SYNCTIUM Pharma Labs",
+        brand: "SYNCYTIUM Pharma Labs",
         category: "Prescription (Rx)",
         description: "A New Airway Regulator with added Anti-Inflammatory Action. N-Acetylcysteine acts as a mucolytic; Acebrophylline is a new generation airway mucus regulator.",
         dosageForm: "Tablet",
@@ -260,7 +260,7 @@ async function main() {
       },
       {
         name: "AXONERGIC",
-        brand: "SYNCTIUM Pharma Labs",
+        brand: "SYNCYTIUM Pharma Labs",
         category: "Prescription (Rx)",
         description: "Methylcobalamin 1000 mcg + Thiamine Hydrochloride 100 mg + Pyridoxine Hydrochloride 100 mg + Niacinamide 100 mg / ml Injection. The Neuro Regenerating Power for Complete Health.",
         dosageForm: "Injectable",
@@ -286,7 +286,7 @@ async function main() {
       },
       {
         name: "Rabocap-Plus",
-        brand: "SYNCTIUM Pharma Labs",
+        brand: "SYNCYTIUM Pharma Labs",
         category: "Prescription (Rx)",
         description: "Rabeprazole (Enteric Coated) 20 mg + Levosulpiride 75 mg (Sustained Release) Capsules. The Clinically Proven Treatment of GI Discomforts.",
         dosageForm: "Capsule",
@@ -310,7 +310,7 @@ async function main() {
       },
       {
         name: "Diptor-F",
-        brand: "SYNCTIUM Pharma Labs",
+        brand: "SYNCYTIUM Pharma Labs",
         category: "Prescription (Rx)",
         description: "Rosuvastatin 10 mg + Fenofibrate 160 mg Tablets. The Most Advance and Effective Solution for Indian Dyslipiemics associated with Diabetic and Hypertension.",
         dosageForm: "Tablet",
@@ -382,7 +382,7 @@ async function main() {
       },
       {
         name: "AXONERGIC-AT",
-        brand: "SYNCTIUM Pharma Labs",
+        brand: "SYNCYTIUM Pharma Labs",
         category: "Prescription (Rx)",
         description: "Pregabalin 75 mg + Amitriptyline 10 mg Tablets. Ensure SPEEDY Relief — The Pivotal Combination For Enduring Relief From Neuropathic Pain.",
         dosageForm: "Tablet",
@@ -406,7 +406,7 @@ async function main() {
       },
       {
         name: "Diptor 20",
-        brand: "SYNCTIUM Pharma Labs",
+        brand: "SYNCYTIUM Pharma Labs",
         category: "Over-The-Counter (OTC)",
         description: "In Atherosclerosis Regression & Dyslipidemia. A Valuable Statin For Life.",
         dosageForm: "Capsule",
@@ -431,7 +431,7 @@ async function main() {
       },
       {
         name: "SYNKALI-B6",
-        brand: "SYNCTIUM Urology",
+        brand: "SYNCYTIUM Urology",
         category: "Over-The-Counter (OTC)",
         description: "Potassium Citrate, Citric Acid & Vitamin B6 Solution. Systemic alkalizer used for the treatment of renal tubular acidosis.",
         dosageForm: "Syrup",

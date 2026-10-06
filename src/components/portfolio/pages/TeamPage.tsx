@@ -23,7 +23,7 @@ export function TeamPage() {
             Meet the Pharmacists & <span className="gradient-accent-text">Research Scientists</span>
           </h1>
           <p style={{ color: '#475569', fontSize: '1.1rem', lineHeight: 1.65 }}>
-            Our multi-disciplinary team of pharmaceutical scientists, R&D researchers, quality assurance specialists, and medical advisors driving precision medicine formulations for SYNCTIUM Health.
+            Our multi-disciplinary team of pharmaceutical scientists, R&D researchers, quality assurance specialists, and medical advisors driving precision medicine formulations for SYNCYTIUM Health.
           </p>
         </div>
 

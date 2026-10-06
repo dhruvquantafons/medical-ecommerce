@@ -20,13 +20,13 @@ export function AboutSection() {
           <div className="pf-about-text-col">
             <div className="glass-pill" style={{ marginBottom: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles size={14} color="var(--primary-accent)" />
-              <span>Better Together • SYNCTIUM Health</span>
+              <span>Better Together • SYNCYTIUM Health</span>
             </div>
             <h2 className="font-display gradient-text" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: '16px' }}>
               Precision Pharmaceutical <span className="gradient-accent-text">Excellence</span>
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.65, marginBottom: '20px' }}>
-              SYNCTIUM Health is dedicated to setting new benchmarks in modern healthcare by engineering spectrometry-verified active salt formulations, ensuring complete chemical transparency, and delivering reliable patient-centric medicines.
+              SYNCYTIUM Health is dedicated to setting new benchmarks in modern healthcare by engineering spectrometry-verified active salt formulations, ensuring complete chemical transparency, and delivering reliable patient-centric medicines.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '26px' }}>
               {[

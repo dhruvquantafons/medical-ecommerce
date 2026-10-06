@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from 'react';
+import { useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
 import * as THREE from 'three';
@@ -66,12 +66,18 @@ function MolecularNodes({ color = '#8b5cf6' }: { color?: string }) {
 export function MoleculeViewer({ primaryColor = '#8b5cf6' }: MoleculeViewerProps) {
   return (
     <div style={{ width: '100%', height: '220px', borderRadius: '16px', overflow: 'hidden', background: 'rgba(0,0,0,0.2)' }}>
-      <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }}>
+      <Canvas
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 0, 3.8], fov: 45 }}
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      >
         <ambientLight intensity={1.0} />
         <directionalLight position={[3, 5, 4]} intensity={1.8} />
-        <Float speed={2} rotationIntensity={0.5}>
-          <MolecularNodes color={primaryColor} />
-        </Float>
+        <Suspense fallback={null}>
+          <Float speed={2} rotationIntensity={0.5}>
+            <MolecularNodes color={primaryColor} />
+          </Float>
+        </Suspense>
         <OrbitControls enableZoom={false} enablePan={false} />
       </Canvas>
     </div>
