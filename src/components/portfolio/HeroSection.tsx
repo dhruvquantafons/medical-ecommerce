@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import type { ThemeMode } from './types/pharmacy';
-import { Sparkles, ArrowRight, Mail, TrendingUp, ShieldCheck } from 'lucide-react';
+import { Sparkles, ArrowRight, Mail } from 'lucide-react';
 
 const PillCanvas = dynamic(() => import('./3d/PillCanvas').then(m => ({ default: m.PillCanvas })), { ssr: false });
 
@@ -19,12 +19,12 @@ export function HeroSection({ theme }: HeroSectionProps) {
     <section id="hero-3d" className="pf-hero-section" style={{ minHeight: '100vh', paddingTop: '120px', paddingBottom: '60px', position: 'relative', display: 'flex', alignItems: 'center', background: 'var(--hero-gradient)', overflow: 'hidden' }}>
       <div style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 20px' }}>
         <div className="pf-hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: '30px', alignItems: 'center' }}>
-          <div style={{ zIndex: 2 }}>
-            <div className="glass-pill" style={{ marginBottom: '20px' }}>
+          <div className="pf-hero-text-col" style={{ zIndex: 2 }}>
+            <div className="glass-pill pf-hero-badge" style={{ marginBottom: '20px' }}>
               <Sparkles size={14} color="var(--primary-accent)" />
               <span>Intelligent Digital Medicine Platform</span>
             </div>
-            <h1 className="font-display gradient-text" style={{ fontSize: 'clamp(2.2rem, 5vw, 4.2rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: '20px' }}>
+            <h1 className="font-display gradient-text pf-hero-title" style={{ fontSize: 'clamp(2.2rem, 5vw, 4.2rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: '20px' }}>
               Empowering Healthcare <br />
               <span className="gradient-accent-text">Through Digital Precision</span>
             </h1>
@@ -71,21 +71,6 @@ export function HeroSection({ theme }: HeroSectionProps) {
 
           <div className="pf-pill-canvas-container" style={{ position: 'relative', width: '100%', minHeight: '580px', zIndex: 1, overflow: 'visible' }}>
             <PillCanvas theme={theme} particleCount={220} />
-            <div className="glass-panel pf-floating-badge-top" style={{ position: 'absolute', top: '16px', right: '10px', padding: '16px 20px', borderRadius: '18px', width: '210px', maxWidth: 'calc(100% - 20px)', boxShadow: '0 20px 40px rgba(168,85,247,0.15)', border: '1px solid rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.88)', zIndex: 20, pointerEvents: 'none' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-subtle)', textTransform: 'uppercase', marginBottom: '2px' }}>Search Indexing</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.03em' }}>98.6%</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '6px' }}>Google Search Accuracy Rate</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: '#10b981', fontWeight: 700 }}>
-                <TrendingUp size={14} /><span>+12.4% vs last week</span>
-              </div>
-            </div>
-            <div className="glass-panel pf-floating-badge-bottom" style={{ position: 'absolute', bottom: '16px', left: '10px', padding: '10px 16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.88)', boxShadow: '0 12px 30px rgba(99,102,241,0.12)', maxWidth: 'calc(100% - 20px)', zIndex: 20, pointerEvents: 'none' }}>
-              <ShieldCheck size={20} color="var(--primary-accent)" style={{ flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)' }}>Verified Active Salt Integrity</div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-subtle)' }}>Certified Pharmaceutical Standard</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

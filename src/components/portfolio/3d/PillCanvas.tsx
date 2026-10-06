@@ -35,7 +35,7 @@ function SplitPillCapsule({ theme }: { theme: ThemeMode }) {
   });
 
   return (
-    <group ref={pillGroupRef} position={[0, -0.05, 0]} scale={1.5}>
+    <group ref={pillGroupRef} position={[0, 0.1, 0]} scale={1.2}>
       <mesh position={[0, 0.75, 0]}>
         <cylinderGeometry args={[0.7, 0.7, 1.0, 32]} />
         <meshPhysicalMaterial color={capColor} roughness={0.1} metalness={0.15} clearcoat={1.0} clearcoatRoughness={0.05} reflectivity={0.9} />

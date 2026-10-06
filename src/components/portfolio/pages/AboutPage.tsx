@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { PHARMA_FEATURE_CARDS } from '../data/pharmacyData';
 import { motion } from 'framer-motion';
+
+const DnaHelix = dynamic(() => import('../3d/DnaHelix').then(m => ({ default: m.DnaHelix })), {
+  ssr: false,
+  loading: () => <div style={{ width: '100%', height: '100%', background: 'transparent' }} />,
+});
 import {
   HeartPulse, ShieldCheck, TestTube2, Atom, Network, Sparkles,
   ArrowUpRight, ArrowLeft, Award, CheckCircle2, Microscope,
@@ -79,11 +85,13 @@ export function AboutPage() {
             </div>
           </div>
 
-          {/* DNA Video */}
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-            style={{ position: 'relative', width: '100%', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', background: '#000', height: '460px' }}>
-            <video src="/portfolio/dna_vortex.mp4" poster="/portfolio/dna_vortex.jpg" autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', boxShadow: 'inset 0 0 35px rgba(168,85,247,0.25)', borderRadius: '28px' }} />
+          {/* DNA 3D Helix */}
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+            animate={{ y: [0, -8, 0] }}
+            transition={{ y: { repeat: Infinity, duration: 4.5, ease: 'easeInOut' }, duration: 0.6 }}
+            whileHover={{ scale: 1.02 }}
+            style={{ position: 'relative', height: 'clamp(320px, 50vh, 460px)', width: '100%' }}>
+            <DnaHelix />
           </motion.div>
         </div>
 
@@ -105,9 +113,9 @@ export function AboutPage() {
             })}
           </div>
 
-          <div className="glass-panel" style={{ padding: '40px', borderRadius: '24px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 10px 40px rgba(0,0,0,0.04)' }}>
+          <div className="glass-panel pf-about-tabs-panel" style={{ borderRadius: '24px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 10px 40px rgba(0,0,0,0.04)' }}>
             {activeTab === 'vision' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'center' }}>
+              <div className="pf-about-vision-grid" style={{ display: 'grid', gap: '32px', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '16px', color: 'var(--secondary-accent)' }}>Dedicated to Clinical Quality & Chemical Integrity</h3>
                   <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: '16px' }}>At SYNCTIUM Health, our mission is to eliminate uncertainty in modern medication by setting rigorous quality standards for Active Pharmaceutical Ingredients (APIs) and salt bio-equivalence.</p>
