@@ -58,15 +58,8 @@ function MedicineCard({ item, idx, onSelect, onAddToCart, accentColor }: { item:
           <div>Bio: <strong style={{ color: accentColor }}>{item.bioavailability}</strong></div>
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
-        <div>
-          <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Est. Retail</div>
-          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>{item.priceEstimate}</div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={onSelect} className="glass-button-secondary" style={{ padding: '7px 14px', fontSize: '0.8rem' }}><Eye size={14} /><span>Inspect 3D</span></button>
-          <button onClick={onAddToCart} className="glass-button" style={{ padding: '7px 14px', fontSize: '0.8rem' }}><span>Select</span></button>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
+          <button onClick={onSelect} className="glass-button" style={{ padding: '7px 14px', fontSize: '0.8rem' }}><Eye size={14} /><span>View Details</span></button>
       </div>
     </motion.div>
   );

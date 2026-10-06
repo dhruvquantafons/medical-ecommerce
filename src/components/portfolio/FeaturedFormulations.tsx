@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
+import { useMemo, useEffect, useState } from 'react';
 import type { CatalogItem } from '@/lib/catalog-item-types';
-import { parseSalts } from '@/lib/catalog-item-types';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ShoppingCart, ShieldCheck, ArrowRight, Star, CheckCircle2, Zap } from 'lucide-react';
 
@@ -12,6 +12,24 @@ interface FeaturedFormulationsProps {
 
 export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // Static cards for the banner preview (specific products by name)
+  const bannerCards = useMemo(() => [
+    { name: 'Calcitium Tablets',       brand: 'Syncytium Health', price: '₹359', img: '/portfolio/assets/medicine_calcitium_tablets.png' },
+    { name: 'LYCOTIUM Softgel',        brand: 'Syncytium Health', price: '₹539', img: '/portfolio/assets/medicine_lycotium_softgel.png'  },
+    { name: 'Calcitium-D3 Nano Shots', brand: 'Syncytium Health', price: '₹229', img: '/portfolio/assets/medicine_calcitium_d3.png'      },
+  ], []);
+
+  // Catalog items for the Featured Formulations grid below
   const featuredItems = items.slice(0, 3);
 
   return (
@@ -21,10 +39,10 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
         <motion.div
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
           className="glass-panel pf-banner-card"
-          style={{ position: 'relative', borderRadius: '28px', padding: '32px 24px', background: '#ffffff', border: '1px solid rgba(124,58,237,0.18)', boxShadow: '0 20px 50px rgba(124,58,237,0.08)', overflow: 'hidden', marginBottom: '40px' }}
+          style={{ position: 'relative', borderRadius: '28px', padding: '32px 24px', background: '#ffffff', border: '1px solid rgba(124,58,237,0.18)', boxShadow: '0 20px 50px rgba(124,58,237,0.08)', overflow: 'visible', marginBottom: '40px' }}
         >
           <div style={{ position: 'absolute', top: '-120px', right: '-100px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, rgba(255,255,255,0) 70%)', pointerEvents: 'none' }} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px', alignItems: 'center', position: 'relative', zIndex: 2 }}>
+          <div className="pf-banner-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px', alignItems: 'center', position: 'relative', zIndex: 2 }}>
             <div>
               <div className="glass-pill" style={{ marginBottom: '18px', display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(124,58,237,0.1)', borderColor: 'rgba(124,58,237,0.25)', color: '#7c3aed', padding: '6px 14px', borderRadius: '9999px', fontWeight: 700, fontSize: '0.82rem' }}>
                 <ShoppingBag size={15} /><span>Therapeutic Store • Official Supply</span>
@@ -45,10 +63,80 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
                 <ShoppingCart size={18} /><span>Shop Now</span><ArrowRight size={16} />
               </button>
             </div>
-            <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }} style={{ position: 'relative', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 16px 40px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)', maxHeight: '320px', width: '100%' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/portfolio/assets/banner_pinterest.jpg" alt="3D Floating Capsules Pharmacy Banner" style={{ width: '100%', height: '320px', objectFit: 'cover', display: 'block' }} />
-            </motion.div>
+            {/* Mini stacked card preview */}
+            <div
+              className="pf-banner-cards-preview"
+              style={isMobile ? {
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                gap: '12px',
+                height: 'auto',
+                width: '100%',
+                padding: '12px 0 4px',
+                overflowX: 'auto',
+              } : {
+                position: 'relative', width: '100%', height: '300px',
+                display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+                paddingRight: '28px', overflow: 'visible',
+              }}
+            >
+              {bannerCards.map((item, i) => (
+                <motion.div
+                  key={item.name}
+                  whileHover={{ y: -10, scale: 1.06, zIndex: 10 }}
+                  transition={{ duration: 0.22 }}
+                  onClick={() => router.push('/portfolio/catalog')}
+                  style={isMobile ? {
+                    position: 'relative',
+                    width: '110px',
+                    flexShrink: 0,
+                    background: '#ffffff',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 28px rgba(99,102,241,0.18)',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                  } : {
+                    position: 'absolute',
+                    width: '170px',
+                    background: '#ffffff',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 28px rgba(99,102,241,0.18)',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    // Symmetric ~40px gap on both sides of the centre card
+                    right: i === 0 ? '345px' : i === 1 ? '175px' : '5px',
+                    top:   i === 1 ? '14px' : '44px',
+                    transform: `rotate(${(i - 1) * 10}deg) translateZ(0)`,
+                    zIndex: i === 1 ? 3 : i === 0 ? 2 : 1,
+                    willChange: 'transform',
+                    imageRendering: 'auto',
+                  } as React.CSSProperties}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    style={{ width: '100%', height: isMobile ? '90px' : '132px', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                  />
+                  <div style={{ padding: '8px 10px 10px' }}>
+                    <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {item.brand}
+                    </div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {item.name}
+                    </div>
+                    <div style={{ marginTop: '6px', fontSize: '0.82rem', fontWeight: 900, color: '#0f172a' }}>
+                      {item.price}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </motion.div>
 
@@ -64,9 +152,8 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '18px' }}>
           {featuredItems.map((item, idx) => {
-            const salts = parseSalts(item.salts);
             return (
               <motion.div
                 key={item.id}
@@ -75,10 +162,10 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
                 whileHover={{ y: -6, transition: { duration: 0.2 } }}
                 className="glass-panel"
                 onClick={() => router.push('/portfolio/catalog')}
-                style={{ borderRadius: '18px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
+                style={{ borderRadius: '18px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
               >
                 <div>
-                  <div style={{ width: '100%', aspectRatio: '1/1', maxHeight: '240px', borderRadius: '14px', overflow: 'hidden', marginBottom: '12px', position: 'relative', background: '#ffffff' }}>
+                  <div style={{ width: '100%', aspectRatio: '4/3', maxHeight: '160px', borderRadius: '14px', overflow: 'hidden', marginBottom: '10px', position: 'relative', background: '#ffffff' }}>
                     {item.imageUrl && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
@@ -94,23 +181,11 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
                     <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item.brand}</span>
                     <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>{item.dosageForm}</span>
                   </div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginBottom: '6px', lineHeight: 1.25 }}>{item.name}</h4>
-                  <p style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: 1.4, marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {item.description}
-                  </p>
-                  <div style={{ marginBottom: '14px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                    {salts.map((salt, sIdx) => (
-                      <span key={sIdx} style={{ fontSize: '0.68rem', fontWeight: 600, background: '#f1f5f9', color: '#334155', padding: '2px 6px', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{salt.name} ({salt.amount})</span>
-                    ))}
-                  </div>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginBottom: '10px', lineHeight: 1.25 }}>{item.name}</h4>
                 </div>
-                <div style={{ paddingTop: '12px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-                  <div>
-                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600 }}>Price</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f172a' }}>{item.priceEstimate}</div>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); router.push('/store'); }} className="glass-button" style={{ padding: '8px 14px', fontSize: '0.8rem', fontWeight: 700, borderRadius: '10px', background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', color: '#ffffff', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                    <ShoppingCart size={14} /><span>Shop Now</span>
+                <div style={{ paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <button onClick={(e) => { e.stopPropagation(); router.push('/portfolio/catalog'); }} className="glass-button" style={{ padding: '8px 14px', fontSize: '0.8rem', fontWeight: 700, borderRadius: '10px', background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', color: '#ffffff', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <span>View Details</span><ArrowRight size={14} />
                   </button>
                 </div>
               </motion.div>

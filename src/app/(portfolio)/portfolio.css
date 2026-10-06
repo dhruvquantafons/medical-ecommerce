@@ -326,3 +326,205 @@
     font-size: 0.62rem !important;
   }
 }
+
+
+/* ---- Mobile hero: pill beside the heading, not below it ---- */
+@media (max-width: 767px) {
+  /* Section becomes the positioning context for the pill */
+  [data-portfolio] .pf-hero-section {
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  /* Text column stays in normal flow, rendered on top of the pill */
+  [data-portfolio] .pf-hero-text-col {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  /* Badge + heading narrowed so the pill sits beside, not behind */
+  [data-portfolio] .pf-hero-badge {
+    max-width: 60% !important;
+    font-size: 0.8rem !important;
+  }
+  [data-portfolio] .pf-hero-title {
+    max-width: 56% !important;
+    font-size: clamp(1.5rem, 5vw, 2rem) !important;
+  }
+
+  /* Pill container: absolutely positioned top-right, behind text */
+  [data-portfolio] .pf-pill-canvas-container {
+    position: absolute !important;
+    top: 115px !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 44% !important;
+    height: 240px !important;
+    min-height: 240px !important;
+    margin-top: 0 !important;
+    z-index: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Hide floating badges on mobile so they don't cover the pill */
+  [data-portfolio] .pf-floating-badge-top,
+  [data-portfolio] .pf-floating-badge-bottom {
+    display: none !important;
+  }
+}
+
+/* ---- About section: DNA beside text on mobile, same pattern as hero pill ---- */
+@media (max-width: 767px) {
+  [data-portfolio] .pf-about-section {
+    position: relative !important;
+    overflow: visible !important;
+    padding-top: 32px !important;
+    padding-bottom: 32px !important;
+  }
+
+  /* Text column in normal flow, on top */
+  [data-portfolio] .pf-about-text-col {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  /* Narrow the badge, h2 and checklist so DNA sits beside */
+  [data-portfolio] .pf-about-text-col .glass-pill,
+  [data-portfolio] .pf-about-text-col h2 {
+    max-width: 58% !important;
+  }
+
+  [data-portfolio] .pf-about-text-col h2 {
+    font-size: clamp(1.4rem, 5vw, 1.9rem) !important;
+  }
+
+  /* DNA column: absolutely positioned top-right, behind text */
+  [data-portfolio] .pf-about-dna-col {
+    position: absolute !important;
+    top: 28px !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 44% !important;
+    height: 260px !important;
+    min-height: 260px !important;
+    z-index: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Hide the framer-motion wrapper's own height so it fills the container */
+  [data-portfolio] .pf-about-dna-col > div {
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  [data-portfolio] .pf-about-dna-col {
+    height: 220px !important;
+    min-height: 220px !important;
+    top: 24px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  [data-portfolio] .pf-about-dna-col {
+    height: 190px !important;
+    min-height: 190px !important;
+    width: 42% !important;
+    top: 20px !important;
+  }
+
+  [data-portfolio] .pf-about-text-col .glass-pill,
+  [data-portfolio] .pf-about-text-col h2 {
+    max-width: 54% !important;
+  }
+}
+
+/* ---- Featured Formulations banner: single box on mobile ---- */
+@media (max-width: 767px) {
+  /* Banner card: auto height, no overflow clipping */
+  [data-portfolio] .pf-banner-card {
+    overflow: hidden !important;
+    min-height: unset !important;
+  }
+
+  /* Inner grid: stack vertically */
+  [data-portfolio] .pf-banner-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+  }
+
+  /* Text column: full width */
+  [data-portfolio] .pf-banner-grid > div:first-child {
+    position: relative !important;
+    z-index: 2 !important;
+    max-width: 100% !important;
+  }
+
+  /* Narrow the heading inside the banner */
+  [data-portfolio] .pf-banner-grid > div:first-child h2 {
+    font-size: clamp(1.4rem, 5vw, 1.85rem) !important;
+    max-width: 100% !important;
+  }
+
+  /* Stack the checklist items vertically */
+  [data-portfolio] .pf-banner-grid > div:first-child > div[style*="flex-wrap"] {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  /* Cards preview: switch from absolute-positioned fan to a flat horizontal scroll row */
+  [data-portfolio] .pf-banner-cards-preview {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    height: auto !important;
+    width: 100% !important;
+    padding: 12px 0 4px !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    transform: none !important;
+  }
+
+  /* Each card: reset absolute positioning, show inline */
+  [data-portfolio] .pf-banner-cards-preview > * {
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: 120px !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  [data-portfolio] .pf-banner-grid > div:first-child h2 {
+    font-size: clamp(1.25rem, 4.5vw, 1.6rem) !important;
+  }
+
+  [data-portfolio] .pf-banner-cards-preview > * {
+    width: 100px !important;
+  }
+}
+
+/* ---- About Page Mobile Overrides ---- */
+[data-portfolio] .pf-about-tabs-panel {
+  padding: 40px;
+}
+[data-portfolio] .pf-about-vision-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (max-width: 767px) {
+  [data-portfolio] .pf-about-tabs-panel {
+    padding: 24px;
+  }
+  [data-portfolio] .pf-about-vision-grid {
+    grid-template-columns: 1fr;
+  }
+}

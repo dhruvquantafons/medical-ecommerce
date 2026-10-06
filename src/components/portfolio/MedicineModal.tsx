@@ -80,17 +80,8 @@ export function MedicineModal({ item, onClose, onAddToCart }: MedicineModalProps
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '14px' }}>
-          <div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-subtle)' }}>Retail Price Estimate</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>{item.priceEstimate}</div>
-          </div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', width: '100%', maxWidth: '300px', justifyContent: 'flex-end' }}>
-            <button onClick={onClose} className="glass-button-secondary" style={{ padding: '9px 18px', fontSize: '0.85rem' }}>Close</button>
-            <button onClick={() => { onAddToCart(item); onClose(); }} className="glass-button" style={{ padding: '9px 18px', fontSize: '0.85rem' }}>
-              <ShoppingCart size={15} /><span>Sync to Store Cart</span>
-            </button>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+          <button onClick={onClose} className="glass-button-secondary" style={{ padding: '9px 24px', fontSize: '0.85rem' }}>Close</button>
         </div>
       </div>
     </div>
