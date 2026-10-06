@@ -29,7 +29,7 @@ export function PortfolioShell({ children, items }: PortfolioShellProps) {
   });
 
   const handleAddToCart = (item: CatalogItem) => {
-    setToastMessage(`Selected "${item.name}" for SYNCTIUM Health digital store!`);
+    setToastMessage(`Selected "${item.name}" for SYNCYTIUM Health digital store!`);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -61,7 +61,7 @@ export function PortfolioShell({ children, items }: PortfolioShellProps) {
                 <input
                   type="text"
                   autoFocus
-                  placeholder="Search SYNCTIUM Health salt database (e.g. Paracetamol, Cetirizine)..."
+                  placeholder="Search SYNCYTIUM Health salt database (e.g. Paracetamol, Cetirizine)..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   style={{ width: '100%', background: 'none', border: 'none', color: '#0f172a', fontSize: '1.1rem', outline: 'none', fontWeight: 600 }}

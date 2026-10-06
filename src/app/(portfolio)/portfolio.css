@@ -383,13 +383,13 @@
     padding-bottom: 32px !important;
   }
 
-  /* Text column in normal flow, on top */
+  /* Text column in normal flow, always on top of DNA */
   [data-portfolio] .pf-about-text-col {
     position: relative !important;
     z-index: 2 !important;
   }
 
-  /* Narrow the badge, h2 and checklist so DNA sits beside */
+  /* Narrow the badge and h2 only so DNA sits beside them */
   [data-portfolio] .pf-about-text-col .glass-pill,
   [data-portfolio] .pf-about-text-col h2 {
     max-width: 58% !important;
@@ -399,6 +399,14 @@
     font-size: clamp(1.4rem, 5vw, 1.9rem) !important;
   }
 
+  /* Paragraph and everything after h2 go full width below the DNA */
+  [data-portfolio] .pf-about-text-col p,
+  [data-portfolio] .pf-about-text-col ul,
+  [data-portfolio] .pf-about-text-col > div:not(:first-child):not(:nth-child(2)) {
+    max-width: 100% !important;
+    padding-right: 0 !important;
+  }
+
   /* DNA column: absolutely positioned top-right, behind text */
   [data-portfolio] .pf-about-dna-col {
     position: absolute !important;
@@ -406,8 +414,8 @@
     right: 0 !important;
     left: auto !important;
     width: 44% !important;
-    height: 260px !important;
-    min-height: 260px !important;
+    height: 200px !important;
+    min-height: 200px !important;
     z-index: 0 !important;
     overflow: hidden !important;
     pointer-events: none !important;
@@ -422,16 +430,16 @@
 
 @media (max-width: 480px) {
   [data-portfolio] .pf-about-dna-col {
-    height: 220px !important;
-    min-height: 220px !important;
+    height: 180px !important;
+    min-height: 180px !important;
     top: 24px !important;
   }
 }
 
 @media (max-width: 380px) {
   [data-portfolio] .pf-about-dna-col {
-    height: 190px !important;
-    min-height: 190px !important;
+    height: 160px !important;
+    min-height: 160px !important;
     width: 42% !important;
     top: 20px !important;
   }
@@ -476,39 +484,18 @@
     gap: 8px !important;
   }
 
-  /* Cards preview: switch from absolute-positioned fan to a flat horizontal scroll row */
+  /* Cards preview: scale the fanned layout to fit mobile width.
+     height reduced to match visual height after scale (300 × 0.58 ≈ 174px) */
   [data-portfolio] .pf-banner-cards-preview {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: flex-start !important;
-    justify-content: center !important;
-    gap: 12px !important;
-    height: auto !important;
-    width: 100% !important;
-    padding: 12px 0 4px !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    transform: none !important;
-  }
-
-  /* Each card: reset absolute positioning, show inline */
-  [data-portfolio] .pf-banner-cards-preview > * {
-    position: relative !important;
-    right: auto !important;
-    top: auto !important;
-    transform: none !important;
-    width: 120px !important;
-    flex-shrink: 0 !important;
+    transform: scale(0.58) !important;
+    transform-origin: top right !important;
+    height: 174px !important;
   }
 }
 
 @media (max-width: 480px) {
   [data-portfolio] .pf-banner-grid > div:first-child h2 {
     font-size: clamp(1.25rem, 4.5vw, 1.6rem) !important;
-  }
-
-  [data-portfolio] .pf-banner-cards-preview > * {
-    width: 100px !important;
   }
 }
 

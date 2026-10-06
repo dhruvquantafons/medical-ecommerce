@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo, useState, useEffect, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Float, Sparkles, Environment } from '@react-three/drei';
+import { OrbitControls, Float, Sparkles, Lightformer, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import type { ThemeMode } from '../types/pharmacy';
 
@@ -157,6 +157,20 @@ function SaltParticleEmitter({ theme, particleCount = 180, isEmitting }: { theme
 
 export function PillCanvas({ theme, particleCount = 200 }: PillCanvasProps) {
   const [isEmitting, setIsEmitting] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [frameloop, setFrameloop] = useState<'always' | 'never'>('always');
+
+  // Pause rendering when the canvas is scrolled off-screen
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setFrameloop(entry.isIntersecting ? 'always' : 'never'),
+      { threshold: 0.05 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleClick = () => setIsEmitting(true);
@@ -168,17 +182,29 @@ export function PillCanvas({ theme, particleCount = 200 }: PillCanvasProps) {
   const pointColor  = theme === 'emerald' ? '#34d399' : theme === 'beige' ? '#f59e0b' : '#a855f7';
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'visible' }}>
-      <Canvas camera={{ position: [0, 0, 7.0], fov: 45 }} gl={{ antialias: true, alpha: true }}>
+    <div ref={containerRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'visible' }}>
+      <Canvas
+        frameloop={frameloop}
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 0, 7.0], fov: 45 }}
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      >
         <ambientLight intensity={1.5} />
         <directionalLight position={[6, 9, 6]} intensity={2.2} color="#ffffff" />
         <directionalLight position={[-6, -4, -6]} intensity={1.0} color="#c084fc" />
         <pointLight position={[0, 0, 3]} intensity={3.0} color={pointColor} />
-        <Environment preset="city" />
-        <Float speed={2.0} rotationIntensity={0.3} floatIntensity={0.1}>
-          <SplitPillCapsule theme={theme} />
-          <SaltParticleEmitter theme={theme} particleCount={particleCount} isEmitting={isEmitting} />
-        </Float>
+        {/* Inline lightformers replace Environment preset="city" — no HDR download */}
+        <Environment resolution={256}>
+          <Lightformer form="ring"  intensity={3}   color="#c4b5fd" position={[0, 2, -4]}  scale={4} />
+          <Lightformer              intensity={2}   color="#ffffff" position={[3, 1,  3]}  scale={[4, 2, 1]} />
+          <Lightformer              intensity={1.5} color="#8b5cf6" position={[-4, 0, 1]} rotation-y={Math.PI / 2} scale={[6, 2, 1]} />
+        </Environment>
+        <Suspense fallback={null}>
+          <Float speed={2.0} rotationIntensity={0.3} floatIntensity={0.1}>
+            <SplitPillCapsule theme={theme} />
+            <SaltParticleEmitter theme={theme} particleCount={particleCount} isEmitting={isEmitting} />
+          </Float>
+        </Suspense>
         <Sparkles count={80} scale={6.5} size={2.8} speed={0.4} opacity={0.65} color={sparkleColor} />
         <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 1.4} minPolarAngle={Math.PI / 3} />
       </Canvas>

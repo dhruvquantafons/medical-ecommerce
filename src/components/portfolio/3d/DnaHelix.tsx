@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useMemo, useEffect, useCallback } from 'react';
+import { useRef, useMemo, useEffect, useCallback, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Float, Environment, Sparkles } from '@react-three/drei';
+import { Float, Environment, Sparkles, Lightformer } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ---------------------------------------------------------------------------
@@ -702,12 +702,16 @@ function AutoCamera() {
 export function DnaHelix() {
   const containerRef = useRef<HTMLDivElement>(null);
   const pausedRef    = useRef(false);
+  const [frameloop, setFrameloop] = useState<'always' | 'never'>('always');
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
     const obs = new IntersectionObserver(
-      ([entry]) => { pausedRef.current = !entry.isIntersecting; },
+      ([entry]) => {
+        pausedRef.current = !entry.isIntersecting;
+        setFrameloop(entry.isIntersecting ? 'always' : 'never');
+      },
       { threshold: 0.05 },
     );
     obs.observe(el);
@@ -718,7 +722,12 @@ export function DnaHelix() {
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%', touchAction: 'pan-y' }}>
-      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 7.0], fov: 45 }} gl={{ antialias: true, alpha: true }}>
+      <Canvas
+        frameloop={frameloop}
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 0, 7.0], fov: 45 }}
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      >
         <AutoCamera />
 
         <ambientLight intensity={1.4} />
@@ -727,14 +736,19 @@ export function DnaHelix() {
         <pointLight position={[0,  0,  3]}  intensity={2.8} color="#a855f7" />
         <pointLight position={[0,  0, -3]}  intensity={1.2} color="#ede9fe" />
         <pointLight position={[-2, 2,  1]}  intensity={1.5} color="#7c3aed" />
-        <Environment preset="city" />
+        {/* Inline lightformers — no HDR file download */}
+        <Environment resolution={256}>
+          <Lightformer form="ring"  intensity={3}   color="#c4b5fd" position={[0, 2, -4]}  scale={4} />
+          <Lightformer              intensity={2}   color="#ffffff" position={[3, 1,  3]}  scale={[4, 2, 1]} />
+          <Lightformer              intensity={1.5} color="#8b5cf6" position={[-4, 0, 1]} rotation-y={Math.PI / 2} scale={[6, 2, 1]} />
+        </Environment>
 
-        {/* ── background layers ── */}
-        <Background paused={false} />
-        <Nebula     paused={false} />
-        <LightBeams paused={false} />
-        <PulseRings paused={false} />
-        <ShootingStars paused={false} />
+        {/* ── background layers — paused when off-screen via frameloop + getPaused ── */}
+        <Background    paused={getPaused()} />
+        <Nebula        paused={getPaused()} />
+        <LightBeams    paused={getPaused()} />
+        <PulseRings    paused={getPaused()} />
+        <ShootingStars paused={getPaused()} />
 
         {/* ── sparkle layers ── */}
         <Sparkles count={60}  scale={4.5} size={2.0} speed={0.55} opacity={0.70} color="#c4b5fd" />

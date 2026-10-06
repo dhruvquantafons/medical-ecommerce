@@ -29,7 +29,7 @@ export function HeroSection({ theme }: HeroSectionProps) {
               <span className="gradient-accent-text">Through Digital Precision</span>
             </h1>
             <p style={{ fontSize: '1.05rem', color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: '30px', maxWidth: '540px' }}>
-              SYNCTIUM Health empowers pharmaceutical leaders and retail pharmacies to digitize medicine catalogs, deliver verified active salt transparency, and connect patients seamlessly with certified healthcare products.
+              SYNCYTIUM Health empowers pharmaceutical leaders and retail pharmacies to digitize medicine catalogs, deliver verified active salt transparency, and connect patients seamlessly with certified healthcare products.
             </p>
             <div className="pf-hero-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '36px' }}>
               <button onClick={() => router.push('/portfolio/catalog')} className="glass-button" style={{ padding: '14px 26px' }}>

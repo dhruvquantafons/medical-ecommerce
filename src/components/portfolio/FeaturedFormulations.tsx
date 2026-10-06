@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import type { CatalogItem } from '@/lib/catalog-item-types';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ShoppingCart, ShieldCheck, ArrowRight, Star, CheckCircle2, Zap } from 'lucide-react';
@@ -12,15 +12,6 @@ interface FeaturedFormulationsProps {
 
 export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
   const router = useRouter();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   // Static cards for the banner preview (specific products by name)
   const bannerCards = useMemo(() => [
@@ -66,18 +57,7 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
             {/* Mini stacked card preview */}
             <div
               className="pf-banner-cards-preview"
-              style={isMobile ? {
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                gap: '12px',
-                height: 'auto',
-                width: '100%',
-                padding: '12px 0 4px',
-                overflowX: 'auto',
-              } : {
+              style={{
                 position: 'relative', width: '100%', height: '300px',
                 display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
                 paddingRight: '28px', overflow: 'visible',
@@ -89,17 +69,7 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
                   whileHover={{ y: -10, scale: 1.06, zIndex: 10 }}
                   transition={{ duration: 0.22 }}
                   onClick={() => router.push('/portfolio/catalog')}
-                  style={isMobile ? {
-                    position: 'relative',
-                    width: '110px',
-                    flexShrink: 0,
-                    background: '#ffffff',
-                    borderRadius: '16px',
-                    boxShadow: '0 8px 28px rgba(99,102,241,0.18)',
-                    border: '1px solid #e2e8f0',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                  } : {
+                  style={{
                     position: 'absolute',
                     width: '170px',
                     background: '#ffffff',
@@ -108,7 +78,6 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
                     border: '1px solid #e2e8f0',
                     overflow: 'hidden',
                     cursor: 'pointer',
-                    // Symmetric ~40px gap on both sides of the centre card
                     right: i === 0 ? '345px' : i === 1 ? '175px' : '5px',
                     top:   i === 1 ? '14px' : '44px',
                     transform: `rotate(${(i - 1) * 10}deg) translateZ(0)`,
@@ -121,7 +90,7 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
                   <img
                     src={item.img}
                     alt={item.name}
-                    style={{ width: '100%', height: isMobile ? '90px' : '132px', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                    style={{ width: '100%', height: '132px', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
                   />
                   <div style={{ padding: '8px 10px 10px' }}>
                     <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

@@ -18,7 +18,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-01',
     name: 'Synspas+',
-    brand: 'SYNCTIUM Healthcare',
+    brand: 'SYNCYTIUM Healthcare',
     category: 'Prescription (Rx)',
     description: 'Targeted hepatic lipid and metabolic homeostasis formulation engineered with Oleoylethanolamide, Pantethine, and L-Valine.',
     salts: [
@@ -42,7 +42,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-02',
     name: 'NACPHYLIN',
-    brand: 'SYNCTIUM Pharma Labs',
+    brand: 'SYNCYTIUM Pharma Labs',
     category: 'Prescription (Rx)',
     description: `A New Airway Regulator with added Anti-Inflammatory Action\n\nN-ACETYLCYSTEINE\n• NAC acts as a mucolytic, thins thick mucus thus easier to cough out\n• Keeps airways clear and open for clean breathing\n• As an Antioxidant\n  - Protects lung cells, reduces inflammation thus limits tissue damage\n\nACEBROPHYLLINE\n• New generation airway mucus regulator\n• Significant improvement "in-lung" function as mucoreg facilitates is of pulmonary surfactants\n• Reduces the use of short acting B2 agonist inhalers\n• Better anti-inflammatory effect & sustained action\n\nA Fresh Therapeutic Approach for Managing Asthma`,
     salts: [
@@ -65,7 +65,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-03',
     name: 'AXONERGIC',
-    brand: 'SYNCTIUM Pharma Labs',
+    brand: 'SYNCYTIUM Pharma Labs',
     category: 'Prescription (Rx)',
     description: `Methylcobalamin 1000 mcg + Thiamine Hydrochloride 100 mg + Pyridoxine Hydrochloride 100 mg + Niacinamide 100 mg / ml Injection\n\nThe Neuro Regenerating Power for Complete Health`,
     salts: [
@@ -90,7 +90,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-04',
     name: 'Rabocap-Plus',
-    brand: 'SYNCTIUM Pharma Labs',
+    brand: 'SYNCYTIUM Pharma Labs',
     category: 'Prescription (Rx)',
     description: `Rabeprazole (Enteric Coated) 20 mg + Levosulpiride 75 mg (Sustained Release) Capsules\n\nThe Clinically Proven Treatment of GI Discomforts`,
     salts: [
@@ -113,7 +113,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-05',
     name: 'Diptor-F',
-    brand: 'SYNCTIUM Pharma Labs',
+    brand: 'SYNCYTIUM Pharma Labs',
     category: 'Prescription (Rx)',
     description: `Rosuvastatin 10 mg + Fenofibrate 160 mg Tablets\n\nThe Most Advance and Effective Solution for Indian Dyslipiemics`,
     salts: [
@@ -182,7 +182,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-08',
     name: 'AXONERGIC-AT',
-    brand: 'SYNCTIUM Pharma Labs',
+    brand: 'SYNCYTIUM Pharma Labs',
     category: 'Prescription (Rx)',
     description: `Pregabalin 75 mg + Amitriptyline 10 mg Tablets`,
     salts: [
@@ -205,7 +205,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-09',
     name: 'Diptor 20',
-    brand: 'SYNCTIUM Pharma Labs',
+    brand: 'SYNCYTIUM Pharma Labs',
     category: 'Over-The-Counter (OTC)',
     description: `In Atherosclerosis Regression & Dyslipidemia`,
     salts: [
@@ -229,7 +229,7 @@ export const MEDICINES_DATA: Medicine[] = [
   {
     id: 'med-10',
     name: 'SYNKALI-B6',
-    brand: 'SYNCTIUM Urology',
+    brand: 'SYNCYTIUM Urology',
     category: 'Over-The-Counter (OTC)',
     description: 'Potassium Citrate, Citric Acid & Vitamin B6 Solution. Systemic alkalizer used for the treatment of renal tubular acidosis.',
     salts: [
@@ -262,7 +262,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     bio: 'Expert in pharmacokinetic modeling and drug formulation.',
     avatar: 'https://i.pravatar.cc/150?img=47',
     credentials: ['PharmD', 'PhD'],
-    email: 'sarah.j@synctium.com',
+    email: 'sarah.j@syncytium.com',
   },
   {
     id: 'team-02',
@@ -273,7 +273,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     bio: 'Optimizing cold-chain distribution for sensitive biotech products.',
     avatar: 'https://i.pravatar.cc/150?img=11',
     credentials: ['MBA', 'CSCP'],
-    email: 'marcus.c@synctium.com',
+    email: 'marcus.c@syncytium.com',
   },
   {
     id: 'team-03',
@@ -284,7 +284,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     bio: 'Ensuring every batch meets our stringent quality standards.',
     avatar: 'https://i.pravatar.cc/150?img=5',
     credentials: ['MSc', 'CQE'],
-    email: 'elena.r@synctium.com',
+    email: 'elena.r@syncytium.com',
   },
   {
     id: 'team-04',
@@ -295,7 +295,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     bio: 'Driving our digital-first approach to modern pharmacy access.',
     avatar: 'https://i.pravatar.cc/150?img=12',
     credentials: ['BSc', 'PMP'],
-    email: 'david.k@synctium.com',
+    email: 'david.k@syncytium.com',
   },
   {
     id: 'team-05',
@@ -306,7 +306,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     bio: 'Pioneering breakthrough trials in targeted biological therapies.',
     avatar: 'https://i.pravatar.cc/150?img=33',
     credentials: ['MD', 'PhD'],
-    email: 'michael.c@synctium.com',
+    email: 'michael.c@syncytium.com',
   },
   {
     id: 'team-06',
@@ -317,7 +317,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     bio: 'Navigating complex global health compliance for innovative formulations.',
     avatar: 'https://i.pravatar.cc/150?img=43',
     credentials: ['PharmD', 'RAC'],
-    email: 'sophia.p@synctium.com',
+    email: 'sophia.p@syncytium.com',
   },
 ];
 

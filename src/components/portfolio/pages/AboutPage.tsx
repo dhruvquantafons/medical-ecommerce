@@ -54,7 +54,7 @@ export function AboutPage() {
               Precision Formulations for <span className="gradient-accent-text">Cardiovascular Resilience</span>
             </h1>
             <p style={{ color: '#475569', fontSize: '1.05rem', lineHeight: 1.65, marginBottom: '24px' }}>
-              SYNCTIUM Health is dedicated to advancing modern pharmaceutical standards by formulating spectrometry-verified medicines, ensuring absolute active salt transparency, and delivering reliable health solutions trusted by medical professionals and patients worldwide.
+              SYNCYTIUM Health is dedicated to advancing modern pharmaceutical standards by formulating spectrometry-verified medicines, ensuring absolute active salt transparency, and delivering reliable health solutions trusted by medical professionals and patients worldwide.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px', marginBottom: '28px' }}>
               {[
@@ -118,7 +118,7 @@ export function AboutPage() {
               <div className="pf-about-vision-grid" style={{ display: 'grid', gap: '32px', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '16px', color: 'var(--secondary-accent)' }}>Dedicated to Clinical Quality & Chemical Integrity</h3>
-                  <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: '16px' }}>At SYNCTIUM Health, our mission is to eliminate uncertainty in modern medication by setting rigorous quality standards for Active Pharmaceutical Ingredients (APIs) and salt bio-equivalence.</p>
+                  <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: '16px' }}>At SYNCYTIUM Health, our mission is to eliminate uncertainty in modern medication by setting rigorous quality standards for Active Pharmaceutical Ingredients (APIs) and salt bio-equivalence.</p>
                   <p style={{ color: '#475569', lineHeight: 1.7 }}>We collaborate with leading research laboratories, trusted pharmacy networks (Apollo Pharmacy, MedPlus, Netmeds), and healthcare providers to ensure every medicine delivers reliable therapeutic outcomes.</p>
                 </div>
                 <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '18px', border: '1px solid #e2e8f0' }}>
@@ -136,7 +136,7 @@ export function AboutPage() {
             {activeTab === 'seo' && (
               <div>
                 <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '16px', color: 'var(--secondary-accent)' }}>Standardized Digital Health & Medicine Verification</h3>
-                <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: '24px' }}>Every formulation in the SYNCTIUM Health registry carries standardized clinical metadata and structured medical schemas, allowing healthcare providers and patients to instantly verify active salt compositions, recommended dosages, and batch authenticity.</p>
+                <p style={{ color: '#475569', lineHeight: 1.7, marginBottom: '24px' }}>Every formulation in the SYNCYTIUM Health registry carries standardized clinical metadata and structured medical schemas, allowing healthcare providers and patients to instantly verify active salt compositions, recommended dosages, and batch authenticity.</p>
                 <div style={{ background: '#0f172a', padding: '24px', borderRadius: '18px', fontFamily: 'monospace', fontSize: '0.88rem', color: '#a7f3d0', overflowX: 'auto', border: '1px solid #1e293b' }}>
                   <pre>{`{
   "@context": "https://schema.org",

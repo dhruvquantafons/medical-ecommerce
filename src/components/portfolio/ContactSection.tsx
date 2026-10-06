@@ -22,7 +22,7 @@ export function ContactSection() {
             <span>Connect & Partner Portal</span>
           </div>
           <h2 className="font-display gradient-text" style={{ fontSize: 'clamp(2rem, 3.8vw, 2.8rem)', fontWeight: 800, marginBottom: '14px' }}>
-            Digitize Your Pharmacy with <span className="gradient-accent-text">SYNCTIUM Health</span>
+            Digitize Your Pharmacy with <span className="gradient-accent-text">SYNCYTIUM Health</span>
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>
             Ready to convert your physical medicine inventory into a 3D digital showcase indexed on Google? Reach out to our digital pharmacy architects.
@@ -36,7 +36,7 @@ export function ContactSection() {
               <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', borderRadius: '16px', padding: '20px', textAlign: 'center', color: '#059669' }}>
                 <ShieldCheck size={36} style={{ margin: '0 auto 10px' }} />
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>Request Received!</h4>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Our SYNCTIUM Health pharmaceutical leads will contact you within 24 hours.</p>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Our SYNCYTIUM Health pharmaceutical leads will contact you within 24 hours.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -68,9 +68,9 @@ export function ContactSection() {
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '20px' }}>Global Headquarters & Labs</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {[
-                  { icon: MapPin, title: 'SYNCTIUM Health Bio-Tech Tower', sub: '450 Genomics Way, Suite 1200, Boston MA 02115' },
-                  { icon: Mail, title: 'Digital API Support', sub: 'partners@synctium-health.com' },
-                  { icon: Phone, title: 'Direct Pharmacist Line', sub: '+1 (800) 555-SYNCTIUM' },
+                  { icon: MapPin, title: 'SYNCYTIUM Health Bio-Tech Tower', sub: '450 Genomics Way, Suite 1200, Boston MA 02115' },
+                  { icon: Mail, title: 'Digital API Support', sub: 'partners@syncytium-health.com' },
+                  { icon: Phone, title: 'Direct Pharmacist Line', sub: '+1 (800) 555-SYNCYTIUM' },
                 ].map(({ icon: Icon, title, sub }, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ padding: '8px', borderRadius: '10px', background: 'var(--badge-bg)', color: 'var(--secondary-accent)', flexShrink: 0 }}><Icon size={18} /></div>
@@ -95,7 +95,7 @@ export function ContactSection() {
         <footer className="pf-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '28px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', fontSize: '0.82rem', color: 'var(--text-subtle)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <Pill size={18} color="var(--primary-accent)" />
-            <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>SYNCTIUM Health 3D Pharmacy Showcase</span>
+            <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>SYNCYTIUM Health 3D Pharmacy Showcase</span>
             <span>© {new Date().getFullYear()} All Rights Reserved.</span>
           </div>
           <div className="pf-footer-links" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
