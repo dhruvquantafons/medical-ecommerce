@@ -24,6 +24,7 @@ function fail(error: z.ZodError): ActionResult<never> {
 const employeeInput = z.object({
   name: z.string().trim().min(2, "Enter a name").max(120),
   role: z.string().trim().min(1, "Enter a role").max(120),
+  email: z.string().trim().email("Enter a valid email").max(254).optional().or(z.literal("")).transform(v => v || null),
   bio: z.string().trim().max(1000).default(""),
   photoUrl: z
     .string()

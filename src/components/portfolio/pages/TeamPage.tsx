@@ -1,11 +1,15 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { TEAM_MEMBERS } from '../data/pharmacyData';
-import { Users, Award, Mail, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { Users, Mail, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import type { Employee } from '@/lib/employees';
 
-export function TeamPage() {
+interface TeamPageProps {
+  members: Employee[];
+}
+
+export function TeamPage({ members }: TeamPageProps) {
   const router = useRouter();
 
   return (
@@ -27,51 +31,53 @@ export function TeamPage() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '30px' }}>
-          {TEAM_MEMBERS.map((member, idx) => (
-            <motion.div
-              key={member.id}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.08 }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="glass-panel"
-              style={{ padding: '32px 28px', borderRadius: '24px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(99,102,241,0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '20px' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={member.avatar} alt={member.name} style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #ffffff', boxShadow: '0 6px 20px rgba(124,58,237,0.2)' }} />
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em' }}>{member.name}</h3>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary-accent)' }}>{member.role}</div>
+        {members.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8', fontSize: '1rem' }}>
+            No team members added yet. Add them from the admin panel.
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+            {members.map((member, idx) => (
+              <motion.div
+                key={member.id}
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.08 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="glass-panel"
+                style={{ borderRadius: '20px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 10px 30px rgba(99,102,241,0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+              >
+                {/* Full-width portrait photo */}
+                {member.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={member.photoUrl}
+                    alt={member.name}
+                    style={{ width: '100%', aspectRatio: '1 / 1', objectFit: 'cover', display: 'block' }}
+                  />
+                ) : (
+                  <div style={{ width: '100%', aspectRatio: '1 / 1', background: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '3rem', color: '#7c3aed', fontWeight: 800 }}>
+                      {member.name.charAt(0)}
+                    </span>
                   </div>
+                )}
+                {/* Name, role, contact */}
+                <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.01em' }}>{member.name}</h3>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-accent)', marginBottom: '10px' }}>{member.role}</div>
+                  <a
+                    href={member.email ? `mailto:${member.email}` : `mailto:contact@syncytiumhealth.com?subject=Message for ${encodeURIComponent(member.name)}`}
+                    className="glass-button-secondary"
+                    style={{ padding: '8px 12px', fontSize: '0.82rem', justifyContent: 'center', textDecoration: 'none', color: '#0f172a', fontWeight: 700 }}
+                  >
+                    <Mail size={14} color="var(--primary-accent)" />
+                    <span>{member.email ? member.email : 'Contact'}</span>
+                  </a>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '18px' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '4px 10px', borderRadius: '8px', background: 'rgba(99,102,241,0.08)', color: 'var(--primary-accent)', border: '1px solid rgba(99,102,241,0.15)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <Award size={12} />{member.experience}
-                  </span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '4px 10px', borderRadius: '8px', background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    <ShieldCheck size={12} color="#10b981" />{member.department}
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.65, marginBottom: '22px' }}>{member.bio}</p>
-                <div style={{ marginBottom: '24px' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Credentials & Specializations:</div>
-                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {member.credentials.map((cred, i) => (
-                      <li key={i} style={{ fontSize: '0.82rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary-accent)' }} /><span>{cred}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <a href={`mailto:${member.email}`} className="glass-button-secondary" style={{ padding: '11px 18px', fontSize: '0.88rem', justifyContent: 'center', textDecoration: 'none', color: '#0f172a', fontWeight: 700 }}>
-                <Mail size={16} color="var(--primary-accent)" /><span>Contact {member.name.split(' ')[0]}</span>
-              </a>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
