@@ -36,7 +36,7 @@ export function TeamPage({ members }: TeamPageProps) {
             No team members added yet. Add them from the admin panel.
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          <div className="pf-team-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
             {members.map((member, idx) => (
               <motion.div
                 key={member.id}
