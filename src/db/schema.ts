@@ -246,6 +246,7 @@ export const employees = pgTable("employees", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   role: text("role").notNull(),
+  email: text("email"),
   bio: text("bio").notNull().default(""),
   photoUrl: text("photo_url"),
   sortOrder: integer("sort_order").notNull().default(0),

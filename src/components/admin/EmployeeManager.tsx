@@ -14,6 +14,7 @@ type Draft = {
   id: string | null;
   name: string;
   role: string;
+  email: string;
   bio: string;
   photoUrl: string;
   sortOrder: number;
@@ -24,6 +25,7 @@ const blank = (sortOrder: number): Draft => ({
   id: null,
   name: "",
   role: "",
+  email: "",
   bio: "",
   photoUrl: "",
   sortOrder,
@@ -34,6 +36,7 @@ const fromEmployee = (e: Employee): Draft => ({
   id: e.id,
   name: e.name,
   role: e.role,
+  email: e.email ?? "",
   bio: e.bio,
   photoUrl: e.photoUrl ?? "",
   sortOrder: e.sortOrder,
@@ -56,6 +59,7 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
     const input = {
       name: draft.name,
       role: draft.role,
+      email: draft.email || undefined,
       bio: draft.bio,
       photoUrl: draft.photoUrl || undefined,
       sortOrder: draft.sortOrder,
@@ -169,17 +173,17 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-gray-600">Bio</span>
-              <textarea
-                value={draft.bio}
-                onChange={(e) => set({ bio: e.target.value })}
-                rows={3}
-                className={clsx(
-                  "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100",
-                  errors.bio && "border-red-400",
-                )}
+              <span className="mb-1 block text-xs font-semibold text-gray-600">
+                Email <span className="font-normal text-muted">(optional — shown on contact button)</span>
+              </span>
+              <input
+                type="email"
+                value={draft.email}
+                onChange={(e) => set({ email: e.target.value })}
+                placeholder="name@example.com"
+                className={clsx(inputClass, "w-full", errors.email && "border-red-400")}
               />
-              {errors.bio && <span className="text-xs text-red-600">{errors.bio}</span>}
+              {errors.email && <span className="text-xs text-red-600">{errors.email}</span>}
             </label>
 
             <label className="block">
