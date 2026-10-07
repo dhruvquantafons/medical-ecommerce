@@ -515,3 +515,11 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Team page: 2 columns on mobile ---- */
+@media (max-width: 767px) {
+  [data-portfolio] .pf-team-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+}
