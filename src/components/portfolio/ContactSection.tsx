@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, ShieldCheck, Pill } from 'lucide-react';
+import { BluMarginsCredit } from '@/components/layout/BluMarginsCredit';
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -104,6 +105,9 @@ export function ContactSection() {
             <a href="#hero-3d" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>FDA Disclaimer</a>
           </div>
         </footer>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+          <BluMarginsCredit />
+        </div>
       </div>
     </section>
   );

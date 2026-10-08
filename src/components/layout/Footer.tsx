@@ -2,6 +2,7 @@ import Link from "next/link";
 import { site } from "@/config/site";
 import { getCategories } from "@/lib/catalog";
 import { ButtonLink } from "@/components/ui/Button";
+import { BluMarginsCredit } from "./BluMarginsCredit";
 
 const payMethods = ["UPI", "Visa", "Mastercard", "RuPay", "Net banking", "Cash on delivery"];
 
@@ -70,6 +71,9 @@ export async function Footer() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-white/85">
           <span>© {new Date().getFullYear()} {site.name}</span>
           <span className="display text-xl text-white/80">{site.shortName}</span>
+        </div>
+        <div className="mt-6 flex justify-center border-t border-white/25 pt-5">
+          <BluMarginsCredit tone="dark" />
         </div>
       </div>
     </footer>
