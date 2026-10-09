@@ -68,7 +68,7 @@ export function FeaturedFormulations({ items }: FeaturedFormulationsProps) {
                   key={item.name}
                   whileHover={{ y: -10, scale: 1.06, zIndex: 10 }}
                   transition={{ duration: 0.22 }}
-                  onClick={() => router.push('/portfolio/catalog')}
+                  onClick={() => router.push('/store')}
                   style={{
                     position: 'absolute',
                     width: '170px',

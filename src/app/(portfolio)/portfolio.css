@@ -523,3 +523,10 @@
     gap: 14px !important;
   }
 }
+
+/* ---- Navbar logo: slightly smaller on mobile ---- */
+@media (max-width: 767px) {
+  [data-portfolio] .pf-navbar-logo {
+    height: 110px !important;
+  }
+}
