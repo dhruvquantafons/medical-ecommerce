@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Pill, Search, Menu, X, ArrowRight } from 'lucide-react';
+import { Search, Menu, X, ArrowRight } from 'lucide-react';
 
 interface NavbarProps {
   onSearchClick: () => void;
@@ -61,13 +62,8 @@ export function Navbar({ onSearchClick }: NavbarProps) {
       }}
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/portfolio" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(124,58,237,0.3)', flexShrink: 0 }}>
-            <Pill size={20} color="#ffffff" style={{ transform: 'rotate(-45deg)' }} />
-          </div>
-          <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0f172a', whiteSpace: 'nowrap' }}>
-            SYNCYTIUM <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed', letterSpacing: '0.05em' }}>HEALTH</span>
-          </span>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Image src="/brand/logo.png" alt="SYNCYTIUM Health" width={360} height={150} className="pf-navbar-logo" style={{ height: '150px', width: 'auto', marginTop: '-30px', marginBottom: '-30px' }} priority />
         </Link>
 
         <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }} className="pf-desktop-nav">

@@ -2,6 +2,7 @@
 
 import { ClipboardCheck, ExternalLink, FlaskConical, LayoutDashboard, LayoutGrid, LogOut, Menu, Package, ReceiptText, Users, Users2, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import clsx from "clsx";
@@ -28,8 +29,7 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-5 py-5">
         <Link href="/admin" className="leading-tight" onClick={() => setOpen(false)}>
-          <span className="block text-lg font-extrabold tracking-tight text-white">{site.name}</span>
-          <span className="text-xs font-semibold tracking-wider text-brand-200 uppercase">Admin</span>
+          <Image src="/logo.png" alt={site.name} width={290} height={120} style={{ height: '120px', width: 'auto', marginTop: '-20px', marginBottom: '-20px' }} />
         </Link>
         <button className="rounded p-1 text-brand-100 lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
           <X className="size-5" />
@@ -98,7 +98,7 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
           <button onClick={() => setOpen(true)} aria-label="Open menu" className="rounded p-1.5 hover:bg-gray-100">
             <Menu className="size-5" />
           </button>
-          <span className="font-extrabold text-brand-700">{site.name} Admin</span>
+          <Image src="/logo.png" alt={site.name} width={290} height={120} style={{ height: '120px', width: 'auto', marginTop: '-20px', marginBottom: '-20px' }} />
         </header>
         <main className="mx-auto max-w-7xl px-4 py-6 md:px-8">{children}</main>
       </div>

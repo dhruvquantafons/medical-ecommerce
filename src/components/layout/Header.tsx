@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { site } from "@/config/site";
 import { getCategories } from "@/lib/catalog";
 import { getSession } from "@/lib/session";
@@ -11,8 +12,20 @@ import { MobileMenu } from "./MobileMenu";
 
 export function Logo({ light = true }: { light?: boolean }) {
   return (
-    <Link href="/" className={`display text-2xl leading-none md:text-[26px] ${light ? "text-white" : "text-brand-800"}`} aria-label={`${site.name} home`}>
-      {site.shortName}
+    <Link href="/" aria-label={`${site.name} home`} className="flex items-center overflow-visible">
+      <Image
+        src="/brand/logo.png"
+        alt={site.name}
+        width={360}
+        height={150}
+        style={{
+          height: '150px',
+          width: 'auto',
+          marginTop: '-45px',
+          marginBottom: '-45px',
+        }}
+        priority
+      />
     </Link>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { site } from "@/config/site";
+import Image from "next/image";
 import { getCategories } from "@/lib/catalog";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -69,7 +70,7 @@ export async function Footer() {
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-white/85">
           <span>© {new Date().getFullYear()} {site.name}</span>
-          <span className="display text-xl text-white/80">{site.shortName}</span>
+          <Image src="/brand/logo.png" alt={site.name} width={360} height={150} style={{ height: '150px', width: 'auto', marginTop: '-30px', marginBottom: '-30px' }} />
         </div>
       </div>
     </footer>

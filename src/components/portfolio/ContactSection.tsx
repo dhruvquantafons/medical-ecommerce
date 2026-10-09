@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, ShieldCheck, Pill } from 'lucide-react';
+import Image from 'next/image';
+import { Mail, Phone, MapPin, Send, ShieldCheck } from 'lucide-react';
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -94,8 +95,7 @@ export function ContactSection() {
 
         <footer className="pf-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '28px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', fontSize: '0.82rem', color: 'var(--text-subtle)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <Pill size={18} color="var(--primary-accent)" />
-            <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>SYNCYTIUM Health 3D Pharmacy Showcase</span>
+            <Image src="/brand/logo.png" alt="SYNCYTIUM Health" width={360} height={150} style={{ height: '150px', width: 'auto', marginTop: '-30px', marginBottom: '-30px' }} />
             <span>© {new Date().getFullYear()} All Rights Reserved.</span>
           </div>
           <div className="pf-footer-links" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
