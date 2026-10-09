@@ -3,6 +3,7 @@ import { site } from "@/config/site";
 import Image from "next/image";
 import { getCategories } from "@/lib/catalog";
 import { ButtonLink } from "@/components/ui/Button";
+import { BluMarginsCredit } from "./BluMarginsCredit";
 
 const payMethods = ["UPI", "Visa", "Mastercard", "RuPay", "Net banking", "Cash on delivery"];
 
@@ -71,6 +72,9 @@ export async function Footer() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-white/85">
           <span>© {new Date().getFullYear()} {site.name}</span>
           <Image src="/brand/logo.png" alt={site.name} width={360} height={150} style={{ height: '150px', width: 'auto', marginTop: '-30px', marginBottom: '-30px' }} />
+        </div>
+        <div className="mt-6 flex justify-center border-t border-white/25 pt-5">
+          <BluMarginsCredit tone="dark" />
         </div>
       </div>
     </footer>
