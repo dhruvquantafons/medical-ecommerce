@@ -1,12 +1,15 @@
 import "server-only";
 import { and, asc, desc, eq, gte, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { addresses, orderItems, orderPrescriptions, orders, prescriptions, products } from "@/db/schema";
+import { addresses, orderItems, orderPrescriptions, orders, prescriptions, products, user } from "@/db/schema";
 import type { OrderDetail, PaymentMethod } from "@/data/types";
 import { toAddress } from "./account.server";
 import { CheckoutError, priceCart } from "./checkout.server";
 import { trackingUrl } from "./shiprocket.server";
 import type { CartLine } from "./pricing";
+import { sendEmail } from "./mail";
+import { site } from "@/config/site";
+import { getOrderConfirmationCustomerEmail, getOrderNotificationAdminEmail } from "./email-templates";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -113,7 +116,63 @@ export async function insertOrder(prepared: PreparedOrder, payment: { method: Pa
     }
     if (cod) await deductStock(tx, lineRows(lines), true);
   });
+
+  // If COD, dispatch emails immediately in background (does not block checkout response)
+  if (cod) {
+    void dispatchOrderEmails(id);
+  }
+
   return id;
+}
+
+/** Sends order confirmation to customer and alert to admin. Fails gracefully without throwing. */
+export async function dispatchOrderEmails(orderId: string) {
+  try {
+    const detail = await getOrderDetail(orderId);
+    if (!detail) return;
+
+    const [u] = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, detail.userId)).limit(1);
+    const customerEmail = u?.email;
+    const customerName = detail.address.name || u?.name || "Customer";
+
+    const paymentLabel = detail.paymentMethod === "cod" ? "Cash on Delivery" : "Paid Online";
+
+    // 1. Send confirmation to customer if we have their email
+    if (customerEmail) {
+      await sendEmail({
+        to: customerEmail,
+        subject: `Your ${site.name} Order Confirmation (#${detail.id})`,
+        html: getOrderConfirmationCustomerEmail({
+          orderId: detail.id,
+          customerName,
+          items: detail.items.map((i) => ({ name: i.name, qty: i.qty, price: i.price })),
+          total: detail.total,
+          paymentMethod: paymentLabel,
+          address: detail.address,
+        }),
+      });
+    }
+
+    // 2. Alert store admin
+    const adminEmail = process.env.EMAIL_ADMIN || site.supportEmail;
+    if (adminEmail) {
+      await sendEmail({
+        to: adminEmail,
+        subject: `[New Store Order] #${detail.id} (₹${detail.total.toFixed(2)})`,
+        html: getOrderNotificationAdminEmail({
+          orderId: detail.id,
+          customerName,
+          customerEmail: customerEmail || "N/A",
+          itemCount: detail.itemCount,
+          total: detail.total,
+          paymentMethod: paymentLabel,
+          address: detail.address,
+        }),
+      });
+    }
+  } catch (err) {
+    console.error(`[ORDERS] Failed to dispatch order emails for #${orderId}:`, err);
+  }
 }
 
 /**
@@ -121,7 +180,7 @@ export async function insertOrder(prepared: PreparedOrder, payment: { method: Pa
  * callback and the Razorpay webhook. Returns the order id, or null if no such Razorpay order exists.
  */
 export async function markOrderPaid(razorpayOrderId: string, razorpayPaymentId: string) {
-  return db.transaction(async (tx) => {
+  const orderId = await db.transaction(async (tx) => {
     const [order] = await tx.select().from(orders).where(eq(orders.razorpayOrderId, razorpayOrderId)).for("update");
     if (!order) return null;
     if (order.paymentStatus !== "paid") {
@@ -137,6 +196,12 @@ export async function markOrderPaid(razorpayOrderId: string, razorpayPaymentId: 
     }
     return order.id;
   });
+
+  if (orderId) {
+    void dispatchOrderEmails(orderId);
+  }
+
+  return orderId;
 }
 
 /** Records a failed attempt. A later successful retry on the same Razorpay order still marks it paid. */

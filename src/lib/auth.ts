@@ -5,6 +5,8 @@ import { site } from "@/config/site";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { adminPlugin } from "./auth-plugins";
+import { sendEmail } from "./mail";
+import { getPasswordResetEmail } from "./email-templates";
 
 export const auth = betterAuth({
   appName: site.name,
@@ -13,9 +15,13 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     autoSignIn: true,
-    // No email provider yet: print the link so it can be opened from the terminal during development.
     sendResetPassword: async ({ user, url }) => {
       console.info(`[auth] Password reset link for ${user.email}: ${url}`);
+      await sendEmail({
+        to: user.email,
+        subject: `Reset your ${site.name} password`,
+        html: getPasswordResetEmail({ url, userEmail: user.email }),
+      });
     },
   },
   // nextCookies must stay last so cookies set in server actions reach the browser.
