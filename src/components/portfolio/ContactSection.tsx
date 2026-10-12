@@ -2,17 +2,35 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Mail, Phone, MapPin, Send, ShieldCheck, Pill } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ShieldCheck, Pill, Loader2 } from 'lucide-react';
 import { BluMarginsCredit } from '@/components/layout/BluMarginsCredit';
+import { submitPartnerInquiryAction } from '@/app/portfolio/actions';
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [formData, setFormData] = useState({ name: '', email: '', pharmacyName: '', message: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const res = await submitPartnerInquiryAction(formData);
+      if (res.success) {
+        setSubmitted(true);
+        setFormData({ name: '', email: '', pharmacyName: '', message: '' });
+        setTimeout(() => setSubmitted(false), 6000);
+      } else {
+        setErrorMsg(res.error || 'Failed to submit inquiry. Please try again.');
+      }
+    } catch (err: any) {
+      setErrorMsg('An unexpected error occurred. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,8 +76,23 @@ export function ContactSection() {
                   <textarea rows={4} placeholder="Describe your current e-commerce store and number of medicine SKUs..." value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.88rem', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
                 </div>
-                <button type="submit" className="glass-button" style={{ justifyContent: 'center', marginTop: '6px' }}>
-                  <Send size={16} /><span>Submit Partner Inquiry</span>
+                {errorMsg && (
+                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', borderRadius: '10px', padding: '10px 14px', color: '#ef4444', fontSize: '0.85rem' }}>
+                    {errorMsg}
+                  </div>
+                )}
+                <button type="submit" disabled={loading} className="glass-button" style={{ justifyContent: 'center', marginTop: '6px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
+                  {loading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      <span>Submitting Inquiry...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={16} />
+                      <span>Submit Partner Inquiry</span>
+                    </>
+                  )}
                 </button>
               </form>
             )}
