@@ -53,7 +53,7 @@ export function Navbar({ onSearchClick }: NavbarProps) {
         left: 0,
         right: 0,
         zIndex: 1000,
-        padding: scrolled ? '10px 20px' : '16px 24px',
+        padding: scrolled ? '8px 20px' : '12px 24px',
         transition: 'all 0.3s ease',
         background: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.6)',
         backdropFilter: 'blur(20px)',
@@ -63,7 +63,7 @@ export function Navbar({ onSearchClick }: NavbarProps) {
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <Image src="/brand/logo.png" alt="SYNCYTIUM Health" width={360} height={150} className="pf-navbar-logo" style={{ height: '150px', width: 'auto', marginTop: '-30px', marginBottom: '-30px' }} priority />
+          <Image src="/brand/logo.png" alt="SYNCYTIUM Health" width={360} height={150} className="pf-navbar-logo" style={{ height: '105px', width: 'auto', marginTop: '-22px', marginBottom: '-22px' }} priority />
         </Link>
 
         <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }} className="pf-desktop-nav">

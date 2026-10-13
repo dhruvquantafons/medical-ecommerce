@@ -107,7 +107,7 @@ export function CatalogPage({ items }: CatalogPageProps) {
   }, [filteredItems, categories]);
 
   return (
-    <div style={{ paddingTop: '120px', paddingBottom: '80px', minHeight: '100vh', background: 'var(--hero-gradient)' }}>
+    <div style={{ paddingTop: '106px', paddingBottom: '80px', minHeight: '100vh', background: 'var(--hero-gradient)' }}>
       {toastMessage && (
         <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 3000, background: '#ffffff', border: '1px solid #10b981', borderRadius: '16px', padding: '14px 22px', display: 'flex', alignItems: 'center', gap: '12px', color: '#059669', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontWeight: 700, fontSize: '0.9rem' }}>
           <span>✓ {toastMessage}</span>
