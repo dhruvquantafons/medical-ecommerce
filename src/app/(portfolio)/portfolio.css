@@ -524,9 +524,11 @@
   }
 }
 
-/* ---- Navbar logo: slightly smaller on mobile ---- */
+/* ---- Navbar logo: on mobile view only ---- */
 @media (max-width: 767px) {
   [data-portfolio] .pf-navbar-logo {
-    height: 75px !important;
+    height: 125px !important;
+    margin-top: -24px !important;
+    margin-bottom: -24px !important;
   }
 }
