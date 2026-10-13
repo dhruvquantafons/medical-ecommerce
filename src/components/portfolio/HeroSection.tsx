@@ -16,7 +16,7 @@ export function HeroSection({ theme }: HeroSectionProps) {
   const trustLogos = ['Apollo Pharmacy', 'MedPlus', 'Netmeds'];
 
   return (
-    <section id="hero-3d" className="pf-hero-section" style={{ minHeight: '100vh', paddingTop: '120px', paddingBottom: '60px', position: 'relative', display: 'flex', alignItems: 'center', background: 'var(--hero-gradient)', overflow: 'hidden' }}>
+    <section id="hero-3d" className="pf-hero-section" style={{ minHeight: '100vh', paddingTop: '106px', paddingBottom: '60px', position: 'relative', display: 'flex', alignItems: 'center', background: 'var(--hero-gradient)', overflow: 'hidden' }}>
       <div style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 20px' }}>
         <div className="pf-hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: '30px', alignItems: 'center' }}>
           <div className="pf-hero-text-col" style={{ zIndex: 2 }}>

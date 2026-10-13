@@ -13,7 +13,7 @@ export function TeamPage({ members }: TeamPageProps) {
   const router = useRouter();
 
   return (
-    <div style={{ paddingTop: '120px', paddingBottom: '80px', minHeight: '100vh', background: 'var(--hero-gradient)' }}>
+    <div style={{ paddingTop: '106px', paddingBottom: '80px', minHeight: '100vh', background: 'var(--hero-gradient)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px' }}>
         <button onClick={() => router.push('/portfolio')} className="glass-button-secondary" style={{ marginBottom: '24px', padding: '8px 16px', fontSize: '0.85rem' }}>
           <ArrowLeft size={16} /><span>Back to Home</span>
