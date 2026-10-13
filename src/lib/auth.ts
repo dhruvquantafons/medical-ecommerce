@@ -11,6 +11,12 @@ import { getPasswordResetEmail } from "./email-templates";
 export const auth = betterAuth({
   appName: site.name,
   database: drizzleAdapter(db, { provider: "pg", schema }),
+  trustedOrigins: [
+    "https://syncytiumhealth.com",
+    "https://www.syncytiumhealth.com",
+    "https://medical-ecommerce-xi.vercel.app",
+    "http://localhost:3000",
+  ],
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
