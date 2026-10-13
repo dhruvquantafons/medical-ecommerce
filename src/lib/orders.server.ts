@@ -154,7 +154,7 @@ export async function dispatchOrderEmails(orderId: string) {
     }
 
     // 2. Alert store admin
-    const adminEmail = process.env.EMAIL_ADMIN || site.supportEmail;
+    const adminEmail = process.env.EMAIL_ADMIN?.trim() || site.supportEmail;
     if (adminEmail) {
       await sendEmail({
         to: adminEmail,

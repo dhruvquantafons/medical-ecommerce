@@ -33,7 +33,7 @@ export async function submitPartnerInquiryAction(
   const { name, email, pharmacyName, message } = parsed.data;
 
   // 1. Notify internal staff / admin
-  const adminRecipient = process.env.EMAIL_ADMIN || site.supportEmail;
+  const adminRecipient = process.env.EMAIL_ADMIN?.trim() || site.supportEmail;
   await sendEmail({
     to: adminRecipient,
     subject: `[Partner Inquiry] ${pharmacyName} — ${name}`,

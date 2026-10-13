@@ -14,10 +14,10 @@ interface SendEmailOptions {
  * If credentials are not yet provided, logs a message in development mode.
  */
 function getTransporter() {
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT) || 587;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  const host = process.env.SMTP_HOST?.trim();
+  const port = Number(process.env.SMTP_PORT?.trim()) || 587;
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
 
   if (!host || !user || !pass) {
     return null;
@@ -45,7 +45,7 @@ export async function sendEmail({
   replyTo,
 }: SendEmailOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const transporter = getTransporter();
-  const fromAddress = process.env.EMAIL_FROM || `${site.name} <no-reply@syncytiumhealth.com>`;
+  const fromAddress = process.env.EMAIL_FROM?.trim() || `${site.name} <no-reply@syncytiumhealth.com>`;
 
   if (!transporter) {
     console.warn(
