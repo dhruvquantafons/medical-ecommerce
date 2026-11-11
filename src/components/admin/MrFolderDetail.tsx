@@ -257,7 +257,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
             No pages uploaded in this folder yet. Add high-quality images above.
           </div>
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(180px,210px))]">
             {pages.map((page, index) => {
               const titleValue = titleEdits[page.id] ?? page.title;
               return (
@@ -277,40 +277,40 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
                     dragFrom === index && "opacity-40",
                   )}
                 >
-                  <div className="group relative aspect-[4/3] bg-tile">
+                  <div className="group relative h-28 w-full shrink-0 overflow-hidden bg-tile">
                     {/* eslint-disable-next-line @next/next/no-img-element -- served from /api/mr-images/[id] */}
                     <img
                       src={page.src}
                       alt={titleValue || `Page ${index + 1}`}
                       draggable={false}
-                      className="size-full cursor-pointer object-contain p-2"
+                      className="absolute inset-0 size-full cursor-pointer object-contain p-2"
                       onClick={() => setPreviewPage(page)}
                     />
-                    <span className="absolute top-2.5 left-2.5 rounded-full bg-brand-gradient px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
+                    <span className="absolute top-2 left-2 rounded-full bg-brand-gradient px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
                       Page {index + 1}
                     </span>
-                    <div className="absolute top-2.5 right-2.5 flex gap-1">
+                    <div className="absolute top-2 right-2 flex gap-1">
                       <button
                         type="button"
                         onClick={() => setPreviewPage(page)}
                         aria-label={`Preview page ${index + 1}`}
-                        className="grid size-7 place-items-center rounded-full bg-white/95 text-gray-700 shadow hover:text-brand-700"
+                        className="grid size-6 place-items-center rounded-full bg-white/95 text-gray-700 shadow hover:text-brand-700"
                       >
-                        <Maximize2 className="size-3.5" />
+                        <Maximize2 className="size-3" />
                       </button>
                       <button
                         type="button"
                         disabled={pending}
                         onClick={() => void removePage(page, index)}
                         aria-label={`Remove page ${index + 1}`}
-                        className="grid size-7 place-items-center rounded-full bg-white/95 text-gray-700 shadow hover:text-red-600 disabled:opacity-40"
+                        className="grid size-6 place-items-center rounded-full bg-white/95 text-gray-700 shadow hover:text-red-600 disabled:opacity-40"
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 className="size-3" />
                       </button>
                     </div>
                   </div>
 
-                  <div className="space-y-2.5 p-3">
+                  <div className="space-y-2 p-2.5">
                     <input
                       value={titleValue}
                       onChange={(e) => setTitleEdits((prev) => ({ ...prev, [page.id]: e.target.value }))}
@@ -320,10 +320,10 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
                       }}
                       placeholder={`Page ${index + 1} title (optional)`}
                       aria-label={`Title for page ${index + 1}`}
-                      className={clsx(inputClass, "h-9 w-full text-xs")}
+                      className={clsx(inputClass, "h-8 w-full text-xs")}
                     />
 
-                    <div className="flex items-center justify-between gap-2 text-xs text-muted">
+                    <div className="flex items-center justify-between gap-2 text-[11px] text-muted">
                       <span className="truncate" title={page.fileName}>
                         {page.width && page.height ? `${page.width}×${page.height} · ` : ""}
                         {formatBytes(page.sizeBytes)}
@@ -334,18 +334,18 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
                           disabled={index === 0 || pending}
                           onClick={() => void movePage(index, index - 1)}
                           aria-label={`Move page ${index + 1} left`}
-                          className="grid size-7 place-items-center rounded-lg border border-line bg-white hover:border-brand-500 disabled:opacity-30"
+                          className="grid size-6 place-items-center rounded-lg border border-line bg-white hover:border-brand-500 disabled:opacity-30"
                         >
-                          <ChevronLeft className="size-3.5" />
+                          <ChevronLeft className="size-3" />
                         </button>
                         <button
                           type="button"
                           disabled={index === pages.length - 1 || pending}
                           onClick={() => void movePage(index, index + 1)}
                           aria-label={`Move page ${index + 1} right`}
-                          className="grid size-7 place-items-center rounded-lg border border-line bg-white hover:border-brand-500 disabled:opacity-30"
+                          className="grid size-6 place-items-center rounded-lg border border-line bg-white hover:border-brand-500 disabled:opacity-30"
                         >
-                          <ChevronRight className="size-3.5" />
+                          <ChevronRight className="size-3" />
                         </button>
                       </div>
                     </div>
@@ -356,14 +356,14 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
 
             {uploading.map((u) => (
               <li key={u.key} className="card flex flex-col overflow-hidden opacity-80">
-                <div className="relative aspect-[4/3] bg-tile">
+                <div className="relative h-28 w-full shrink-0 overflow-hidden bg-tile">
                   {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
-                  <img src={u.previewSrc} alt={u.name} className="size-full object-contain p-2 opacity-50" />
+                  <img src={u.previewSrc} alt={u.name} className="absolute inset-0 size-full object-contain p-2 opacity-50" />
                   <div className="absolute inset-0 grid place-items-center">
-                    <Loader2 className="size-7 animate-spin text-brand-700" />
+                    <Loader2 className="size-6 animate-spin text-brand-700" />
                   </div>
                 </div>
-                <div className="truncate p-3 text-xs font-semibold text-muted">Uploading {u.name}…</div>
+                <div className="truncate p-2.5 text-xs font-semibold text-muted">Uploading {u.name}…</div>
               </li>
             ))}
           </ul>

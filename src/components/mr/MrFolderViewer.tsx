@@ -74,7 +74,7 @@ export function MrFolderViewer({ detail }: { detail: MrFolderDetail }) {
             <FolderOpen className="size-4 text-brand-600" />
             <span>Folders inside {detail.folder.name}</span>
           </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(180px,215px))]">
             {detail.subfolders.map((sub) => (
               <MrFolderCard key={sub.id} folder={sub} />
             ))}
@@ -91,7 +91,7 @@ export function MrFolderViewer({ detail }: { detail: MrFolderDetail }) {
                 <span>Pages ({detail.pages.length})</span>
               </h2>
             )}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(180px,215px))]">
               {detail.pages.map((page, index) => (
                 <button
                   key={page.id}
@@ -99,27 +99,25 @@ export function MrFolderViewer({ detail }: { detail: MrFolderDetail }) {
                   onClick={() => setSlideIndex(index)}
                   className="group card flex flex-col overflow-hidden text-left transition active:scale-[0.99] hover:border-brand-300 hover:shadow-md"
                 >
-                  <div className="relative aspect-[4/3] w-full bg-tile">
+                  <div className="relative h-28 w-full shrink-0 overflow-hidden bg-tile">
                     {/* eslint-disable-next-line @next/next/no-img-element -- served from /api/mr-images/[id] */}
                     <img
                       src={page.src}
                       alt={page.title || `${detail.folder.name} page ${index + 1}`}
                       loading={index < 6 ? "eager" : "lazy"}
-                      className="size-full object-contain p-2 transition duration-200 group-hover:scale-[1.02]"
+                      className="absolute inset-0 size-full object-contain p-2 transition duration-200 group-hover:scale-[1.03]"
                     />
-                    <span className="absolute top-3 left-3 rounded-full bg-brand-gradient px-2.5 py-0.5 text-xs font-bold text-white shadow-sm">
+                    <span className="absolute top-2 left-2 rounded-full bg-brand-gradient px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
                       Page {index + 1}
                     </span>
-                    <span className="absolute right-3 bottom-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-ink shadow-sm">
-                      <Maximize2 className="size-3.5 text-brand-600" />
-                      <span>Tap to present</span>
+                    <span className="absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-ink shadow-sm">
+                      <Maximize2 className="size-3 text-brand-600" />
+                      <span>Present</span>
                     </span>
                   </div>
-                  {page.title && (
-                    <div className="px-4 py-3">
-                      <p className="text-sm font-bold text-ink">{page.title}</p>
-                    </div>
-                  )}
+                  <div className="px-2.5 py-2">
+                    <p className="truncate text-xs font-bold text-ink">{page.title || `Page ${index + 1}`}</p>
+                  </div>
                 </button>
               ))}
             </div>

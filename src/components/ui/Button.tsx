@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ComponentProps } from "react";
 
 type Variant = "primary" | "accent" | "outline" | "ghost" | "dark";
-type Size = "sm" | "md" | "lg";
+type Size = "xs" | "sm" | "md" | "lg";
 
 const variants: Record<Variant, string> = {
   primary: "bg-brand-gradient text-white hover:bg-brand-gradient-strong disabled:bg-gray-300",
@@ -13,6 +13,7 @@ const variants: Record<Variant, string> = {
   ghost: "text-brand-700 hover:bg-brand-50",
 };
 const sizes: Record<Size, string> = {
+  xs: "h-7 px-2.5 text-xs",
   sm: "h-8 px-3.5 text-sm",
   md: "h-10 px-5 text-sm",
   lg: "h-12 px-7 text-base",
