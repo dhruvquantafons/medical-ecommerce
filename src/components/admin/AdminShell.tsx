@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardCheck, ExternalLink, FlaskConical, LayoutDashboard, LayoutGrid, LogOut, Menu, Package, ReceiptText, Users, Users2, X } from "lucide-react";
+import { ClipboardCheck, ExternalLink, FlaskConical, FolderOpen, LayoutDashboard, LayoutGrid, LogOut, Menu, Package, ReceiptText, Users, Users2, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ const nav = [
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/employees", label: "Employees", icon: Users2 },
   { href: "/admin/catalog", label: "Catalog", icon: FlaskConical },
+  { href: "/admin/mr-folders", label: "MR Folders", icon: FolderOpen },
 ];
 
 export function AdminShell({ user, pendingRx, children }: { user: { name: string; email: string }; pendingRx: number; children: ReactNode }) {

@@ -17,3 +17,9 @@ export const PRODUCT_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as 
 export const MAX_PRODUCT_IMAGES = 8;
 /** Public URL of an uploaded product photo. */
 export const productImagePath = (id: string) => `/api/product-images/${id}`;
+
+// MR visual-aid folder images: high-quality pages kept strictly under 4 MB (also safely under Vercel's 4.5 MB body limit).
+export const MR_IMAGE_MAX_BYTES = 4 * 1024 * 1024;
+export const MR_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+/** URL of an uploaded MR visual-aid image. */
+export const mrImagePath = (id: string) => `/api/mr-images/${id}`;

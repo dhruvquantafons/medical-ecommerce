@@ -43,6 +43,13 @@
       "when": 1791352591107,
       "tag": "0005_calm_molten_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794378358589,
+      "tag": "0006_public_lord_tyger",
+      "breakpoints": true
     }
   ]
 }

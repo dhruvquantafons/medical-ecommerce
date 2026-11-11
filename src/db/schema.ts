@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   customType,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -283,3 +284,53 @@ export const catalogItems = pgTable("catalog_items", {
   active: boolean("active").notNull().default(true),
   ...timestamps,
 });
+
+// ---- MR Visual-Aid Folders (admin-uploaded high-res medicine ads for MRs on tablets)
+
+export const mrFolders = pgTable(
+  "mr_folders",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    parentId: text("parent_id"),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    description: text("description").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    ...timestamps,
+  },
+  (t) => [
+    foreignKey({ name: "mr_folders_parent_id_fk", columns: [t.parentId], foreignColumns: [t.id] }).onDelete("cascade"),
+    index("mr_folders_parent_idx").on(t.parentId, t.sortOrder),
+  ],
+);
+
+export const mrFolderImages = pgTable(
+  "mr_folder_images",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    folderId: text("folder_id")
+      .notNull()
+      .references(() => mrFolders.id, { onDelete: "cascade" }),
+    title: text("title").notNull().default(""),
+    fileName: text("file_name").notNull().default(""),
+    mimeType: text("mime_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    data: bytea("data").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("mr_folder_images_folder_idx").on(t.folderId, t.sortOrder)],
+);
+
+export const mrFoldersRelations = relations(mrFolders, ({ one, many }) => ({
+  parent: one(mrFolders, { fields: [mrFolders.parentId], references: [mrFolders.id], relationName: "mr_folder_tree" }),
+  children: many(mrFolders, { relationName: "mr_folder_tree" }),
+  images: many(mrFolderImages),
+}));
+
+export const mrFolderImagesRelations = relations(mrFolderImages, ({ one }) => ({
+  folder: one(mrFolders, { fields: [mrFolderImages.folderId], references: [mrFolders.id] }),
+}));

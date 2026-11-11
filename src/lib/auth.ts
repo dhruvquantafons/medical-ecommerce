@@ -15,7 +15,8 @@ export const auth = betterAuth({
     "https://syncytiumhealth.com",
     "https://www.syncytiumhealth.com",
     "https://medical-ecommerce-xi.vercel.app",
-    "http://localhost:3000",
+    "http://localhost:3002",
+    ...(process.env.NODE_ENV !== "production" ? ["http://localhost:*", "http://127.0.0.1:*"] : []),
   ],
   emailAndPassword: {
     enabled: true,
