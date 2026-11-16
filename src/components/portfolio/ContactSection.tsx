@@ -1,10 +1,27 @@
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
-import { Mail, Phone, MapPin, Send, ShieldCheck, Pill, Loader2 } from 'lucide-react';
-import { BluMarginsCredit } from '@/components/layout/BluMarginsCredit';
+import { Loader2 } from 'lucide-react';
 import { submitPartnerInquiryAction } from '@/app/portfolio/actions';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { Section, SectionHeading } from './site';
+
+/*
+  Enquiries from pharmacies and distributors. Uses the existing server action unchanged
+  (fields: name, email, organisation, optional message).
+  TODO(owner): business address, phone, contact email and hours, shown beside the form once supplied.
+  TODO(owner): changeui.md Problem 15 suggests a /contact page with an "I am a" field; that needs a
+  change to the server action, so it is not done here.
+*/
+
+const FIELDS = [
+  { key: 'name', label: 'Full name', type: 'text', autoComplete: 'name', placeholder: 'Your full name' },
+  { key: 'email', label: 'Email', type: 'email', autoComplete: 'email', placeholder: 'name@example.com' },
+  { key: 'pharmacyName', label: 'Pharmacy or company', type: 'text', autoComplete: 'organization', placeholder: 'Pharmacy or company name' },
+] as const;
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -16,132 +33,78 @@ export function ContactSection() {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
-
     try {
       const res = await submitPartnerInquiryAction(formData);
       if (res.success) {
         setSubmitted(true);
         setFormData({ name: '', email: '', pharmacyName: '', message: '' });
-        setTimeout(() => setSubmitted(false), 6000);
       } else {
-        setErrorMsg(res.error || 'Failed to submit inquiry. Please try again.');
+        setErrorMsg(res.error || 'Your message was not sent. Check the fields and try again.');
       }
-    } catch (err: any) {
-      setErrorMsg('An unexpected error occurred. Please try again later.');
+    } catch {
+      setErrorMsg('Your message was not sent because of a connection problem. Try again in a minute.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section id="contact" className="pf-section" style={{ padding: '70px 20px 40px', position: 'relative' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 40px' }}>
-          <div className="glass-pill" style={{ marginBottom: '14px' }}>
-            <Mail size={14} color="var(--primary-accent)" />
-            <span>Connect & Partner Portal</span>
-          </div>
-          <h2 className="font-display gradient-text" style={{ fontSize: 'clamp(2rem, 3.8vw, 2.8rem)', fontWeight: 800, marginBottom: '14px' }}>
-            Digitize Your Pharmacy with <span className="gradient-accent-text">SYNCYTIUM Health</span>
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>
-            Ready to convert your physical medicine inventory into a 3D digital showcase indexed on Google? Reach out to our digital pharmacy architects.
-          </p>
-        </div>
+    <Section id="contact" labelledBy="pf-contact-title">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+        <SectionHeading
+          id="pf-contact-title"
+          eyebrow="Pharmacies and distributors"
+          title="Stock our range"
+          lead="Tell us about your pharmacy or business and which products you are interested in. We reply by email."
+        />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px', marginBottom: '60px' }}>
-          <div className="glass-panel" style={{ padding: '28px 20px', borderRadius: '24px' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '18px' }}>Partner Request Form</h3>
-            {submitted ? (
-              <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', borderRadius: '16px', padding: '20px', textAlign: 'center', color: '#059669' }}>
-                <ShieldCheck size={36} style={{ margin: '0 auto 10px' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>Request Received!</h4>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Our SYNCYTIUM Health pharmaceutical leads will contact you within 24 hours.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {[
-                  { label: 'Your Name', key: 'name', type: 'text', placeholder: 'Dr. Sarah Connor' },
-                  { label: 'Work Email', key: 'email', type: 'email', placeholder: 'sarah@pharmacybrand.com' },
-                  { label: 'Pharmacy / Brand Name', key: 'pharmacyName', type: 'text', placeholder: 'Apex Care Pharmacy LLC' },
-                ].map(({ label, key, type, placeholder }) => (
-                  <div key={key}>
-                    <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>{label}</label>
-                    <input type={type} required placeholder={placeholder} value={formData[key as keyof typeof formData]} onChange={e => setFormData({ ...formData, [key]: e.target.value })}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.88rem', outline: 'none', boxSizing: 'border-box' }} />
-                  </div>
-                ))}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>Integration Requirements</label>
-                  <textarea rows={4} placeholder="Describe your current e-commerce store and number of medicine SKUs..." value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.88rem', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+        <div className="rounded-lg border border-border p-5 sm:p-8">
+          {submitted ? (
+            <div role="status" className="space-y-4">
+              <p className="text-lg font-medium text-success">Message sent.</p>
+              <p className="text-muted-foreground">We will reply to the email address you gave us.</p>
+              <Button variant="outline" onClick={() => setSubmitted(false)}>Send another message</Button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="grid gap-5" noValidate={false}>
+              {FIELDS.map(({ key, label, type, autoComplete, placeholder }) => (
+                <div key={key} className="grid gap-2">
+                  <Label htmlFor={`pf-${key}`} className="text-[15px]">{label}</Label>
+                  <Input
+                    id={`pf-${key}`}
+                    type={type}
+                    required
+                    autoComplete={autoComplete}
+                    placeholder={placeholder}
+                    value={formData[key]}
+                    onChange={e => setFormData({ ...formData, [key]: e.target.value })}
+                  />
                 </div>
-                {errorMsg && (
-                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', borderRadius: '10px', padding: '10px 14px', color: '#ef4444', fontSize: '0.85rem' }}>
-                    {errorMsg}
-                  </div>
-                )}
-                <button type="submit" disabled={loading} className="glass-button" style={{ justifyContent: 'center', marginTop: '6px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {loading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      <span>Submitting Inquiry...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send size={16} />
-                      <span>Submit Partner Inquiry</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '20px' }}>
-            <div className="glass-panel" style={{ padding: '28px 20px', borderRadius: '24px' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '20px' }}>Global Headquarters & Labs</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {[
-                  { icon: MapPin, title: 'SYNCYTIUM Health Bio-Tech Tower', sub: '450 Genomics Way, Suite 1200, Boston MA 02115' },
-                  { icon: Mail, title: 'Digital API Support', sub: 'partners@syncytium-health.com' },
-                  { icon: Phone, title: 'Direct Pharmacist Line', sub: '+1 (800) 555-SYNCYTIUM' },
-                ].map(({ icon: Icon, title, sub }, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <div style={{ padding: '8px', borderRadius: '10px', background: 'var(--badge-bg)', color: 'var(--secondary-accent)', flexShrink: 0 }}><Icon size={18} /></div>
-                    <div>
-                      <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.92rem' }}>{title}</div>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{sub}</div>
-                    </div>
-                  </div>
-                ))}
+              ))}
+              <div className="grid gap-2">
+                <Label htmlFor="pf-message" className="text-[15px]">
+                  Message <span className="font-normal text-muted-foreground">(optional)</span>
+                </Label>
+                <Textarea
+                  id="pf-message"
+                  rows={4}
+                  value={formData.message}
+                  onChange={e => setFormData({ ...formData, message: e.target.value })}
+                />
               </div>
-            </div>
-            <div style={{ background: 'var(--bg-secondary)', padding: '20px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <ShieldCheck size={32} color="var(--secondary-accent)" style={{ flexShrink: 0 }} />
-              <div>
-                <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.9rem' }}>Google Schema & FDA Compliant Data</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-subtle)' }}>All digitised medicine specs follow standard clinical entity guidelines.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <footer className="pf-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '28px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', fontSize: '0.82rem', color: 'var(--text-subtle)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <Image src="/brand/logo.png" alt="SYNCYTIUM Health" width={360} height={150} style={{ height: '150px', width: 'auto', marginTop: '-30px', marginBottom: '-30px' }} />
-            <span>© {new Date().getFullYear()} All Rights Reserved.</span>
-          </div>
-          <div className="pf-footer-links" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            <a href="#hero-3d" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy Policy</a>
-            <a href="#hero-3d" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Terms of Service</a>
-            <a href="#hero-3d" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>FDA Disclaimer</a>
-          </div>
-        </footer>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-          <BluMarginsCredit />
+              {errorMsg && (
+                <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-[15px] text-destructive">
+                  {errorMsg}
+                </p>
+              )}
+              <Button type="submit" disabled={loading} className="justify-self-start">
+                {loading && <Loader2 className="animate-spin" aria-hidden="true" />}
+                {loading ? 'Sending…' : 'Send message'}
+              </Button>
+            </form>
+          )}
         </div>
       </div>
-    </section>
+    </Section>
   );
 }

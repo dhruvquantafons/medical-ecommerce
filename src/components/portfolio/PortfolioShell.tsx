@@ -1,101 +1,79 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, X } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import { MotionConfig } from 'motion/react';
 import type { CatalogItem } from '@/lib/catalog-item-types';
 import { parseSalts } from '@/lib/catalog-item-types';
+import type { Category } from '@/data/types';
+import { cn } from '@/lib/utils';
 import { Navbar } from './Navbar';
-import { MedicineModal } from './MedicineModal';
+import { PortfolioFooter } from './PortfolioFooter';
+import { ItemDialog } from './ItemDialog';
+import { PortfolioContext } from './PortfolioContext';
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './ui/command';
 
 interface PortfolioShellProps {
   children: React.ReactNode;
   items: CatalogItem[];
+  collections: Category[];
+  /** next/font variable classes (Newsreader, Geist, Geist Mono). */
+  fontClassName: string;
 }
 
-export function PortfolioShell({ children, items }: PortfolioShellProps) {
-  const router = useRouter();
+export function PortfolioShell({ children, items, collections, fontClassName }: PortfolioShellProps) {
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const filteredSearchResults = items.filter(item => {
-    const salts = parseSalts(item.salts);
-    return (
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      salts.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  });
-
-  const handleAddToCart = (item: CatalogItem) => {
-    setToastMessage(`Selected "${item.name}" for SYNCYTIUM Health digital store!`);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
+  const openItem = useCallback((item: CatalogItem) => setSelectedItem(item), []);
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+  const ctx = useMemo(() => ({ openItem, openSearch }), [openItem, openSearch]);
 
   return (
-    <div data-portfolio style={{ minHeight: '100vh', position: 'relative' }}>
-      {toastMessage && (
-        <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 3000, background: '#ffffff', border: '1px solid #10b981', borderRadius: '16px', padding: '14px 22px', display: 'flex', alignItems: 'center', gap: '12px', color: '#059669', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontWeight: 700, fontSize: '0.9rem' }}>
-          <span>✓ {toastMessage}</span>
-        </div>
-      )}
-
-      <Navbar onSearchClick={() => setSearchOpen(true)} />
-      <main>{children}</main>
-      <MedicineModal item={selectedItem} onClose={() => setSelectedItem(null)} onAddToCart={handleAddToCart} />
-
-      {searchOpen && (
-        <div
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 2500, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '100px', paddingLeft: '20px', paddingRight: '20px' }}
-          onClick={() => setSearchOpen(false)}
-        >
-          <div
-            className="glass-panel"
-            style={{ maxWidth: '640px', width: '100%', padding: '24px', borderRadius: '20px', background: '#ffffff', border: '1px solid #e2e8f0' }}
-            onClick={e => e.stopPropagation()}
+    <PortfolioContext.Provider value={ctx}>
+      <MotionConfig reducedMotion="user">
+        <div data-portfolio className={cn(fontClassName)}>
+          <a
+            href="#main"
+            className="sr-only z-[60] rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
-                <Search size={20} color="#7c3aed" />
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder="Search SYNCYTIUM Health salt database (e.g. Paracetamol, Cetirizine)..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', background: 'none', border: 'none', color: '#0f172a', fontSize: '1.1rem', outline: 'none', fontWeight: 600 }}
-                />
-              </div>
-              <button onClick={() => setSearchOpen(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                <X size={22} />
-              </button>
-            </div>
-            <div style={{ maxHeight: '360px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {filteredSearchResults.length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>No matching active salts or medicines found.</div>
-              ) : (
-                filteredSearchResults.map(item => {
-                  const salts = parseSalts(item.salts);
+            Skip to content
+          </a>
+          <Navbar onSearchClick={openSearch} />
+          <main id="main" tabIndex={-1}>{children}</main>
+          <PortfolioFooter collections={collections} />
+
+          <ItemDialog item={selectedItem} onClose={() => setSelectedItem(null)} />
+
+          {/* Site search over the catalogue: shadcn command dialog (changeui.md, Problem 04). */}
+          <CommandDialog
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            title="Search products"
+            description="Search the catalogue by product or ingredient name"
+          >
+            <CommandInput placeholder="Product or ingredient name" />
+            <CommandList>
+              <CommandEmpty>No products match. Try an ingredient name instead.</CommandEmpty>
+              <CommandGroup heading="Catalogue">
+                {items.map(item => {
+                  const salts = parseSalts(item.salts).map(s => s.name);
                   return (
-                    <div
+                    <CommandItem
                       key={item.id}
-                      onClick={() => { setSelectedItem(item); setSearchOpen(false); router.push('/portfolio'); }}
-                      style={{ padding: '12px 16px', borderRadius: '12px', background: '#f8fafc', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #e2e8f0' }}
+                      value={`${item.name} ${salts.join(' ')}`}
+                      onSelect={() => { setSearchOpen(false); setSelectedItem(item); }}
+                      className="flex-col items-start gap-0.5"
                     >
-                      <div>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.95rem' }}>{item.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Salts: {salts.map(s => s.name).join(', ')}</div>
-                      </div>
-                      <span style={{ fontSize: '0.8rem', color: '#7c3aed', fontWeight: 700 }}>Inspect ➔</span>
-                    </div>
+                      <span className="font-medium text-foreground">{item.name}</span>
+                      <span className="text-[13px] text-muted-foreground">{salts.join(', ')}</span>
+                    </CommandItem>
                   );
-                })
-              )}
-            </div>
-          </div>
+                })}
+              </CommandGroup>
+            </CommandList>
+          </CommandDialog>
         </div>
-      )}
-    </div>
+      </MotionConfig>
+    </PortfolioContext.Provider>
   );
 }

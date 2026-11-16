@@ -1,115 +1,99 @@
 "use client";
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic';
 import type { CatalogItem } from '@/lib/catalog-item-types';
 import { parseSalts } from '@/lib/catalog-item-types';
-import { TestTube2, Code2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { CompositionTable } from './CompositionTable';
+import { usePortfolio } from './PortfolioContext';
+import { LABEL_ADVICE, categoryLabel, displayBrand, isPrescription } from './copy';
 
-const MoleculeViewer = dynamic(() => import('./3d/MoleculeViewer').then(m => ({ default: m.MoleculeViewer })), { ssr: false });
+/*
+  "What's inside" explorer (changeui.md, Problem 14): shadcn tabs, one per product; photo and
+  product facts on the left, composition table on the right.
+  Removed: the 3D molecule, bioavailability and half-life bars, bracketed percentages, the joined
+  formula string and the JSON-LD view.
+  Not added: Aceternity Tooltip Card explanations per ingredient, because the data has no
+  plain-language explanation to show and new pharmacological claims must not be written.
+*/
 
 interface SaltInspectorProps {
   items: CatalogItem[];
+  /** Product to show first, e.g. from ?item= when arriving from a product dialog. */
+  initialId?: string;
 }
 
-export function SaltInspector({ items }: SaltInspectorProps) {
-  const featuredItems = items.slice(0, 3);
-  const [selectedId, setSelectedId] = useState<string>(featuredItems[0]?.id ?? '');
-  const [showSchema, setShowSchema] = useState(false);
+export function SaltInspector({ items, initialId }: SaltInspectorProps) {
+  const { openItem } = usePortfolio();
+  const withSalts = items.filter(i => parseSalts(i.salts).length > 0);
+  const [value, setValue] = useState<string>(
+    withSalts.some(i => i.id === initialId) ? initialId! : withSalts[0]?.id ?? '',
+  );
 
-  const activeItem: CatalogItem | undefined = featuredItems.find(i => i.id === selectedId) ?? featuredItems[0];
-  const salts = activeItem ? parseSalts(activeItem.salts) : [];
-
-  if (featuredItems.length === 0) return null;
+  if (withSalts.length === 0) {
+    return (
+      <div className="rounded-lg border border-border bg-surface px-6 py-12 text-center">
+        <h2 className="text-[24px]">No products to inspect yet</h2>
+        <p className="mt-2 text-muted-foreground">Products appear here once their composition is added to the catalogue.</p>
+      </div>
+    );
+  }
 
   return (
-    <section id="salt-inspector" className="pf-section" style={{ padding: '70px 20px', position: 'relative' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 40px' }}>
-          <div className="glass-pill" style={{ marginBottom: '14px' }}>
-            <TestTube2 size={14} color="var(--primary-accent)" />
-            <span>Interactive Molecular Salt Inspector</span>
-          </div>
-          <h2 className="font-display gradient-text" style={{ fontSize: 'clamp(2rem, 3.8vw, 2.8rem)', fontWeight: 800, marginBottom: '14px' }}>
-            Deep-Dive into Active <span className="gradient-accent-text">Salt Formulations</span>
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>
-            Select any pharmaceutical formulation to analyze its active salt composition, molecular structure, bioavailability profile, and search schema tags.
-          </p>
-        </div>
+    <Tabs value={value} onValueChange={setValue} className="gap-8">
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <TabsList className="h-auto w-max gap-1 rounded-lg border border-border bg-surface p-1">
+          {withSalts.map(item => (
+            <TabsTrigger
+              key={item.id}
+              value={item.id}
+              className="h-10 flex-none px-3.5 text-[15px] text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground"
+            >
+              {item.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
 
-        <div className="glass-panel" style={{ padding: '24px 18px', borderRadius: '24px' }}>
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '24px', WebkitOverflowScrolling: 'touch' }}>
-            {featuredItems.map(item => (
-              <button key={item.id} onClick={() => setSelectedId(item.id)}
-                style={{ padding: '8px 14px', borderRadius: '10px', background: selectedId === item.id ? 'var(--badge-bg)' : 'var(--bg-secondary)', border: '1px solid', borderColor: selectedId === item.id ? 'var(--border-highlight)' : 'var(--border-color)', color: selectedId === item.id ? 'var(--secondary-accent)' : 'var(--text-muted)', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s ease', flexShrink: 0 }}>
-                {item.name}
-              </button>
-            ))}
-          </div>
-
-          {activeItem && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px' }}>
+      {withSalts.map(item => {
+        const salts = parseSalts(item.salts);
+        return (
+          <TabsContent key={item.id} value={item.id}>
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>3D Salt Molecule Mesh</h3>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--secondary-accent)', background: 'var(--badge-bg)', padding: '3px 8px', borderRadius: '6px' }}>{activeItem.molecularFormula}</span>
+                <div className="aspect-square overflow-hidden rounded-lg border border-border bg-surface">
+                  {item.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.imageUrl} alt={`${item.name} pack`} className="size-full object-contain p-[12%] mix-blend-multiply" />
+                  )}
                 </div>
-                <MoleculeViewer formula={activeItem.molecularFormula} primaryColor="var(--primary-accent)" />
-                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Bioavailability Index</span>
-                      <strong style={{ color: 'var(--secondary-accent)' }}>{activeItem.bioavailability}</strong>
-                    </div>
-                    <div style={{ height: '8px', borderRadius: '4px', background: 'var(--bg-secondary)', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: activeItem.bioavailability, background: 'linear-gradient(90deg, var(--primary-accent), var(--secondary-accent))' }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Metabolic Half-Life</span>
-                      <strong style={{ color: 'var(--text-main)' }}>{activeItem.halfLife}</strong>
-                    </div>
-                    <div style={{ height: '8px', borderRadius: '4px', background: 'var(--bg-secondary)', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: '75%', background: 'var(--primary-accent)' }} />
-                    </div>
-                  </div>
+                <h2 className="mt-5 text-[32px] leading-tight">{item.name}</h2>
+                <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
+                  <dt className="text-muted-foreground">Form</dt>
+                  <dd>{item.dosageForm}</dd>
+                  <dt className="text-muted-foreground">Category</dt>
+                  <dd>{categoryLabel(item.category)}</dd>
+                  <dt className="text-muted-foreground">Marketed by</dt>
+                  <dd>{displayBrand(item.brand)}</dd>
+                </dl>
+                {isPrescription(item.category) && <Badge className="mt-4">Prescription required</Badge>}
+                <div className="mt-5">
+                  <Button variant="outline" onClick={() => openItem(item)}>Product details</Button>
                 </div>
               </div>
-
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>Salt Composition Analysis</h3>
-                  <button onClick={() => setShowSchema(!showSchema)} className="glass-button-secondary" style={{ padding: '5px 10px', fontSize: '0.75rem', borderRadius: '8px' }}>
-                    <Code2 size={13} /><span>{showSchema ? 'Show Salts List' : 'View Google JSON-LD'}</span>
-                  </button>
+                <h3 className="text-lg font-medium">Composition</h3>
+                <div className="mt-2">
+                  <CompositionTable salts={salts} productName={item.name} />
                 </div>
-                {showSchema ? (
-                  <div style={{ background: '#0b0717', padding: '16px', borderRadius: '14px', fontFamily: 'monospace', fontSize: '0.78rem', color: '#a7f3d0', border: '1px solid var(--border-color)', overflowX: 'auto', maxWidth: '100%' }}>
-                    <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{JSON.stringify({ "@context": "https://schema.org", "@type": "Drug", name: activeItem.name, activeIngredient: salts.map(s => `${s.name} (${s.amount})`).join(', '), proprietaryName: activeItem.brand, legalStatus: activeItem.category, verificationCode: activeItem.digitalVerifiedId }, null, 2)}</pre>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {salts.map((salt, idx) => (
-                      <div key={idx} style={{ background: 'var(--bg-secondary)', padding: '14px 16px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px', flexWrap: 'wrap', gap: '6px' }}>
-                          <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.9rem' }}>{salt.name}</div>
-                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--secondary-accent)', background: 'var(--badge-bg)', padding: '2px 8px', borderRadius: '6px' }}>{salt.amount} ({salt.percentage}%)</span>
-                        </div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-subtle)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
-                          <span>Clinical Function: <strong>{salt.purpose}</strong></span>
-                          <span>CAS: {salt.casNumber}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <p className="mt-4 text-sm text-subtle">{LABEL_ADVICE}</p>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-    </section>
+          </TabsContent>
+        );
+      })}
+    </Tabs>
   );
 }

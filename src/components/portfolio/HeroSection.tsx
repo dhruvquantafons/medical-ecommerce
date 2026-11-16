@@ -1,79 +1,131 @@
 "use client";
 
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
-import type { ThemeMode } from './types/pharmacy';
-import { Sparkles, ArrowRight, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import type { Product } from '@/data/types';
+import { Button } from './ui/button';
+import { DotPattern } from './ui/dot-pattern';
+import { TextAnimate } from './ui/text-animate';
+import { NumberTicker } from './ui/number-ticker';
+import { Container, Reveal } from './site';
 
-const PillCanvas = dynamic(() => import('./3d/PillCanvas').then(m => ({ default: m.PillCanvas })), { ssr: false });
-
-interface HeroSectionProps {
-  theme: ThemeMode;
+export interface HomeFacts {
+  formulations: number;
+  storeProducts: number;
+  areas: number;
 }
 
-export function HeroSection({ theme }: HeroSectionProps) {
-  const router = useRouter();
-  const trustLogos = ['Apollo Pharmacy', 'MedPlus', 'Netmeds'];
+interface HeroSectionProps {
+  /** Store products with photos, best sellers first. The first three form the hero still. */
+  products: Product[];
+  /** Therapeutic areas as plain words, e.g. ["liver care", "gut health"]. */
+  areas: string[];
+  hasPrescription: boolean;
+  facts: HomeFacts;
+}
+
+function listInWords(words: string[]): string {
+  if (words.length <= 2) return words.join(' and ');
+  return `${words.slice(0, -1).join(', ')}, and ${words[words.length - 1]}`;
+}
+
+/*
+  Headline options (changeui.md, Problem 10 asks the owner to choose):
+  1. "Medicines and daily supplements, with every ingredient listed."  <- in use
+  2. "Our own medicines and supplements, labelled in full."
+  3. "Pharmaceutical and nutraceutical formulations you can read in full."
+*/
+const HEADLINE = 'Medicines and daily supplements, with every ingredient listed.';
+
+export function HeroSection({ products, areas, hasPrescription, facts }: HeroSectionProps) {
+  const [main, ...rest] = products.filter(p => p.images.length > 0).slice(0, 3);
+  const lead =
+    `Formulations for ${listInWords(areas)}` +
+    (hasPrescription ? ', alongside a range of prescription medicines.' : '.');
+
+  const factRows = [
+    { value: facts.formulations, label: 'formulations in our catalogue' },
+    { value: facts.storeProducts, label: 'products in the online store' },
+    { value: facts.areas, label: 'therapeutic areas' },
+  ].filter(f => f.value > 0);
 
   return (
-    <section id="hero-3d" className="pf-hero-section" style={{ minHeight: '100vh', paddingTop: '106px', paddingBottom: '60px', position: 'relative', display: 'flex', alignItems: 'center', background: 'var(--hero-gradient)', overflow: 'hidden' }}>
-      <div style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 20px' }}>
-        <div className="pf-hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: '30px', alignItems: 'center' }}>
-          <div className="pf-hero-text-col" style={{ zIndex: 2 }}>
-            <div className="glass-pill pf-hero-badge" style={{ marginBottom: '20px' }}>
-              <Sparkles size={14} color="var(--primary-accent)" />
-              <span>Intelligent Digital Medicine Platform</span>
-            </div>
-            <h1 className="font-display gradient-text pf-hero-title" style={{ fontSize: 'clamp(2.2rem, 5vw, 4.2rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: '20px' }}>
-              Empowering Healthcare <br />
-              <span className="gradient-accent-text">Through Digital Precision</span>
-            </h1>
-            <p style={{ fontSize: '1.05rem', color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: '30px', maxWidth: '540px' }}>
-              SYNCYTIUM Health empowers pharmaceutical leaders and retail pharmacies to digitize medicine catalogs, deliver verified active salt transparency, and connect patients seamlessly with certified healthcare products.
+    <section aria-labelledby="pf-hero-title" className="relative overflow-hidden border-b border-border">
+      <DotPattern
+        width={22}
+        height={22}
+        cr={1.1}
+        aria-hidden="true"
+        className="text-border [mask-image:radial-gradient(ellipse_at_top_left,black_0%,transparent_55%)]"
+      />
+      <Container className="relative py-16 md:py-20">
+        <div className="grid grid-cols-1 items-center gap-12 lg:min-h-[560px] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <div>
+            <p className="mb-4 text-sm font-medium uppercase tracking-[0.08em] text-muted-foreground">
+              Pharmaceuticals and nutraceuticals
             </p>
-            <div className="pf-hero-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginBottom: '36px' }}>
-              <button onClick={() => router.push('/portfolio/catalog')} className="glass-button" style={{ padding: '14px 26px' }}>
-                <span>Explore Medicine Directory</span>
-                <ArrowRight size={18} />
-              </button>
-              <button onClick={() => { const el = document.getElementById('contact'); el?.scrollIntoView({ behavior: 'smooth' }); }} className="glass-button-secondary" style={{ padding: '14px 24px' }}>
-                <Mail size={16} color="var(--primary-accent)" />
-                <span>Contact Partner Portal</span>
-              </button>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '40px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex' }}>
-                {[
-                  'https://images.unsplash.com/photo-1594824813566-88855ce78905?auto=format&fit=crop&w=100&q=80',
-                  'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=100&q=80',
-                  'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=100&q=80',
-                ].map((img, idx) => (
-                  <img key={idx} src={img} alt="Trusted Pharmacists" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #ffffff', marginLeft: idx > 0 ? '-10px' : '0', objectFit: 'cover', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
-                ))}
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                ⭐ ⭐ ⭐ ⭐ ⭐ <br />
-                <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>Trusted by 12,000+</span> pharmacy &amp; health teams
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>Trusted by innovative pharmacy networks</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
-                {trustLogos.map((brand, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.88)', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary-accent)' }} />
-                    <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0f172a', letterSpacing: '-0.01em' }}>{brand}</span>
-                  </div>
-                ))}
-              </div>
+            <TextAnimate
+              as="h1"
+              id="pf-hero-title"
+              by="word"
+              animation="blurIn"
+              once
+              duration={0.5}
+              className="max-w-[16ch] text-[44px] leading-[1.06] md:text-[60px]"
+            >
+              {HEADLINE}
+            </TextAnimate>
+            <p className="mt-6 max-w-[52ch] text-lg text-muted-foreground">{lead}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/shop">
+                  Shop the range
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/portfolio/catalog">View all products</Link>
+              </Button>
             </div>
           </div>
 
-          <div className="pf-pill-canvas-container" style={{ position: 'relative', width: '100%', minHeight: '580px', zIndex: 1, overflow: 'visible' }}>
-            <PillCanvas theme={theme} particleCount={220} />
-          </div>
+          {main && (
+            <Reveal>
+              {/* Composed still of real packs: no rotation, no floating. */}
+              <div className="relative pb-24 sm:pb-28">
+                <div className="aspect-[5/4] overflow-hidden rounded-lg border border-border bg-surface">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={main.images[0]} alt={`${main.name} pack`} className="size-full object-cover" />
+                </div>
+                {rest.length > 0 && (
+                  <div className="absolute right-0 bottom-0 left-[18%] grid grid-cols-2 gap-4">
+                    {rest.map(p => (
+                      <div key={p.id} className="aspect-square overflow-hidden rounded-lg border border-border bg-background">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={p.images[0]} alt={`${p.name} pack`} className="size-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Reveal>
+          )}
         </div>
-      </div>
+
+        {/* Proof row: only counts taken from the product data. */}
+        {factRows.length >= 3 && (
+          <dl className="mt-16 grid gap-6 border-t border-border pt-8 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-border">
+            {factRows.map(f => (
+              <div key={f.label} className="flex flex-col-reverse sm:px-8 sm:first:pl-0">
+                <dt className="mt-2 text-[15px] text-muted-foreground">{f.label}</dt>
+                <dd className="font-display text-[44px] leading-none text-foreground">
+                  <NumberTicker value={f.value} className="tabular-nums tracking-[-0.02em] text-foreground" />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </Container>
     </section>
   );
 }

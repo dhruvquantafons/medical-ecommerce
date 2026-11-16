@@ -1,534 +1,75 @@
 /*
-  Portfolio styles — scoped to [data-portfolio] so they never bleed into
-  the store or admin. Fonts are loaded via a <link> in the layout.
-  The :root custom properties live inside the scope too, so they don't
-  override any globals.css variables.
+  Company pages: Home, About, Catalog, Team, Salt Inspector.
+  Design rules: changeui.md (calm, clinical-editorial; one violet; Newsreader + Geist;
+  8px controls / 14px cards; borders instead of shadows; one fade-in per section).
+
+  Components are styled with Tailwind utilities. This file only:
+  - remaps tokens the store also uses (accent, muted, fonts, radii) inside [data-portfolio],
+    so the store keeps its own values;
+  - sets base type, focus and reduced-motion rules for the company pages.
+  Dialogs, sheets and selects portal into the [data-portfolio] wrapper, so they inherit this too.
+
+  Contrast on white: ink #17151f 17.9:1, muted #5a5766 7.0:1, subtle #6e6b7b 5.2:1,
+  brand #3d2e86 11.0:1, input border #8a8698 3.5:1 (non-text, 3:1 needed).
 */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
-
-[data-portfolio],
-[data-portfolio] [data-theme="purple"],
-[data-portfolio]:where(:root, *) {
-  --bg-main: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.75);
-  --bg-card-hover: rgba(255, 255, 255, 0.95);
-  --bg-pill-cap: #7c3aed;
-  --bg-pill-body: #ffffff;
-  --primary-accent: #6366f1;
-  --primary-glow: rgba(99, 102, 241, 0.25);
-  --secondary-accent: #a855f7;
-  --tertiary-accent: #ec4899;
-  --salt-particle: #c084fc;
-  --text-main: #0f172a;
-  --text-muted: #475569;
-  --text-subtle: #94a3b8;
-  --border-color: rgba(226, 232, 240, 0.8);
-  --border-highlight: rgba(168, 85, 247, 0.3);
-  --badge-bg: rgba(99, 102, 241, 0.08);
-  --hero-gradient: radial-gradient(circle at 70% 30%, rgba(168, 85, 247, 0.12) 0%, rgba(99, 102, 241, 0.08) 40%, transparent 70%);
-  --shadow-soft: 0 20px 40px -15px rgba(99, 102, 241, 0.12);
-  --shadow-hover: 0 25px 50px -12px rgba(168, 85, 247, 0.22);
-}
-
-/* ---- Reset (scoped — only inside the portfolio wrapper) ---- */
-[data-portfolio] *, [data-portfolio] *::before, [data-portfolio] *::after {
-  box-sizing: border-box;
-}
-
-/* ---- Base ---- */
 [data-portfolio] {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-main);
+  --color-accent: #f5f4f9;          /* 5% brand tint: the only tinted surface */
+  --color-muted: #f7f6f3;           /* shadcn bg-muted = surface */
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-newsreader), Georgia, serif;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 14px;
+
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-foreground);
   min-height: 100vh;
-  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ---- Typography helpers ---- */
-[data-portfolio] .font-display {
-  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+[data-portfolio] main { flex: 1; }
+[data-portfolio] main:focus { outline: none; }
+
+/* Defaults go in Tailwind's base layer so utility classes (font-sans, border-primary, …) override them.
+   Unlayered rules would beat every utility regardless of specificity. */
+@layer base {
+  /* shadcn's bare `border` classes take this colour (zero specificity, so explicit colours win). */
+  :where([data-portfolio]) :where(*, *::before, *::after) {
+    border-color: var(--color-border);
+  }
+
+  /* Marketing headings: Newsreader 500, -0.02em, one colour. Zero specificity so utility classes override. */
+  :where([data-portfolio]) :where(h1, h2) {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-foreground);
+    text-wrap: balance;
+  }
+  :where([data-portfolio]) :where(h3) { text-wrap: balance; }
 }
 
-[data-portfolio] .gradient-text {
-  background: linear-gradient(135deg, #0f172a 20%, #334155 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* One visible focus ring for every interactive element. */
+[data-portfolio] :focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-[data-portfolio] .gradient-accent-text {
-  background: linear-gradient(135deg, var(--primary-accent) 0%, var(--secondary-accent) 50%, var(--tertiary-accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* ---- Glassmorphism ---- */
-[data-portfolio] .glass-panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  box-shadow: var(--shadow-soft);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-[data-portfolio] .glass-panel:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-highlight);
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
-}
-
-[data-portfolio] .glass-pill {
-  background: var(--badge-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color);
-  padding: 6px 18px;
-  border-radius: 9999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--primary-accent);
-}
-
-[data-portfolio] .glass-button {
-  background: linear-gradient(135deg, var(--primary-accent) 0%, var(--secondary-accent) 100%);
-  color: #ffffff;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 9999px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.25s ease;
-  box-shadow: 0 10px 25px var(--primary-glow);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-}
-
-[data-portfolio] .glass-button:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 14px 35px var(--primary-glow);
-}
-
-[data-portfolio] .glass-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-[data-portfolio] .glass-button-secondary {
-  background: var(--bg-secondary);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  padding: 14px 26px;
-  border-radius: 9999px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-}
-
-[data-portfolio] .glass-button-secondary:hover {
-  background: #ffffff;
-  border-color: var(--border-highlight);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-/* ---- Animations ---- */
-@keyframes pf-floatSlow {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50%       { transform: translateY(-12px) rotate(1.5deg); }
-}
-
-@keyframes pf-pulseGlow {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 0.9; }
-}
-
-[data-portfolio] .animate-float      { animation: pf-floatSlow 6s ease-in-out infinite; }
-[data-portfolio] .animate-pulse-slow { animation: pf-pulseGlow 4s ease-in-out infinite; }
-
-/* ---- Scrollbar ---- */
-[data-portfolio] ::-webkit-scrollbar       { width: 8px; }
-[data-portfolio] ::-webkit-scrollbar-track { background: var(--bg-main); }
-[data-portfolio] ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-[data-portfolio] ::-webkit-scrollbar-thumb:hover { background: var(--primary-accent); }
-
-/* ---- Responsive Mobile Enhancements ---- */
-
-[data-portfolio] .pf-hero-grid {
-  display: grid !important;
-  grid-template-columns: 1.05fr 0.95fr !important;
-  gap: 30px !important;
-  align-items: center !important;
-}
-
-@media (max-width: 900px) {
-  .pf-desktop-nav { display: none !important; }
-  .pf-mobile-btn { display: flex !important; }
-  .pf-search-text { display: none !important; }
-  [data-portfolio] .pf-hero-grid {
-    grid-template-columns: 1fr !important;
-    gap: 30px !important;
-  }
-}
-
-@media (max-width: 768px) {
-  [data-portfolio] section {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-
-  [data-portfolio] .pf-hero-section {
-    padding-top: 100px !important;
-    padding-bottom: 40px !important;
-    min-height: auto !important;
-    display: block !important;
-    overflow: visible !important;
-  }
-
-  [data-portfolio] .pf-hero-buttons {
-    flex-direction: column !important;
-    width: 100% !important;
-    gap: 12px !important;
-  }
-
-  [data-portfolio] .pf-hero-buttons button,
-  [data-portfolio] .pf-hero-buttons a {
-    width: 100% !important;
-    justify-content: center !important;
-    text-align: center !important;
-  }
-
-  [data-portfolio] .pf-pill-canvas-container {
-    min-height: 480px !important;
-    height: 480px !important;
-    margin-top: 10px !important;
-    overflow: visible !important;
-    position: relative !important;
-  }
-
-  /* Keep the WebGL canvas below the floating badges */
-  [data-portfolio] .pf-pill-canvas-container > div:first-child {
-    z-index: 0 !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-top {
-    top: 8px !important;
-    right: 8px !important;
-    padding: 12px 14px !important;
-    width: 180px !important;
-    max-width: calc(100% - 16px) !important;
-    z-index: 20 !important;
-    pointer-events: none !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-bottom {
-    bottom: 8px !important;
-    left: 8px !important;
-    padding: 8px 12px !important;
-    max-width: calc(100% - 16px) !important;
-    z-index: 20 !important;
-    pointer-events: none !important;
-  }
-
-  [data-portfolio] .pf-banner-card {
-    padding: 24px 16px !important;
-  }
-
-  [data-portfolio] .pf-sync-arrow {
-    display: none !important;
-  }
-
-  [data-portfolio] .pf-footer {
-    flex-direction: column !important;
-    text-align: center !important;
-    justify-content: center !important;
-    gap: 14px !important;
-  }
-
-  [data-portfolio] .pf-footer-links {
-    justify-content: center !important;
-  }
-}
-
-@media (max-width: 640px) {
-  [data-portfolio] .pf-header-get-started {
-    display: none !important;
-  }
-
-  [data-portfolio] .glass-panel {
-    border-radius: 18px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  [data-portfolio] h1 {
-    font-size: 2rem !important;
-  }
-
-  [data-portfolio] h2 {
-    font-size: 1.7rem !important;
-  }
-
-  [data-portfolio] .pf-pill-canvas-container {
-    min-height: 420px !important;
-    height: 420px !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-top {
-    width: 160px !important;
-    padding: 10px 12px !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-top > div:nth-child(2) {
-    font-size: 1.4rem !important;
-  }
-}
-
-@media (max-width: 380px) {
-  [data-portfolio] .pf-pill-canvas-container {
-    min-height: 380px !important;
-    height: 380px !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-top {
-    width: 145px !important;
-    padding: 8px 10px !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-top > div:nth-child(2) {
-    font-size: 1.2rem !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-bottom {
-    padding: 6px 10px !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-bottom > div > div:first-child {
-    font-size: 0.7rem !important;
-  }
-
-  [data-portfolio] .pf-floating-badge-bottom > div > div:last-child {
-    font-size: 0.62rem !important;
-  }
-}
-
-
-/* ---- Mobile hero: pill beside the heading, not below it ---- */
-@media (max-width: 767px) {
-  /* Section becomes the positioning context for the pill */
-  [data-portfolio] .pf-hero-section {
-    position: relative !important;
-    overflow: visible !important;
-  }
-
-  /* Text column stays in normal flow, rendered on top of the pill */
-  [data-portfolio] .pf-hero-text-col {
-    position: relative !important;
-    z-index: 2 !important;
-  }
-
-  /* Badge + heading narrowed so the pill sits beside, not behind */
-  [data-portfolio] .pf-hero-badge {
-    max-width: 60% !important;
-    font-size: 0.8rem !important;
-  }
-  [data-portfolio] .pf-hero-title {
-    max-width: 56% !important;
-    font-size: clamp(1.5rem, 5vw, 2rem) !important;
-  }
-
-  /* Pill container: absolutely positioned top-right, behind text */
-  [data-portfolio] .pf-pill-canvas-container {
-    position: absolute !important;
-    top: 115px !important;
-    right: 0 !important;
-    left: auto !important;
-    width: 44% !important;
-    height: 240px !important;
-    min-height: 240px !important;
-    margin-top: 0 !important;
-    z-index: 0 !important;
-    overflow: hidden !important;
-    pointer-events: none !important;
-  }
-
-  /* Hide floating badges on mobile so they don't cover the pill */
-  [data-portfolio] .pf-floating-badge-top,
-  [data-portfolio] .pf-floating-badge-bottom {
-    display: none !important;
-  }
-}
-
-/* ---- About section: DNA beside text on mobile, same pattern as hero pill ---- */
-@media (max-width: 767px) {
-  [data-portfolio] .pf-about-section {
-    position: relative !important;
-    overflow: visible !important;
-    padding-top: 32px !important;
-    padding-bottom: 32px !important;
-  }
-
-  /* Text column in normal flow, always on top of DNA */
-  [data-portfolio] .pf-about-text-col {
-    position: relative !important;
-    z-index: 2 !important;
-  }
-
-  /* Narrow the badge and h2 only so DNA sits beside them */
-  [data-portfolio] .pf-about-text-col .glass-pill,
-  [data-portfolio] .pf-about-text-col h2 {
-    max-width: 58% !important;
-  }
-
-  [data-portfolio] .pf-about-text-col h2 {
-    font-size: clamp(1.4rem, 5vw, 1.9rem) !important;
-  }
-
-  /* Paragraph and everything after h2 go full width below the DNA */
-  [data-portfolio] .pf-about-text-col p,
-  [data-portfolio] .pf-about-text-col ul,
-  [data-portfolio] .pf-about-text-col > div:not(:first-child):not(:nth-child(2)) {
-    max-width: 100% !important;
-    padding-right: 0 !important;
-  }
-
-  /* DNA column: absolutely positioned top-right, behind text */
-  [data-portfolio] .pf-about-dna-col {
-    position: absolute !important;
-    top: 28px !important;
-    right: 0 !important;
-    left: auto !important;
-    width: 44% !important;
-    height: 200px !important;
-    min-height: 200px !important;
-    z-index: 0 !important;
-    overflow: hidden !important;
-    pointer-events: none !important;
-  }
-
-  /* Hide the framer-motion wrapper's own height so it fills the container */
-  [data-portfolio] .pf-about-dna-col > div {
-    height: 100% !important;
-    width: 100% !important;
-  }
-}
-
-@media (max-width: 480px) {
-  [data-portfolio] .pf-about-dna-col {
-    height: 180px !important;
-    min-height: 180px !important;
-    top: 24px !important;
-  }
-}
-
-@media (max-width: 380px) {
-  [data-portfolio] .pf-about-dna-col {
-    height: 160px !important;
-    min-height: 160px !important;
-    width: 42% !important;
-    top: 20px !important;
-  }
-
-  [data-portfolio] .pf-about-text-col .glass-pill,
-  [data-portfolio] .pf-about-text-col h2 {
-    max-width: 54% !important;
-  }
-}
-
-/* ---- Featured Formulations banner: single box on mobile ---- */
-@media (max-width: 767px) {
-  /* Banner card: auto height, no overflow clipping */
-  [data-portfolio] .pf-banner-card {
-    overflow: hidden !important;
-    min-height: unset !important;
-  }
-
-  /* Inner grid: stack vertically */
-  [data-portfolio] .pf-banner-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    position: relative !important;
-  }
-
-  /* Text column: full width */
-  [data-portfolio] .pf-banner-grid > div:first-child {
-    position: relative !important;
-    z-index: 2 !important;
-    max-width: 100% !important;
-  }
-
-  /* Narrow the heading inside the banner */
-  [data-portfolio] .pf-banner-grid > div:first-child h2 {
-    font-size: clamp(1.4rem, 5vw, 1.85rem) !important;
-    max-width: 100% !important;
-  }
-
-  /* Stack the checklist items vertically */
-  [data-portfolio] .pf-banner-grid > div:first-child > div[style*="flex-wrap"] {
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-
-  /* Cards preview: scale the fanned layout to fit mobile width.
-     height reduced to match visual height after scale (300 × 0.58 ≈ 174px) */
-  [data-portfolio] .pf-banner-cards-preview {
-    transform: scale(0.58) !important;
-    transform-origin: top right !important;
-    height: 174px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  [data-portfolio] .pf-banner-grid > div:first-child h2 {
-    font-size: clamp(1.25rem, 4.5vw, 1.6rem) !important;
-  }
-}
-
-/* ---- About Page Mobile Overrides ---- */
-[data-portfolio] .pf-about-tabs-panel {
-  padding: 40px;
-}
-[data-portfolio] .pf-about-vision-grid {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-
-@media (max-width: 767px) {
-  [data-portfolio] .pf-about-tabs-panel {
-    padding: 24px;
-  }
-  [data-portfolio] .pf-about-vision-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ---- Team page: 2 columns on mobile ---- */
-@media (max-width: 767px) {
-  [data-portfolio] .pf-team-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 14px !important;
-  }
-}
-
-/* ---- Navbar logo: on mobile view only ---- */
-@media (max-width: 767px) {
-  [data-portfolio] .pf-navbar-logo {
-    height: 125px !important;
-    margin-top: -24px !important;
-    margin-bottom: -24px !important;
+@media (prefers-reduced-motion: reduce) {
+  [data-portfolio] *,
+  [data-portfolio] *::before,
+  [data-portfolio] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
