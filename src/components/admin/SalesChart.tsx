@@ -34,7 +34,7 @@ export function SalesChart({ data }: { data: Day[] }) {
     <div>
       <div className="flex gap-3">
         {/* y-axis */}
-        <div className="flex h-52 flex-col justify-between pb-0 text-right text-[11px] text-muted tabular-nums" aria-hidden>
+        <div className="flex h-52 flex-col justify-between pb-0 text-right text-[11px] text-muted-foreground tabular-nums" aria-hidden>
           {ticks.map((t) => (
             <span key={t} className="-translate-y-1/2 leading-none first:translate-y-0 last:translate-y-0">
               ₹{compact.format(t)}
@@ -49,7 +49,7 @@ export function SalesChart({ data }: { data: Day[] }) {
             ))}
           </div>
           {max === 0 && (
-            <p className="absolute inset-x-0 top-20 text-center text-sm text-muted">No sales in the last 14 days yet</p>
+            <p className="absolute inset-x-0 top-20 text-center text-sm text-muted-foreground">No sales in the last 14 days yet</p>
           )}
           {/* bars */}
           <div className="relative flex h-52 items-end gap-0.5" onMouseLeave={() => setActive(null)}>
@@ -90,7 +90,7 @@ export function SalesChart({ data }: { data: Day[] }) {
                       style={{ bottom: `calc(${Math.max(h, 8)}% + 8px)` }}
                     >
                       <p className="text-sm font-bold text-ink tabular-nums">{formatPrice(d.revenue)}</p>
-                      <p className="text-muted">
+                      <p className="text-muted-foreground">
                         {dateLabel(d.day)} · {d.orders} order{d.orders === 1 ? "" : "s"}
                       </p>
                     </div>
@@ -100,7 +100,7 @@ export function SalesChart({ data }: { data: Day[] }) {
             })}
           </div>
           {/* x-axis */}
-          <div className="mt-2 flex gap-0.5 text-[11px] text-muted" aria-hidden>
+          <div className="mt-2 flex gap-0.5 text-[11px] text-muted-foreground" aria-hidden>
             {data.map((d, i) => {
               // Label every 2nd day (counting back from today), every 4th on narrow screens.
               const fromEnd = data.length - 1 - i;
@@ -121,7 +121,7 @@ export function SalesChart({ data }: { data: Day[] }) {
         <summary className="cursor-pointer font-semibold text-brand-700">View as table</summary>
         <table className="mt-2 w-full text-left">
           <thead>
-            <tr className="text-xs text-muted">
+            <tr className="text-xs text-muted-foreground">
               <th className="py-1 font-semibold">Date</th>
               <th className="py-1 text-right font-semibold">Orders</th>
               <th className="py-1 text-right font-semibold">Sales</th>

@@ -75,7 +75,7 @@ export function SearchBox({ variant = "field", autoFocus }: { variant?: "nav" | 
           "flex items-center gap-2",
           nav
             ? "h-10 rounded-full pr-1 pl-3 text-white transition focus-within:bg-white/10"
-            : "h-12 rounded-full border border-line bg-white pr-1.5 pl-4 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100",
+            : "h-12 rounded-control border border-line bg-background pr-1.5 pl-4 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20",
         )}
       >
         <input
@@ -98,7 +98,7 @@ export function SearchBox({ variant = "field", autoFocus }: { variant?: "nav" | 
           }}
           placeholder="What are you looking for?"
           aria-label="Search products"
-          className={clsx("h-full min-w-0 flex-1 bg-transparent text-sm outline-none", nav ? "placeholder:text-white/75" : "placeholder:text-muted")}
+          className={clsx("h-full min-w-0 flex-1 bg-transparent text-sm outline-none", nav ? "placeholder:text-white/75" : "placeholder:text-muted-foreground")}
           role="combobox"
           aria-expanded={open && results.length > 0}
           aria-controls={listId}
@@ -107,16 +107,16 @@ export function SearchBox({ variant = "field", autoFocus }: { variant?: "nav" | 
         <button
           type="submit"
           aria-label="Search"
-          className={clsx("grid size-9 shrink-0 place-items-center rounded-full", nav ? "hover:bg-white/10" : "bg-ink text-white hover:bg-brand-800")}
+          className={clsx("grid size-9 shrink-0 place-items-center rounded-control", nav ? "hover:bg-white/10" : "bg-brand text-brand-foreground hover:bg-brand-hover")}
         >
           <Search className="size-[18px]" />
         </button>
       </form>
 
       {open && debounced.trim() && (
-        <div className={clsx("absolute top-full z-50 mt-2 overflow-hidden rounded-2xl border border-line bg-white text-ink shadow-xl", nav ? "right-0 w-[22rem]" : "inset-x-0")}>
+        <div className={clsx("absolute top-full z-50 mt-2 overflow-hidden rounded-card border border-line bg-background text-ink shadow-overlay", nav ? "right-0 w-[22rem]" : "inset-x-0")}>
           {results.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-muted">No matches for “{debounced}”</p>
+            <p className="px-4 py-3 text-sm text-muted-foreground">No matches for “{debounced}”</p>
           ) : (
             <ul id={listId} role="listbox">
               {results.map((p, i) => (
@@ -125,14 +125,14 @@ export function SearchBox({ variant = "field", autoFocus }: { variant?: "nav" | 
                     type="button"
                     onMouseEnter={() => setActive(i)}
                     onClick={() => go(`/product/${p.slug}`)}
-                    className={clsx("flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left", i === active && "bg-brand-50")}
+                    className={clsx("flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left", i === active && "bg-surface")}
                   >
                     <span className="min-w-0">
                       <span className="flex items-center gap-2 text-sm font-medium">
                         <span className="truncate">{p.name}</span>
                         {p.rxRequired && <RxBadge />}
                       </span>
-                      <span className="block truncate text-xs text-muted">{p.composition}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{p.composition}</span>
                     </span>
                     <span className="shrink-0 text-sm font-semibold">{formatPrice(p.price)}</span>
                   </button>
@@ -142,7 +142,7 @@ export function SearchBox({ variant = "field", autoFocus }: { variant?: "nav" | 
                 <button
                   type="button"
                   onClick={() => go(`/search?q=${encodeURIComponent(debounced.trim())}`)}
-                  className="w-full border-t border-line px-4 py-3 text-left text-sm font-semibold text-brand-800 hover:bg-brand-50"
+                  className="w-full border-t border-line px-4 py-3 text-left text-sm font-medium text-brand hover:bg-surface"
                 >
                   See all results for “{debounced.trim()}”
                 </button>

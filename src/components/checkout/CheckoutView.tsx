@@ -13,7 +13,7 @@ import { formatPrice } from "@/lib/format";
 import { placeCodOrder, saveAddress } from "@/app/actions/account";
 import { loadRazorpay, openRazorpay } from "@/lib/razorpayCheckout";
 import { site } from "@/config/site";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { RxBadge } from "@/components/product/Badges";
 import { RxDropzone, RxThumb } from "@/components/rx/RxDropzone";
 import { AddressForm } from "./AddressForm";
@@ -30,7 +30,7 @@ function Step({ n, title, done, children }: { n: number; title: string; done?: b
   return (
     <section className="card p-6">
       <h2 className="mb-5 flex items-center gap-3 text-lg font-semibold">
-        <span className={clsx("grid size-8 place-items-center rounded-full text-sm", done ? "bg-brand-gradient text-white" : "bg-tile text-ink")}>
+        <span className={clsx("grid size-8 place-items-center rounded-full text-sm", done ? "bg-brand text-white" : "bg-tile text-ink")}>
           {done ? <CircleCheck className="size-4" /> : n}
         </span>
         {title}
@@ -160,10 +160,10 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
                   <label key={a.id} className={clsx("flex cursor-pointer gap-3 rounded-lg border p-3", selectedAddress?.id === a.id ? "border-brand-600 bg-brand-50" : "border-line")}>
                     <input type="radio" name="address" className="mt-1 accent-brand-600" checked={selectedAddress?.id === a.id} onChange={() => setAddressId(a.id)} />
                     <span className="text-sm">
-                      <span className="flex items-center gap-2 font-semibold">{a.name} <span className="rounded bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-muted">{a.label}</span></span>
+                      <span className="flex items-center gap-2 font-semibold">{a.name} <span className="rounded bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-muted-foreground">{a.label}</span></span>
                       <span className="block text-gray-700">{a.line1}{a.line2 && `, ${a.line2}`}</span>
                       <span className="block text-gray-700">{a.city}, {a.state} {a.pincode}</span>
-                      <span className="block text-muted">{a.phone}</span>
+                      <span className="block text-muted-foreground">{a.phone}</span>
                     </span>
                   </label>
                 ))}
@@ -188,7 +188,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
 
           {hasRx && (
             <Step n={n++} title="Attach prescription" done={rxOk}>
-              <p className="mb-3 text-sm text-muted">
+              <p className="mb-3 text-sm text-muted-foreground">
                 These items need a valid prescription:{" "}
                 {lines.filter((l) => l.product.rxRequired).map((l) => l.product.name).join(", ")}
               </p>
@@ -230,12 +230,12 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
                   <I className="size-5 text-brand-600" />
                   <span className="text-sm">
                     <span className="block font-semibold">{label}</span>
-                    <span className="text-xs text-muted">{note}</span>
+                    <span className="text-xs text-muted-foreground">{note}</span>
                   </span>
                 </label>
               ))}
             </div>
-            <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
               <Lock className="size-3.5" /> Payments are processed securely by Razorpay (test mode).
             </p>
           </Step>
@@ -247,7 +247,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="truncate">{p.name}</span>
                     {p.rxRequired && <RxBadge />}
-                    <span className="shrink-0 text-muted">× {qty}</span>
+                    <span className="shrink-0 text-muted-foreground">× {qty}</span>
                   </span>
                   <span className="shrink-0 font-semibold">{formatPrice(p.price * qty)}</span>
                 </li>
@@ -268,7 +268,7 @@ export function CheckoutView({ initialAddresses, initialPrescriptions }: { initi
               </p>
             )}
             {!canPlace && !paying && (
-              <p className="mt-2 text-center text-xs text-muted">
+              <p className="mt-2 text-center text-xs text-muted-foreground">
                 {!selectedAddress ? "Add a delivery address to continue" : "Attach a prescription to continue"}
               </p>
             )}

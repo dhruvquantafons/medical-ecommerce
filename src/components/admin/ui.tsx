@@ -10,7 +10,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
-        {subtitle && <p className="mt-0.5 text-sm text-muted">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
@@ -20,9 +20,9 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 export function StatCard({ label, value, hint, tone = "default", href }: { label: string; value: string; hint?: ReactNode; tone?: "default" | "warn"; href?: string }) {
   const body = (
     <>
-      <p className="text-sm font-medium text-muted">{label}</p>
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-bold tracking-tight">{value}</p>
-      {hint && <p className={clsx("mt-1 text-xs", tone === "warn" ? "font-semibold text-amber-700" : "text-muted")}>{hint}</p>}
+      {hint && <p className={clsx("mt-1 text-xs", tone === "warn" ? "font-semibold text-amber-700" : "text-muted-foreground")}>{hint}</p>}
     </>
   );
   return href ? (
@@ -57,7 +57,7 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
   return (
     <div className="card flex flex-col items-center gap-2 px-4 py-14 text-center">
       <p className="font-semibold">{title}</p>
-      {text && <p className="text-sm text-muted">{text}</p>}
+      {text && <p className="text-sm text-muted-foreground">{text}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>
   );
@@ -76,7 +76,7 @@ export function Pagination({ page, pages, basePath, params }: { page: number; pa
   const btn = "inline-flex items-center gap-1 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-semibold";
   return (
     <nav aria-label="Pagination" className="mt-4 flex items-center justify-between">
-      <p className="text-sm text-muted">
+      <p className="text-sm text-muted-foreground">
         Page {page} of {pages}
       </p>
       <div className="flex gap-2">
@@ -87,7 +87,7 @@ export function Pagination({ page, pages, basePath, params }: { page: number; pa
   );
 }
 
-export const inputClass = "h-10 rounded-lg border border-line bg-white px-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+export const inputClass = "h-10 rounded-lg border border-line bg-white px-3 text-sm focus:border-brand focus:ring-2 focus:ring-brand-100";
 
 /** Plain GET form for list filters: submitting updates the URL, which the server page reads. */
 export function FilterBar({ children }: { children: ReactNode }) {

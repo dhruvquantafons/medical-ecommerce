@@ -41,7 +41,7 @@ export default async function AdminDashboard() {
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <section className="card p-5">
           <h2 className="font-bold">Daily sales</h2>
-          <p className="mb-4 text-xs text-muted">Last 14 days</p>
+          <p className="mb-4 text-xs text-muted-foreground">Last 14 days</p>
           <SalesChart data={d.daily} />
         </section>
         <section className="card p-5">
@@ -61,7 +61,7 @@ export default async function AdminDashboard() {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted">Everything is well stocked.</p>
+            <p className="text-sm text-muted-foreground">Everything is well stocked.</p>
           )}
         </section>
       </div>

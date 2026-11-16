@@ -1,72 +1,234 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-/* Syncytium Health design tokens. The palette is built on three colours:
-   #8B5CF6 (vivid violet: highlights), #7C6BF0 (soft violet: buttons, header, footer) and #EDE9FE (lavender: tints, accents).
-   brand-800 is a dark violet used for text only, so small text stays readable on lavender and white. */
-@theme {
-  --color-brand-50: #f5f3ff;
-  --color-brand-100: #ede9fe;
-  --color-brand-200: #ddd6fe;
-  --color-brand-300: #c4b5fd;
-  --color-brand-500: #8b5cf6;
-  --color-brand-600: #7c6bf0;
-  --color-brand-700: #6a58e0;
-  --color-brand-800: #3d2e86;
-  --color-brand-900: #2a1f66;
-  --color-sage: #a78bfa;
-  --color-accent: #ede9fe;
-  --color-accent-strong: #ddd6fe;
-  --color-sale: #c8321f;
-  --color-save: #2f7a3f;
-  --color-page: #f8f8fb;
-  --color-tile: #f2f1f7;
-  --color-ink: #17151f;
-  --color-muted: #6b6879;
-  --color-line: #e7e5ee;
-  --font-sans: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   Syncytium Health design tokens: the single source of truth for every route
+   (company pages, store, auth, admin). See "Design rules" in CLAUDE.md.
+   ========================================================================== */
+
+:root {
+  /* Brand: the deep violet of the logo wordmark, sampled from public/brand/logo.png. */
+  --brand: #29106a;
+  --brand-hover: #1e0b50; /* one step darker */
+  --brand-tint: #f4f3f8; /* 5% brand on white: the only tinted surface */
+  --brand-foreground: #ffffff;
+
+  /* Neutrals */
+  --surface: #f7f6f3;
+  --line: #e6e3ec;
+  --ink: #17151f;
+  --ink-muted: #5a5766;
+  --ink-subtle: #6e6b7b; /* lightest text colour allowed (4.5:1 on white) */
+
+  /* Semantic: meaning only */
+  --success: #1f7a4d;
+  --warning: #a15c07;
+  --danger: #b42318;
+
+  /* shadcn/ui variables, mapped onto the tokens above. */
+  --background: #ffffff;
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface);
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--brand-tint);
+  --accent-foreground: var(--brand);
+  --destructive: var(--danger);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+  --radius: 8px;
+
+  --chart-1: var(--brand);
+  --chart-2: var(--ink-muted);
+  --chart-3: var(--success);
+  --chart-4: var(--warning);
+  --chart-5: var(--ink-subtle);
+
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: var(--brand-tint);
+  --sidebar-accent-foreground: var(--brand);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--brand);
 }
 
-/* Brand gradient: #7C6BF0 → #8B5CF6 with a soft #EDE9FE (lavender) light. The lavender never sits fully behind
-   white text: small surfaces get a sheen along the top edge, large panels a glow from the top-right corner. */
-@utility bg-brand-gradient {
-  background-image:
-    linear-gradient(180deg, rgb(237 233 254 / 0.32), rgb(237 233 254 / 0) 55%),
-    linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
-}
-/* Large panels (footer, "Why Syncytium", hero): lavender glow in the top-right corner. */
-@utility bg-brand-gradient-glow {
-  background-image:
-    radial-gradient(55% 90% at 100% 0%, rgb(237 233 254 / 0.42), rgb(237 233 254 / 0) 70%),
-    linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
-}
-/* Vertical version for tall surfaces (admin sidebar), glowing from the top. */
-@utility bg-brand-gradient-y {
-  background-image:
-    radial-gradient(120% 35% at 50% 0%, rgb(237 233 254 / 0.3), rgb(237 233 254 / 0) 70%),
-    linear-gradient(180deg, var(--color-brand-600), var(--color-brand-500));
-}
-/* Deeper version for hover states. */
-@utility bg-brand-gradient-strong {
-  background-image:
-    linear-gradient(180deg, rgb(237 233 254 / 0.22), rgb(237 233 254 / 0) 55%),
-    linear-gradient(135deg, var(--color-brand-700), #7c3aed);
+/* Colour utilities: inlined so they follow the :root variables above. */
+@theme inline {
+  /* Brand and neutrals */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  /* shadcn/ui colours */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
 }
 
-body {
-  background: var(--color-page);
-  color: var(--color-ink);
+/* Legacy colour names: emitted as variables (static) so a scope can override them. */
+@theme static {
+  /* Legacy store names, collapsed onto the tokens so the app has one colour scale.
+     Page-by-page tasks replace these with the names above; do not use them in new code.
+     Not inlined, so /shop (src/app/(legacy-shop)/legacy-store.css) can restore the original palette. */
+  --color-brand-50: var(--brand-tint);
+  --color-brand-100: var(--brand-tint);
+  --color-brand-200: var(--line);
+  --color-brand-300: var(--line);
+  --color-brand-400: var(--brand);
+  --color-brand-500: var(--brand);
+  --color-brand-600: var(--brand);
+  --color-brand-700: var(--brand);
+  --color-brand-800: var(--brand);
+  --color-brand-900: var(--brand-hover);
+  --color-sage: var(--brand);
+  --color-accent-strong: var(--line);
+  --color-sale: var(--danger);
+  --color-save: var(--success);
+  --color-page: var(--surface);
+  --color-tile: var(--surface);
+}
+
+/* Fonts, radius, depth, type and layout. `static` emits every variable on :root so plain CSS
+   (portfolio.css, .display) can use var(--font-display), var(--radius-card) and so on. */
+@theme static {
+  /* Fonts (loaded with next/font in src/app/layout.tsx). */
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-heading: var(--font-sans); /* component titles; marketing headings use font-display */
+
+  /* Radius: 8px buttons and inputs, 14px cards and images, full for chips and avatars. */
+  --radius-control: 8px;
+  --radius-card: 14px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 14px;
+  --radius-2xl: 14px;
+  --radius-3xl: 14px;
+  --radius-4xl: 14px;
+
+  /* Depth: borders separate; one soft shadow for raised items, one larger for overlays. */
+  --shadow-raised: 0 1px 2px rgb(23 21 31 / 0.04), 0 4px 12px rgb(23 21 31 / 0.06);
+  --shadow-overlay: 0 8px 24px rgb(23 21 31 / 0.1), 0 24px 56px rgb(23 21 31 / 0.12);
+
+  /* Type scale: 14, 16, 18, 20, 24, 32, 44, 60px. */
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.3;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.2;
+  --text-4xl: 2.75rem;
+  --text-4xl--line-height: 1.1;
+  --text-5xl: 3.75rem;
+  --text-5xl--line-height: 1.05;
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 1.05;
+
+  /* Layout */
+  --container-site: 1200px;
+  --container-prose: 65ch;
+
+  /* Motion: one entrance per section. */
+  --animate-enter: enter 200ms ease-out both;
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    /* Newsreader is loaded at 500 only: never fake a heavier or italic cut. */
+    font-synthesis: none;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-brand-500);
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
-  border-radius: 6px;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-brand-800);
+  background: var(--brand-tint);
+  color: var(--brand);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -78,6 +240,7 @@ body {
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
@@ -89,37 +252,17 @@ body {
 }
 
 .card {
-  @apply rounded-2xl border border-line bg-white;
+  @apply rounded-card border border-line bg-white;
 }
 
-/* Display headings: extra-bold Nunito Sans. Emphasis (<em>) is shown in brand green, not italic. */
+/* Marketing display headings: Newsreader 500, -0.02em. A heading is one colour, so <em> is plain. */
 .display {
-  @apply font-display leading-[1.1] font-extrabold tracking-tight;
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 .display em {
   font-style: normal;
-}
-/* Highlighted words in headings use the violet part of the brand gradient as text colour (lavender would be unreadable on white). */
-.display em:not([class*="text-"]) {
-  background-image: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Home hero: orbiting glass callouts around the 3D model (HeroCallouts.tsx). */
-@keyframes hero-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-@keyframes hero-spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes hero-bar {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(0.55); }
-}
-@keyframes hero-draw {
-  0% { stroke-dashoffset: 1; }
-  60%, 100% { stroke-dashoffset: 0; }
+  color: inherit;
 }

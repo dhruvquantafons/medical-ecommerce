@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/format";
 import { EmptyState, FilterBar, PageHeader, Pagination, Table, inputClass, pageParam, strParam, td, th } from "@/components/admin/ui";
 import { ProductImage } from "@/components/product/ProductImage";
 import { RxBadge } from "@/components/product/Badges";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Products" };
 
@@ -57,14 +57,14 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
                         <span className="flex items-center gap-1.5 font-semibold hover:text-brand-700">
                           <span className="truncate">{p.name}</span> {p.rxRequired && <RxBadge />}
                         </span>
-                        <span className="block text-xs text-muted">{p.brand} · {p.packSize}</span>
+                        <span className="block text-xs text-muted-foreground">{p.brand} · {p.packSize}</span>
                       </span>
                     </Link>
                   </td>
                   <td className={td}>{p.categoryName}</td>
                   <td className={`${td} text-right tabular-nums`}>
                     <span className="font-semibold">{formatPrice(p.price)}</span>
-                    {p.discountPct > 0 && <span className="block text-xs text-muted line-through">{formatPrice(p.mrp)}</span>}
+                    {p.discountPct > 0 && <span className="block text-xs text-muted-foreground line-through">{formatPrice(p.mrp)}</span>}
                   </td>
                   <td className={`${td} text-right tabular-nums`}>
                     <span className={p.stock === 0 ? "font-bold text-red-700" : p.stock <= LOW_STOCK ? "font-bold text-amber-700" : ""}>{p.stock}</span>

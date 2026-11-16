@@ -2,12 +2,11 @@
 
 import { ClipboardCheck, ExternalLink, FlaskConical, FolderOpen, LayoutDashboard, LayoutGrid, LogOut, Menu, Package, ReceiptText, Users, Users2, X } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { Logo } from "@/components/site/Logo";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import clsx from "clsx";
 import { authClient } from "@/lib/auth-client";
-import { site } from "@/config/site";
 
 const nav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -29,9 +28,11 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
   const sidebar = (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-5 py-5">
-        <Link href="/admin" className="leading-tight" onClick={() => setOpen(false)}>
-          <Image src="/logo.png" alt={site.name} width={290} height={120} style={{ height: '120px', width: 'auto', marginTop: '-20px', marginBottom: '-20px' }} />
-        </Link>
+        {/* The sidebar is brand-coloured, so the dark logo sits on a white plate.
+            TODO(owner): supply a white version of the logo for dark surfaces. */}
+        <span className="rounded-control bg-white px-3 py-2" onClick={() => setOpen(false)}>
+          <Logo href="/admin" size="header" />
+        </span>
         <button className="rounded p-1 text-brand-100 lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
           <X className="size-5" />
         </button>
@@ -84,12 +85,12 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
   return (
     <div className="flex min-h-screen bg-page">
       {/* The column carries the background for the full page height; the sidebar itself stays pinned. */}
-      <div className="hidden w-64 shrink-0 bg-brand-gradient-y lg:block">
+      <div className="hidden w-64 shrink-0 bg-brand lg:block">
         <aside className="sticky top-0 h-screen">{sidebar}</aside>
       </div>
       {open && (
         <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setOpen(false)}>
-          <aside className="h-full w-72 bg-brand-gradient-y" onClick={(e) => e.stopPropagation()}>
+          <aside className="h-full w-72 bg-brand" onClick={(e) => e.stopPropagation()}>
             {sidebar}
           </aside>
         </div>
@@ -99,7 +100,7 @@ export function AdminShell({ user, pendingRx, children }: { user: { name: string
           <button onClick={() => setOpen(true)} aria-label="Open menu" className="rounded p-1.5 hover:bg-gray-100">
             <Menu className="size-5" />
           </button>
-          <Image src="/logo.png" alt={site.name} width={290} height={120} style={{ height: '120px', width: 'auto', marginTop: '-20px', marginBottom: '-20px' }} />
+          <Logo href="/admin" size="header" />
         </header>
         <main className="mx-auto max-w-7xl px-4 py-6 md:px-8">{children}</main>
       </div>

@@ -25,7 +25,7 @@ export function OrdersTable({ rows, showCustomer = true }: { rows: AdminOrderRow
               <Link href={`/admin/orders/${o.id}`} className="font-mono text-xs font-bold text-brand-700 hover:underline">
                 {o.id}
               </Link>
-              <p className="flex items-center gap-1.5 text-xs text-muted">
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 {formatDateTime(o.createdAt)} · {o.itemCount} item{o.itemCount === 1 ? "" : "s"}
                 {o.rxStatus !== "not_required" && <RxBadge />}
               </p>
@@ -33,7 +33,7 @@ export function OrdersTable({ rows, showCustomer = true }: { rows: AdminOrderRow
             {showCustomer && (
               <td className={td}>
                 <Link href={`/admin/customers/${o.userId}`} className="font-medium hover:text-brand-700">{o.customerName}</Link>
-                <p className="text-xs text-muted">{o.customerEmail}</p>
+                <p className="text-xs text-muted-foreground">{o.customerEmail}</p>
               </td>
             )}
             <td className={td}>

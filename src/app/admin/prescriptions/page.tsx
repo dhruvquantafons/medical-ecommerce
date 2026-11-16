@@ -4,7 +4,7 @@ import Link from "next/link";
 import { listRxQueue } from "@/lib/admin.server";
 import { formatDateTime } from "@/lib/order-labels";
 import { EmptyState, PageHeader } from "@/components/admin/ui";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Prescriptions" };
 
@@ -20,9 +20,9 @@ export default async function PrescriptionQueuePage() {
               <div className="min-w-0 flex-1">
                 <Link href={`/admin/orders/${o.id}`} className="font-mono text-sm font-bold text-brand-700 hover:underline">{o.id}</Link>
                 <p className="text-sm">
-                  {o.customerName} <span className="text-muted">· {o.customerEmail}</span>
+                  {o.customerName} <span className="text-muted-foreground">· {o.customerEmail}</span>
                 </p>
-                <p className="text-xs text-muted">Placed {formatDateTime(o.createdAt)}</p>
+                <p className="text-xs text-muted-foreground">Placed {formatDateTime(o.createdAt)}</p>
                 <p className="mt-2 text-sm">
                   <span className="font-semibold">Rx items:</span> {o.rxItems.map((i) => `${i.name} × ${i.qty}`).join(", ")}
                 </p>

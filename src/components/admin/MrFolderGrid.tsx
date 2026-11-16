@@ -64,9 +64,9 @@ export function MrFolderGrid({
                 {f.name}
               </Link>
               {f.description ? (
-                <p className="mt-0.5 line-clamp-1 text-xs text-muted">{f.description}</p>
+                <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{f.description}</p>
               ) : (
-                <p className="mt-0.5 truncate text-xs text-muted">/mr/{f.slug}</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">/mr/{f.slug}</p>
               )}
 
               <div className="mt-2 flex items-center gap-1 border-t border-line pt-2">
@@ -83,7 +83,7 @@ export function MrFolderGrid({
                     type="button"
                     aria-label={`Edit ${f.name}`}
                     onClick={() => onEdit(f)}
-                    className="rounded-lg p-1 text-muted hover:bg-gray-100 hover:text-ink"
+                    className="rounded-lg p-1 text-muted-foreground hover:bg-gray-100 hover:text-ink"
                   >
                     <Pencil className="size-3.5" />
                   </button>
@@ -95,7 +95,7 @@ export function MrFolderGrid({
                       confirm(`Delete "${f.name}" and all ${f.imageCount} page(s) inside it?`) &&
                       run(() => deleteMrFolder(f.id))
                     }
-                    className="rounded-lg p-1 text-muted hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                    className="rounded-lg p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
                   >
                     <Trash2 className="size-3.5" />
                   </button>

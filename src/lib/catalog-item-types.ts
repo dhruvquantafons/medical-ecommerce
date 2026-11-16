@@ -21,3 +21,13 @@ export function parseSalts(raw: string): ActiveSalt[] {
   }
   return [];
 }
+
+/**
+ * Brand as it should be displayed. Catalog rows entered in the admin spell the company
+ * "SYNCTIUM Healthcare", "SYNCTIUM Pharma Labs" and so on; the brand is "Syncytium Health".
+ * TODO(owner): correct the brand field on these catalog items in the admin panel, then this
+ * display fix can be removed.
+ */
+export function displayBrand(brand: string): string {
+  return /\bSYNC?Y?TIUM\b/i.test(brand) ? "Syncytium Health" : brand;
+}

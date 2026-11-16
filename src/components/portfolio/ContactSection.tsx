@@ -1,147 +1,79 @@
-"use client";
+import Link from "next/link";
+import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import type { ReactNode } from "react";
+import { company } from "@/content/site";
+import { ButtonLink } from "@/components/ui/button";
+import { Container } from "@/components/site/Container";
+import { SectionHeading } from "@/components/site/SectionHeading";
+import { ContactForm } from "./ContactForm";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { Mail, Phone, MapPin, Send, ShieldCheck, Pill, Loader2 } from 'lucide-react';
-import { BluMarginsCredit } from '@/components/layout/BluMarginsCredit';
-import { submitPartnerInquiryAction } from '@/app/portfolio/actions';
+/** Slim contact band for the landing page (changeui.md Problem 15). */
+export function ContactBand() {
+  return (
+    <section id="contact" className="border-t border-line bg-surface">
+      <Container className="flex flex-col items-start justify-between gap-6 py-12 md:flex-row md:items-center">
+        <p className="max-w-prose text-lg text-ink">Questions about a product, an order or working with us? Send us a message.</p>
+        <ButtonLink href="/contact" size="lg">
+          Contact us <ArrowRight aria-hidden />
+        </ButtonLink>
+      </Container>
+    </section>
+  );
+}
 
-export function ContactSection() {
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [formData, setFormData] = useState({ name: '', email: '', pharmacyName: '', message: '' });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
-
-    try {
-      const res = await submitPartnerInquiryAction(formData);
-      if (res.success) {
-        setSubmitted(true);
-        setFormData({ name: '', email: '', pharmacyName: '', message: '' });
-        setTimeout(() => setSubmitted(false), 6000);
-      } else {
-        setErrorMsg(res.error || 'Failed to submit inquiry. Please try again.');
-      }
-    } catch (err: any) {
-      setErrorMsg('An unexpected error occurred. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+/**
+ * The /contact page (changeui.md Problem 15): the form on the left; on the right, the contact details
+ * from content/site.ts (each shown only when known) and where order questions go.
+ */
+export function ContactPageContent({ defaultMessage }: { defaultMessage?: string }) {
+  const details: { Icon: typeof Mail; label: string; value: ReactNode }[] = [];
+  if (company.email) details.push({ Icon: Mail, label: "Email", value: <a href={`mailto:${company.email}`} className="hover:text-brand">{company.email}</a> });
+  if (company.phone)
+    details.push({ Icon: Phone, label: "Phone", value: <a href={`tel:${company.phone.replace(/\s/g, "")}`} className="hover:text-brand">{company.phone}</a> });
+  if (company.hours) details.push({ Icon: Clock, label: "Hours", value: company.hours });
+  if (company.address) details.push({ Icon: MapPin, label: "Address", value: company.address.join(", ") });
 
   return (
-    <section id="contact" className="pf-section" style={{ padding: '70px 20px 40px', position: 'relative' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 40px' }}>
-          <div className="glass-pill" style={{ marginBottom: '14px' }}>
-            <Mail size={14} color="var(--primary-accent)" />
-            <span>Connect & Partner Portal</span>
-          </div>
-          <h2 className="font-display gradient-text" style={{ fontSize: 'clamp(2rem, 3.8vw, 2.8rem)', fontWeight: 800, marginBottom: '14px' }}>
-            Digitize Your Pharmacy with <span className="gradient-accent-text">SYNCYTIUM Health</span>
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>
-            Ready to convert your physical medicine inventory into a 3D digital showcase indexed on Google? Reach out to our digital pharmacy architects.
-          </p>
+    <Container className="py-16 md:py-24">
+      <SectionHeading as="h1" title="Contact us" lead="Send us a message about our products, an order or working with us, and we will reply by email." />
+      <div className="mt-10 grid gap-10 md:grid-cols-12 md:gap-12">
+        <div className="md:col-span-7">
+          <ContactForm defaultMessage={defaultMessage} />
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px', marginBottom: '60px' }}>
-          <div className="glass-panel" style={{ padding: '28px 20px', borderRadius: '24px' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '18px' }}>Partner Request Form</h3>
-            {submitted ? (
-              <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', borderRadius: '16px', padding: '20px', textAlign: 'center', color: '#059669' }}>
-                <ShieldCheck size={36} style={{ margin: '0 auto 10px' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>Request Received!</h4>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Our SYNCYTIUM Health pharmaceutical leads will contact you within 24 hours.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {[
-                  { label: 'Your Name', key: 'name', type: 'text', placeholder: 'Dr. Sarah Connor' },
-                  { label: 'Work Email', key: 'email', type: 'email', placeholder: 'sarah@pharmacybrand.com' },
-                  { label: 'Pharmacy / Brand Name', key: 'pharmacyName', type: 'text', placeholder: 'Apex Care Pharmacy LLC' },
-                ].map(({ label, key, type, placeholder }) => (
-                  <div key={key}>
-                    <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>{label}</label>
-                    <input type={type} required placeholder={placeholder} value={formData[key as keyof typeof formData]} onChange={e => setFormData({ ...formData, [key]: e.target.value })}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.88rem', outline: 'none', boxSizing: 'border-box' }} />
-                  </div>
+        <aside className="flex flex-col gap-8 md:col-span-5">
+          {details.length > 0 && (
+            <div>
+              <h2 className="text-lg font-medium text-ink">Contact details</h2>
+              <ul className="mt-4 flex flex-col gap-4">
+                {details.map(({ Icon, label, value }) => (
+                  <li key={label} className="flex items-start gap-3 text-[15px]">
+                    <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-muted" />
+                    <span>
+                      <span className="block text-sm text-ink-muted">{label}</span>
+                      <span className="text-ink">{value}</span>
+                    </span>
+                  </li>
                 ))}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>Integration Requirements</label>
-                  <textarea rows={4} placeholder="Describe your current e-commerce store and number of medicine SKUs..." value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', fontSize: '0.88rem', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
-                </div>
-                {errorMsg && (
-                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', borderRadius: '10px', padding: '10px 14px', color: '#ef4444', fontSize: '0.85rem' }}>
-                    {errorMsg}
-                  </div>
-                )}
-                <button type="submit" disabled={loading} className="glass-button" style={{ justifyContent: 'center', marginTop: '6px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {loading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      <span>Submitting Inquiry...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send size={16} />
-                      <span>Submit Partner Inquiry</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '20px' }}>
-            <div className="glass-panel" style={{ padding: '28px 20px', borderRadius: '24px' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '20px' }}>Global Headquarters & Labs</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {[
-                  { icon: MapPin, title: 'SYNCYTIUM Health Bio-Tech Tower', sub: '450 Genomics Way, Suite 1200, Boston MA 02115' },
-                  { icon: Mail, title: 'Digital API Support', sub: 'partners@syncytium-health.com' },
-                  { icon: Phone, title: 'Direct Pharmacist Line', sub: '+1 (800) 555-SYNCYTIUM' },
-                ].map(({ icon: Icon, title, sub }, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <div style={{ padding: '8px', borderRadius: '10px', background: 'var(--badge-bg)', color: 'var(--secondary-accent)', flexShrink: 0 }}><Icon size={18} /></div>
-                    <div>
-                      <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.92rem' }}>{title}</div>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{sub}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              </ul>
             </div>
-            <div style={{ background: 'var(--bg-secondary)', padding: '20px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <ShieldCheck size={32} color="var(--secondary-accent)" style={{ flexShrink: 0 }} />
-              <div>
-                <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.9rem' }}>Google Schema & FDA Compliant Data</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-subtle)' }}>All digitised medicine specs follow standard clinical entity guidelines.</div>
-              </div>
-            </div>
+          )}
+          <div className="rounded-card border border-line bg-surface p-6">
+            <h2 className="text-lg font-medium text-ink">Questions about an order?</h2>
+            <p className="mt-2 text-[15px] text-ink-muted">
+              Every order, its status and its tracking link are in{" "}
+              <Link href="/account/orders" className="text-brand underline underline-offset-4">
+                your orders
+              </Link>
+              . Delivery and returns are explained on the{" "}
+              <Link href="/shipping-returns" className="text-brand underline underline-offset-4">
+                shipping and returns
+              </Link>{" "}
+              page.
+            </p>
           </div>
-        </div>
-
-        <footer className="pf-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '28px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px', fontSize: '0.82rem', color: 'var(--text-subtle)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <Image src="/brand/logo.png" alt="SYNCYTIUM Health" width={360} height={150} style={{ height: '150px', width: 'auto', marginTop: '-30px', marginBottom: '-30px' }} />
-            <span>© {new Date().getFullYear()} All Rights Reserved.</span>
-          </div>
-          <div className="pf-footer-links" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            <a href="#hero-3d" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy Policy</a>
-            <a href="#hero-3d" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Terms of Service</a>
-            <a href="#hero-3d" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>FDA Disclaimer</a>
-          </div>
-        </footer>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-          <BluMarginsCredit />
-        </div>
+        </aside>
       </div>
-    </section>
+      {/* No map: there is no confirmed address yet (content/site.ts). */}
+    </Container>
   );
 }

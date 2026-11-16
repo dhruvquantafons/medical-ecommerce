@@ -28,14 +28,14 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
             {customer ? (
               <>
                 <Link href={`/admin/customers/${customer.id}`} className="flex items-center gap-2 font-semibold hover:text-brand-700">
-                  <User className="size-4 text-muted" /> {customer.name}
+                  <User className="size-4 text-muted-foreground" /> {customer.name}
                 </Link>
-                <a href={`mailto:${customer.email}`} className="mt-1 flex items-center gap-2 text-muted hover:text-brand-700">
+                <a href={`mailto:${customer.email}`} className="mt-1 flex items-center gap-2 text-muted-foreground hover:text-brand-700">
                   <Mail className="size-4" /> {customer.email}
                 </a>
               </>
             ) : (
-              <p className="text-muted">Customer account not found.</p>
+              <p className="text-muted-foreground">Customer account not found.</p>
             )}
           </div>
           <OrderActions order={order} />

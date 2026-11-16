@@ -5,7 +5,7 @@ import clsx from "clsx";
 import type { Address } from "@/data/types";
 
 export type AddressFields = Omit<Address, "id">;
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 type Fields = AddressFields;
 const empty: Fields = { name: "", phone: "", line1: "", line2: "", city: "", state: "", pincode: "", label: "Home" };
@@ -56,7 +56,7 @@ export function AddressForm({
           onChange={set(k)}
           aria-invalid={!!err}
           aria-describedby={err ? `${id}-error` : undefined}
-          className={clsx("h-10 w-full rounded-lg border px-3 text-sm outline-none focus:border-brand-500", err ? "border-red-400" : "border-line")}
+          className={clsx("h-10 w-full rounded-lg border px-3 text-sm focus:border-brand", err ? "border-red-400" : "border-line")}
           {...props}
         />
         {err && <span id={`${id}-error`} className="mt-1 block text-xs text-red-600">{err}</span>}

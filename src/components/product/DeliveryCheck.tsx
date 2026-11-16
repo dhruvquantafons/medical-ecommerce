@@ -54,7 +54,7 @@ export function DeliveryCheck() {
           inputMode="numeric"
           placeholder="Enter pincode"
           aria-label="Delivery pincode"
-          className="h-10 w-40 rounded-full border border-line bg-white px-4 text-sm outline-none focus:border-brand-500"
+          className="h-10 w-40 rounded-full border border-line bg-white px-4 text-sm focus:border-brand"
         />
         <button disabled={checking} className="rounded-full px-3 text-sm font-semibold text-brand-800 underline-offset-4 hover:underline disabled:opacity-50">
           {checking ? "Checking…" : "Check"}
@@ -62,7 +62,7 @@ export function DeliveryCheck() {
       </form>
       {result?.kind === "error" && <p className="mt-2 text-xs text-red-600">Please enter a valid 6-digit pincode.</p>}
       {result?.kind === "unserviceable" && <p className="mt-2 text-xs text-red-600">Sorry, we don&apos;t deliver to {pin} yet.</p>}
-      {result?.kind === "unknown" && <p className="mt-2 text-xs text-muted">We deliver across India, usually within 2–7 days.</p>}
+      {result?.kind === "unknown" && <p className="mt-2 text-xs text-muted-foreground">We deliver across India, usually within 2–7 days.</p>}
       {result?.kind === "ok" && (
         <p className="mt-2 text-xs text-save">
           {result.etd ? (
@@ -72,7 +72,7 @@ export function DeliveryCheck() {
           ) : (
             <>We deliver to {pin}</>
           )}
-          {!result.cod && <span className="text-muted"> · Cash on delivery not available</span>}
+          {!result.cod && <span className="text-muted-foreground"> · Cash on delivery not available</span>}
         </p>
       )}
     </div>

@@ -4,7 +4,7 @@ import { listCustomers } from "@/lib/admin.server";
 import { formatPrice } from "@/lib/format";
 import { formatDateTime } from "@/lib/order-labels";
 import { EmptyState, FilterBar, PageHeader, Pagination, Table, inputClass, pageParam, strParam, td, th } from "@/components/admin/ui";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Customers" };
 
@@ -40,9 +40,9 @@ export default async function AdminCustomersPage({ searchParams }: PageProps<"/a
                     <Link href={`/admin/customers/${c.id}`} className="font-semibold hover:text-brand-700">{c.name}</Link>
                     {c.role === "admin" && <span className="ml-2 rounded bg-brand-100 px-1.5 py-0.5 text-[10px] font-bold text-brand-800 uppercase">Admin</span>}
                     {c.banned && <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 uppercase">Banned</span>}
-                    <p className="text-xs text-muted">{c.email}</p>
+                    <p className="text-xs text-muted-foreground">{c.email}</p>
                   </td>
-                  <td className={`${td} text-muted`}>{formatDateTime(c.createdAt)}</td>
+                  <td className={`${td} text-muted-foreground`}>{formatDateTime(c.createdAt)}</td>
                   <td className={`${td} text-right tabular-nums`}>{c.orderCount}</td>
                   <td className={`${td} text-right font-semibold tabular-nums`}>{formatPrice(c.spent)}</td>
                 </tr>

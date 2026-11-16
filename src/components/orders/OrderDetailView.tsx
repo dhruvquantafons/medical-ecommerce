@@ -31,8 +31,8 @@ function Timeline({ status }: { status: OrderStatus }) {
     <ol className="grid grid-cols-5 gap-1">
       {ORDER_FLOW.map((s, i) => (
         <li key={s} className="flex flex-col items-center gap-1.5 text-center">
-          <span className={clsx("h-1.5 w-full rounded-full", i <= current ? "bg-brand-gradient" : "bg-gray-200")} />
-          <span className={clsx("text-[11px] font-semibold sm:text-xs", i <= current ? "text-brand-700" : "text-muted")}>{orderStatusLabel[s]}</span>
+          <span className={clsx("h-1.5 w-full rounded-full", i <= current ? "bg-brand" : "bg-gray-200")} />
+          <span className={clsx("text-[11px] font-semibold sm:text-xs", i <= current ? "text-brand-700" : "text-muted-foreground")}>{orderStatusLabel[s]}</span>
         </li>
       ))}
     </ol>
@@ -56,12 +56,12 @@ export function OrderDetailView({ order, admin }: { order: OrderDetail; admin?: 
       <div className="card space-y-4 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-xs text-muted">Order ID</p>
+            <p className="text-xs text-muted-foreground">Order ID</p>
             <p className="font-mono text-sm font-bold">{order.id}</p>
           </div>
           <div className="text-right">
             <StatusBadge status={order.status} />
-            <p className="mt-1 text-xs text-muted">{formatDateTime(order.createdAt)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(order.createdAt)}</p>
           </div>
         </div>
         <Timeline status={order.status} />
@@ -89,7 +89,7 @@ export function OrderDetailView({ order, admin }: { order: OrderDetail; admin?: 
             <p className="mt-1 text-gray-700">
               {order.shipment.courierName} · AWB <span className="font-mono">{order.shipment.awbCode}</span>
             </p>
-            {order.shipment.status && <p className="text-xs text-muted">{order.shipment.status}</p>}
+            {order.shipment.status && <p className="text-xs text-muted-foreground">{order.shipment.status}</p>}
           </div>
           {order.shipment.trackingUrl && (
             <a href={order.shipment.trackingUrl} target="_blank" rel="noopener" className="inline-flex items-center gap-1 font-semibold text-brand-700 hover:underline">
@@ -113,7 +113,7 @@ export function OrderDetailView({ order, admin }: { order: OrderDetail; admin?: 
                   )}
                   {i.rxRequired && <RxBadge />}
                 </span>
-                <span className="text-xs text-muted">{i.packSize} · {formatPrice(i.price)} × {i.qty}</span>
+                <span className="text-xs text-muted-foreground">{i.packSize} · {formatPrice(i.price)} × {i.qty}</span>
               </span>
               <span className="shrink-0 font-semibold">{formatPrice(i.price * i.qty)}</span>
             </li>
@@ -131,23 +131,23 @@ export function OrderDetailView({ order, admin }: { order: OrderDetail; admin?: 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="card p-5 text-sm">
           <p className="mb-2 flex items-center gap-2 font-bold"><MapPin className="size-4 text-brand-600" /> Delivery address</p>
-          <p className="font-semibold">{a.name} <span className="ml-1 rounded bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-muted">{a.label}</span></p>
+          <p className="font-semibold">{a.name} <span className="ml-1 rounded bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-muted-foreground">{a.label}</span></p>
           <p className="text-gray-700">{a.line1}{a.line2 && `, ${a.line2}`}, {a.city}, {a.state} {a.pincode}</p>
-          <p className="text-muted">{a.phone}</p>
+          <p className="text-muted-foreground">{a.phone}</p>
         </div>
         <div className="card p-5 text-sm">
           <p className="mb-2 flex items-center gap-2 font-bold"><Wallet className="size-4 text-brand-600" /> Payment</p>
           <p>{paymentMethodLabel[order.paymentMethod]}</p>
-          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
             {order.paymentStatus === "paid" && <CircleCheck className="size-3.5 text-save" />}
             {paymentStatusLabel[order.paymentStatus]}
             {order.paidAt && ` · ${formatDateTime(order.paidAt)}`}
           </p>
           {order.razorpayPaymentId && (
-            <p className="mt-1 text-xs text-muted">Payment ID <span className="font-mono text-ink">{order.razorpayPaymentId}</span></p>
+            <p className="mt-1 text-xs text-muted-foreground">Payment ID <span className="font-mono text-ink">{order.razorpayPaymentId}</span></p>
           )}
           {admin && order.razorpayOrderId && (
-            <p className="mt-1 text-xs text-muted">Razorpay order <span className="font-mono text-ink">{order.razorpayOrderId}</span></p>
+            <p className="mt-1 text-xs text-muted-foreground">Razorpay order <span className="font-mono text-ink">{order.razorpayOrderId}</span></p>
           )}
         </div>
       </div>

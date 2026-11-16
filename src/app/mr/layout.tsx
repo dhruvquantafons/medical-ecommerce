@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
+import { Logo } from "@/components/site/Logo";
 import { Tablet } from "lucide-react";
 import { site } from "@/config/site";
 
@@ -13,18 +12,9 @@ export const metadata: Metadata = {
 export default function MrLayout({ children }: LayoutProps<"/mr">) {
   return (
     <div className="flex min-h-screen flex-col bg-page">
-      <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-line bg-background">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:px-6">
-          <Link href="/mr" className="flex items-center overflow-visible" aria-label={`${site.name} MR Folders`}>
-            <Image
-              src="/brand/logo.png"
-              alt={site.name}
-              width={290}
-              height={120}
-              style={{ height: "96px", width: "auto", marginTop: "-20px", marginBottom: "-20px" }}
-              priority
-            />
-          </Link>
+          <Logo href="/mr" size="header" />
 
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-bold text-brand-800 ring-1 ring-brand-200">

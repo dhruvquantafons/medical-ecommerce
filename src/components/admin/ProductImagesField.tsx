@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, ImagePlus, Loader2, Star, X } from "lucide-r
 import { useRef, useState, type DragEvent } from "react";
 import clsx from "clsx";
 import { MAX_PRODUCT_IMAGES, PRODUCT_IMAGE_MAX_BYTES, PRODUCT_IMAGE_TYPES } from "@/lib/files";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/Toast";
 import { inputClass } from "./ui";
 
@@ -143,7 +143,7 @@ export function ProductImagesField({
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- uploads, blob previews and admin URLs on any host */}
               <img src={item.src} alt={`Photo ${i + 1}`} className={clsx("size-full object-contain p-1.5", item.uploading && "opacity-50")} draggable={false} />
-              {i === 0 && <span className="absolute top-1.5 left-1.5 rounded-full bg-brand-gradient px-2 py-0.5 text-[10px] font-semibold text-white">Main</span>}
+              {i === 0 && <span className="absolute top-1.5 left-1.5 rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-white">Main</span>}
               {item.uploading ? (
                 <span className="absolute inset-0 grid place-items-center">
                   <Loader2 className="size-6 animate-spin text-brand-800" aria-label="Uploading" />
@@ -190,7 +190,7 @@ export function ProductImagesField({
             e.target.value = "";
           }}
         />
-        <p className="mt-3 text-xs text-muted">
+        <p className="mt-3 text-xs text-muted-foreground">
           Up to {MAX_PRODUCT_IMAGES} JPG, PNG or WEBP photos. Drop files here, or drag photos to reorder; the first is the main photo. Square photos on a plain light background look best. With no photos, a drawn placeholder is shown.
         </p>
       </div>

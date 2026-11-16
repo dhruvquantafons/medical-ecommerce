@@ -47,7 +47,7 @@ export function MrFolderCard({ folder }: { folder: MrFolderSummary }) {
         <h2 className="truncate text-sm font-extrabold tracking-tight text-ink group-hover:text-brand-700">
           {folder.name}
         </h2>
-        {folder.description && <p className="mt-0.5 line-clamp-1 text-xs text-muted">{folder.description}</p>}
+        {folder.description && <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{folder.description}</p>}
       </div>
     </Link>
   );

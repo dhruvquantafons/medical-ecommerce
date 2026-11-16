@@ -23,6 +23,11 @@ export interface Product {
   mrp: number;
   price: number;
   discountPct: number;
+  /**
+   * Show a "Sale" badge. Only meaningful with a compare-at price (mrp above price).
+   * TODO(owner): there is no database column for this yet; it is false for every product until one is added.
+   */
+  onSale?: boolean;
   rxRequired: boolean;
   composition: string;
   description: string;
@@ -51,35 +56,15 @@ export interface Category {
 export interface HeroSlide {
   id: string;
   eyebrow: string;
-  /** Headline; the part in `emphasis` is set in italic. */
+  /** Headline, one colour. */
   title: string;
-  emphasis: string;
   cta: string;
   href: string;
-  /** Image path under /public. Replace placeholders with real photography. Optional when the slide has a `model`. */
-  image?: string;
-  /** Optimised .glb under /public/models, shown in 3D on the right of the slide on desktop (the image is the mobile fallback). */
-  model?: string;
-  /** "natural" keeps the model's own materials; "glass" is clear iridescent glass; "frosted" is pale pearly glass. */
-  finish?: "natural" | "glass" | "frosted";
-  /** Stand the model on a glowing disc. */
-  pedestal?: boolean;
-  /** Halo colour behind the model (any CSS colour). */
-  glow?: string;
-  /** Glass bubbles and cards orbiting the model (desktop only, decorative). */
-  callouts?: HeroCallout[];
-}
-
-export interface HeroCallout {
-  /** "bubble": round icon with a label. "card": label, value and a small animated chart. */
-  kind: "bubble" | "card";
-  label: string;
-  /** Lucide icon name, for bubbles. */
-  icon?: string;
-  value?: string;
-  viz?: "bars" | "pulse";
-  /** Position on the orbit ring, in degrees clockwise from 3 o'clock. */
-  angle: number;
+  /** Product photograph under /public, on a neutral background. */
+  image: string;
+  imageAlt: string;
+  imageWidth: number;
+  imageHeight: number;
 }
 
 export interface Coupon {

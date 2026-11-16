@@ -27,27 +27,27 @@ export function MrFolderBrowser({
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="display text-2xl text-ink md:text-3xl">Medicine Folders</h1>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             Tap any folder to view visual-aid pages and present full-screen to doctors.
           </p>
         </div>
 
         <div className="relative w-full sm:w-80">
-          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted" />
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search medicine folders…"
             aria-label="Search medicine folders"
-            className="h-11 w-full rounded-full border border-line bg-white pr-10 pl-10 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            className="h-11 w-full rounded-full border border-line bg-white pr-10 pl-10 text-sm focus:border-brand focus:ring-2 focus:ring-brand-100"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery("")}
               aria-label="Clear search"
-              className="absolute top-1/2 right-3 grid size-6 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-gray-100 hover:text-ink"
+              className="absolute top-1/2 right-3 grid size-6 -translate-y-1/2 place-items-center rounded-full text-muted-foreground hover:bg-gray-100 hover:text-ink"
             >
               <X className="size-3.5" />
             </button>
@@ -61,7 +61,7 @@ export function MrFolderBrowser({
           <p className="text-base font-bold text-ink">
             {trimmed ? `No folders match "${query.trim()}"` : "No medicine folders available yet"}
           </p>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-muted-foreground">
             {trimmed
               ? "Try a different medicine name or clear your search."
               : "Folders uploaded by the admin will appear here automatically."}

@@ -6,7 +6,7 @@ import type { Address } from "@/data/types";
 import { deleteAddress, saveAddress } from "@/app/actions/account";
 import { useLocation } from "@/store/location";
 import { AddressForm } from "@/components/checkout/AddressForm";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 export function AddressBook({ initial }: { initial: Address[] }) {
   const [list, setList] = useState(initial);
@@ -22,11 +22,11 @@ export function AddressBook({ initial }: { initial: Address[] }) {
               <MapPin className="mt-0.5 size-4 shrink-0 text-brand-600" />
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-2 font-semibold">
-                  {a.name} <span className="rounded bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-muted">{a.label}</span>
+                  {a.name} <span className="rounded bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-muted-foreground">{a.label}</span>
                 </p>
                 <p className="text-gray-700">{a.line1}{a.line2 && `, ${a.line2}`}</p>
                 <p className="text-gray-700">{a.city}, {a.state} {a.pincode}</p>
-                <p className="text-muted">{a.phone}</p>
+                <p className="text-muted-foreground">{a.phone}</p>
               </div>
               <button
                 aria-label={`Delete address for ${a.name}`}
@@ -34,7 +34,7 @@ export function AddressBook({ initial }: { initial: Address[] }) {
                   const res = await deleteAddress(a.id);
                   if (res.ok) setList((l) => l.filter((x) => x.id !== a.id));
                 }}
-                className="self-start rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600"
+                className="self-start rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600"
               >
                 <Trash2 className="size-4" />
               </button>

@@ -7,7 +7,7 @@ import type { CatalogItem } from "@/lib/catalog-item-types";
 import { parseSalts } from "@/lib/catalog-item-types";
 import { createCatalogItem, updateCatalogItem, deleteCatalogItem } from "@/app/admin/catalog/actions";
 import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useAdminAction } from "./useAdminAction";
 import { inputClass } from "./ui";
 
@@ -134,7 +134,7 @@ export function CatalogItemManager({ items }: { items: CatalogItem[] }) {
       {items.length === 0 ? (
         <div className="card flex flex-col items-center gap-2 px-4 py-14 text-center">
           <p className="font-semibold">No catalog items yet</p>
-          <p className="text-sm text-muted">Add your first medicine above.</p>
+          <p className="text-sm text-muted-foreground">Add your first medicine above.</p>
         </div>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -145,7 +145,7 @@ export function CatalogItemManager({ items }: { items: CatalogItem[] }) {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{item.name}</p>
-                <p className="truncate text-xs text-muted">
+                <p className="truncate text-xs text-muted-foreground">
                   {item.brand} · {item.category}
                   {!item.active && (
                     <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
@@ -157,7 +157,7 @@ export function CatalogItemManager({ items }: { items: CatalogItem[] }) {
               <button
                 aria-label={`Edit ${item.name}`}
                 onClick={() => open(fromItem(item))}
-                className="rounded p-1.5 text-muted hover:bg-gray-100 hover:text-ink"
+                className="rounded p-1.5 text-muted-foreground hover:bg-gray-100 hover:text-ink"
               >
                 <Pencil className="size-4" />
               </button>
@@ -165,7 +165,7 @@ export function CatalogItemManager({ items }: { items: CatalogItem[] }) {
                 aria-label={`Delete ${item.name}`}
                 disabled={pending}
                 onClick={() => confirm(`Delete "${item.name}"?`) && run(() => deleteCatalogItem(item.id))}
-                className="rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <Trash2 className="size-4" />
               </button>
@@ -226,21 +226,21 @@ export function CatalogItemManager({ items }: { items: CatalogItem[] }) {
                 value={draft.description}
                 onChange={(e) => set({ description: e.target.value })}
                 rows={4}
-                className={clsx("w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100", errors.description && "border-red-400")}
+                className={clsx("w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:border-brand focus:ring-2 focus:ring-brand-100", errors.description && "border-red-400")}
               />
             </label>
 
             {/* Salts */}
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-gray-600">
-                Active salts <span className="font-normal text-muted">(one JSON object per line)</span>
+                Active salts <span className="font-normal text-muted-foreground">(one JSON object per line)</span>
               </span>
               <textarea
                 value={draft.saltsRaw}
                 onChange={(e) => set({ saltsRaw: e.target.value })}
                 rows={5}
                 placeholder={`{"name":"Paracetamol","amount":"500 mg","percentage":100,"purpose":"Analgesic","casNumber":"103-90-2"}`}
-                className={clsx("w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-xs outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100", errors.salts && "border-red-400")}
+                className={clsx("w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-xs focus:border-brand focus:ring-2 focus:ring-brand-100", errors.salts && "border-red-400")}
               />
               {errors.salts && <span className="text-xs text-red-600">{errors.salts}</span>}
             </label>

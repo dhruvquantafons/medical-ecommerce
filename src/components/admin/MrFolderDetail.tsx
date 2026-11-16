@@ -20,7 +20,7 @@ import { MR_IMAGE_TYPES } from "@/lib/files";
 import { formatBytes, type MrFolderDetail as MrFolderDetailData, type MrFolderPage } from "@/lib/mr-folder-types";
 import { filterValidMrImages, uploadMrImageFile } from "@/lib/mr-image-upload";
 import { deleteMrImage, reorderMrImages, updateMrImageTitle } from "@/app/admin/mr-folders/actions";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { CopyLinkButton } from "./CopyLinkButton";
@@ -153,7 +153,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-3 flex flex-wrap items-center gap-1.5 text-sm font-semibold text-muted">
+      <nav aria-label="Breadcrumb" className="mb-3 flex flex-wrap items-center gap-1.5 text-sm font-semibold text-muted-foreground">
         <Link href="/admin/mr-folders" className="text-brand-700 hover:underline">
           MR Folders
         </Link>
@@ -184,7 +184,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
               </span>
             )}
           </div>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted-foreground">
             {detail.folder.description || `Direct link: /mr/${detail.folder.slug}`}
           </p>
         </div>
@@ -224,7 +224,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
             <ImagePlus className="size-6" />
           </span>
           <p className="font-bold text-ink">Add high-quality visual-aid pages</p>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted-foreground">
             Drop multiple JPG, PNG or WEBP images here (max <strong>4 MB</strong> per image). Images are stored at full original quality for crisp tablet display.
           </p>
           <Button type="button" size="sm" className="mt-2" onClick={() => fileInput.current?.click()}>
@@ -249,11 +249,11 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">Pages in folder ({pages.length})</h2>
-          {pages.length > 1 && <p className="text-xs text-muted">Drag cards or use arrows to reorder pages</p>}
+          {pages.length > 1 && <p className="text-xs text-muted-foreground">Drag cards or use arrows to reorder pages</p>}
         </div>
 
         {pages.length === 0 && uploading.length === 0 ? (
-          <div className="card px-4 py-12 text-center text-sm text-muted">
+          <div className="card px-4 py-12 text-center text-sm text-muted-foreground">
             No pages uploaded in this folder yet. Add high-quality images above.
           </div>
         ) : (
@@ -286,7 +286,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
                       className="absolute inset-0 size-full cursor-pointer object-contain p-2"
                       onClick={() => setPreviewPage(page)}
                     />
-                    <span className="absolute top-2 left-2 rounded-full bg-brand-gradient px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                    <span className="absolute top-2 left-2 rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
                       Page {index + 1}
                     </span>
                     <div className="absolute top-2 right-2 flex gap-1">
@@ -323,7 +323,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
                       className={clsx(inputClass, "h-8 w-full text-xs")}
                     />
 
-                    <div className="flex items-center justify-between gap-2 text-[11px] text-muted">
+                    <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
                       <span className="truncate" title={page.fileName}>
                         {page.width && page.height ? `${page.width}×${page.height} · ` : ""}
                         {formatBytes(page.sizeBytes)}
@@ -363,7 +363,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
                     <Loader2 className="size-6 animate-spin text-brand-700" />
                   </div>
                 </div>
-                <div className="truncate p-2.5 text-xs font-semibold text-muted">Uploading {u.name}…</div>
+                <div className="truncate p-2.5 text-xs font-semibold text-muted-foreground">Uploading {u.name}…</div>
               </li>
             ))}
           </ul>
@@ -389,7 +389,7 @@ export function MrFolderDetail({ detail }: { detail: MrFolderDetailData }) {
           <div className="space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element -- full-resolution image preview */}
             <img src={previewPage.src} alt={previewPage.title || previewPage.fileName} className="max-h-[70vh] w-full rounded-xl bg-tile object-contain" />
-            <p className="text-xs text-muted">
+            <p className="text-xs text-muted-foreground">
               {previewPage.fileName}
               {previewPage.width && previewPage.height ? ` · ${previewPage.width}×${previewPage.height}` : ""}
               {` · ${formatBytes(previewPage.sizeBytes)}`}

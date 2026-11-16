@@ -11,7 +11,7 @@ import { ProductRail } from "@/components/product/ProductCard";
 import { ProductImage } from "@/components/product/ProductImage";
 import { QuantityStepper } from "@/components/product/AddToCart";
 import { RxBadge } from "@/components/product/Badges";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { BillSummary } from "./BillSummary";
 import { useCartBill } from "./useCartBill";
 
@@ -34,7 +34,7 @@ export function EmptyCart() {
         <ShoppingBag className="size-9 text-brand-800" />
       </span>
       <h1 className="display mt-2 text-3xl md:text-4xl">Your cart is empty</h1>
-      <p className="text-[15px] text-muted">Find the right supplement for your daily ritual.</p>
+      <p className="text-[15px] text-muted-foreground">Find the right supplement for your daily ritual.</p>
       <ButtonLink href="/shop" size="lg" className="mt-3">Shop all products</ButtonLink>
     </div>
   );
@@ -83,7 +83,7 @@ function DiscountCode() {
         placeholder="Discount code"
         aria-label="Discount code"
         autoFocus
-        className="h-11 min-w-0 flex-1 rounded-full border border-line bg-white px-4 text-sm uppercase outline-none focus:border-brand-500"
+        className="h-11 min-w-0 flex-1 rounded-full border border-line bg-white px-4 text-sm uppercase focus:border-brand"
       />
       <Button type="submit" variant="outline" size="md" className="h-11" disabled={!code.trim()}>
         Apply
@@ -105,7 +105,7 @@ export function CartView({ suggestions }: { suggestions: Product[] }) {
     <>
       <div className="mx-auto max-w-7xl px-4 md:px-10 pt-10 md:pt-14">
         <h1 className="display text-3xl md:text-4xl">
-          Your cart <span className="text-muted">({bill.itemCount})</span>
+          Your cart <span className="text-muted-foreground">({bill.itemCount})</span>
         </h1>
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
           <ul className="space-y-3">
@@ -117,13 +117,13 @@ export function CartView({ suggestions }: { suggestions: Product[] }) {
                 <div className="flex min-w-0 flex-1 flex-col">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      {p.categoryName && <p className="text-xs text-muted">{p.categoryName}</p>}
+                      {p.categoryName && <p className="text-xs text-muted-foreground">{p.categoryName}</p>}
                       <Link href={`/product/${p.slug}`} className="font-medium hover:underline">{p.name}</Link>
-                      <p className="flex items-center gap-2 text-xs text-muted">
+                      <p className="flex items-center gap-2 text-xs text-muted-foreground">
                         {p.packSize} {p.rxRequired && <RxBadge />}
                       </p>
                     </div>
-                    <button onClick={() => remove(p.id)} aria-label={`Remove ${p.name}`} className="grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-white hover:text-sale">
+                    <button onClick={() => remove(p.id)} aria-label={`Remove ${p.name}`} className="grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-white hover:text-sale">
                       <Trash2 className="size-4" />
                     </button>
                   </div>
@@ -131,7 +131,7 @@ export function CartView({ suggestions }: { suggestions: Product[] }) {
                     <QuantityStepper qty={qty} onChange={(n) => setQty(p.id, n)} />
                     <p className="text-right">
                       <span className="font-semibold">{formatPrice(p.price * qty)}</span>
-                      {p.discountPct > 0 && <span className="ml-1.5 text-sm text-muted line-through">{formatPrice(p.mrp * qty)}</span>}
+                      {p.discountPct > 0 && <span className="ml-1.5 text-sm text-muted-foreground line-through">{formatPrice(p.mrp * qty)}</span>}
                     </p>
                   </div>
                 </div>

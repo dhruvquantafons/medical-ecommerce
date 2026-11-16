@@ -1,47 +1,33 @@
 import type { Coupon, HeroSlide } from "./types";
 
-// Home page content. Images are placeholders in /public/images/placeholders/; swap in real photography later.
+// Store home content.
 
 export const heroSlides: HeroSlide[] = [
   {
     id: "bone",
-    eyebrow: "Bone & joint",
-    title: "Strong bones, easy",
-    emphasis: "movement.",
-    cta: "Shop bone & joint",
+    eyebrow: "Bone and joint",
+    title: "Support for bones and joints",
+    cta: "Shop bone and joint",
     href: "/collections/bone-joint",
-    image: "/images/placeholders/hero-bone.svg",
-    model: "/models/knee.glb",
-    finish: "frosted",
-    pedestal: true,
-    glow: "rgb(204 251 241 / 0.45)",
-    callouts: [
-      { kind: "bubble", icon: "Bone", label: "Bone density", angle: -145 },
-      { kind: "bubble", icon: "Footprints", label: "Easy movement", angle: -35 },
-      { kind: "bubble", icon: "Dna", label: "Collagen support", angle: 160 },
-      { kind: "card", label: "Calcium + D3", value: "Daily support", viz: "bars", angle: 25 },
-    ],
+    image: "/portfolio/assets/medicine_synortho.jpg",
+    imageAlt: "Syn Ortho roll-on oil and its carton",
+    imageWidth: 872,
+    imageHeight: 1024,
   },
   {
     id: "heart",
-    eyebrow: "Heart & omega-3",
-    title: "Keep your heart",
-    emphasis: "in rhythm.",
+    eyebrow: "Heart and omega-3",
+    title: "Omega-3 for everyday heart health",
     cta: "Shop heart health",
     href: "/collections/heart-omega",
-    model: "/models/heart.glb",
-    finish: "glass",
-    glow: "rgb(244 114 182 / 0.4)",
-    callouts: [
-      { kind: "card", label: "Heart rhythm", value: "72 bpm", viz: "pulse", angle: -150 },
-      { kind: "card", label: "Omega-3", value: "EPA + DHA", viz: "bars", angle: -25 },
-      { kind: "bubble", icon: "Droplet", label: "Circulation", angle: 155 },
-      { kind: "bubble", icon: "HeartPulse", label: "Heart health", angle: 35 },
-    ],
+    image: "/portfolio/assets/medicine_lycotium_softgel.png",
+    imageAlt: "LYCOTIUM omega-3 softgels jar with loose softgels",
+    imageWidth: 878,
+    imageHeight: 1048,
   },
 ];
 
-/** Collection card art for the home page (keyed by collection slug). */
+/** Collection card art for the store home (keyed by collection slug). */
 export const collectionImages: Record<string, string> = {
   "liver-care": "/images/placeholders/collection-immunity.svg",
   "gut-health": "/images/placeholders/collection-gut.svg",
@@ -55,24 +41,35 @@ export const coupons: Coupon[] = [
   { code: "SAVE100", description: "Flat ₹100 off on orders above ₹1,499", type: "flat", value: 100, minOrder: 1499 },
 ];
 
-export const promises = [
-  { icon: "Leaf", stat: "100%", title: "Clean ingredients", text: "No artificial colours, fillers or hidden sugars." },
-  { icon: "FlaskConical", stat: "3rd-party", title: "Tested for purity", text: "Every batch checked by an independent lab." },
-  { icon: "Stethoscope", stat: "Doctor", title: "Formulated", text: "Developed with doctors and nutritionists." },
-  { icon: "ShieldCheck", stat: "FSSAI", title: "Made in India", text: "Manufactured in certified facilities." },
-];
+/**
+ * "Why Syncytium" claims. Empty, so the block is not rendered.
+ * TODO(owner): the previous claims were unverified and have been removed: "100% clean ingredients, no
+ * artificial colours, fillers or hidden sugars", "3rd-party tested: every batch checked by an independent
+ * lab", "Doctor formulated: developed with doctors and nutritionists", "FSSAI: manufactured in certified
+ * facilities". Restore any of these only with evidence (lab name, licence number).
+ */
+export const promises: { icon: string; stat: string; title: string; text: string }[] = [];
 
-/** Sample reviews for the design. Replace with real customer reviews before launch. */
-export const reviews = [
-  { name: "Priya S.", city: "Bengaluru", product: "Daily Synbiotic", text: "Two weeks in and the bloating after lunch is finally gone. One capsule a day is easy to stick to.", rating: 5 },
-  { name: "Arjun M.", city: "Pune", product: "Magnesium Glycinate Night", text: "I fall asleep faster and wake up without feeling groggy. Gentle and no weird aftertaste.", rating: 5 },
-  { name: "Neha K.", city: "Delhi", product: "Marine Collagen Glow", text: "Dissolves completely in my morning coffee. My skin feels more hydrated after a month.", rating: 4 },
-];
+/*
+ * Customer reviews: none. The three previous "sample reviews" were for products the store does not
+ * sell (Daily Synbiotic, Magnesium Glycinate Night, Marine Collagen Glow) and have been removed.
+ * TODO(owner): add real, attributable customer reviews before any review section is shown.
+ */
 
+/** FAQ. Answers mention only products that exist in the catalogue and facts the store states at checkout. */
 export const faqs = [
-  { q: "Are your supplements safe to take every day?", a: "Yes. Our formulations are designed for daily use at the recommended dose. If you are pregnant, nursing, on medication or have a medical condition, please check with your doctor first." },
-  { q: "How long before I notice a difference?", a: "Most people notice changes in 2–4 weeks of daily use. Consistency matters more than timing." },
-  { q: "Are the products vegetarian?", a: "Most of our range is vegetarian and the gummies are vegan. Marine Collagen is sourced from fish. Details are listed on each product page." },
+  {
+    q: "Are your supplements safe to take every day?",
+    a: "Take each product at the dose on its label. If you are pregnant, nursing, on medication or have a medical condition, please check with your doctor first.",
+  },
+  {
+    q: "Do any products need a prescription?",
+    a: "Yes, some do. They are marked “Prescription required”, and you upload a valid prescription at checkout before the order is confirmed.",
+  },
+  {
+    q: "Are the products vegetarian?",
+    a: "Not all of them. LYCOTIUM softgels contain fish oil, for example. The full ingredients are listed on each product page.",
+  },
   { q: "How fast is delivery?", a: "Orders ship within 24 hours and arrive in 2–5 days across India. Delivery is free above ₹499." },
   { q: "Can I return a product?", a: "Unopened products can be returned within 7 days of delivery for a full refund." },
 ];

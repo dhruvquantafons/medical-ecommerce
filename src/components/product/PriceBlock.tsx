@@ -7,7 +7,7 @@ export function PriceBlock({ price, mrp, discountPct, size = "sm" }: { price: nu
       <span className={clsx("font-bold text-ink", size === "lg" ? "text-2xl" : "text-base")}>{formatPrice(price)}</span>
       {discountPct > 0 && (
         <>
-          <span className={clsx("text-muted line-through", size === "lg" ? "text-base" : "text-xs")}>MRP {formatPrice(mrp)}</span>
+          <span className={clsx("text-muted-foreground line-through", size === "lg" ? "text-base" : "text-xs")}>MRP {formatPrice(mrp)}</span>
           <span
             className={clsx(
               "rounded font-semibold text-save",

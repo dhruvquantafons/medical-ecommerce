@@ -6,7 +6,7 @@ import type { OrderDetail } from "@/data/types";
 import { site } from "@/config/site";
 import { formatDateTime } from "@/lib/order-labels";
 import { getShippingLabel, refreshShipment, shipWithShiprocket } from "@/app/admin/actions";
-import { Button, buttonClass } from "@/components/ui/Button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { inputClass } from "./ui";
 import { useAdminAction } from "./useAdminAction";
 
@@ -38,36 +38,36 @@ export function ShipmentPanel({ order }: { order: OrderDetail }) {
       {s && (
         <dl className="mt-3 space-y-1.5">
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Status</dt>
+            <dt className="text-muted-foreground">Status</dt>
             <dd className="text-right font-semibold">{s.status ?? "—"}</dd>
           </div>
           {s.courierName && (
             <div className="flex justify-between gap-3">
-              <dt className="text-muted">Courier</dt>
+              <dt className="text-muted-foreground">Courier</dt>
               <dd className="text-right">{s.courierName}</dd>
             </div>
           )}
           {s.awbCode && (
             <div className="flex justify-between gap-3">
-              <dt className="text-muted">AWB</dt>
+              <dt className="text-muted-foreground">AWB</dt>
               <dd className="font-mono">{s.awbCode}</dd>
             </div>
           )}
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Shiprocket order</dt>
+            <dt className="text-muted-foreground">Shiprocket order</dt>
             <dd className="font-mono">{s.shiprocketOrderId}</dd>
           </div>
-          {s.updatedAt && <p className="text-xs text-muted">Updated {formatDateTime(s.updatedAt)}</p>}
+          {s.updatedAt && <p className="text-xs text-muted-foreground">Updated {formatDateTime(s.updatedAt)}</p>}
         </dl>
       )}
 
-      {!s && closed && <p className="mt-2 text-muted">No shipment was created for this order.</p>}
+      {!s && closed && <p className="mt-2 text-muted-foreground">No shipment was created for this order.</p>}
 
       {!closed && !finished && (
         <>
           {!s?.shiprocketOrderId && (
             <>
-              <p className="mt-2 text-xs text-muted">Package size (couriers bill on these). Defaults are in src/config/site.ts.</p>
+              <p className="mt-2 text-xs text-muted-foreground">Package size (couriers bill on these). Defaults are in src/config/site.ts.</p>
               <div className="mt-2 grid grid-cols-4 gap-2">
                 {(
                   [
@@ -101,7 +101,7 @@ export function ShipmentPanel({ order }: { order: OrderDetail }) {
           {blockedReason ? (
             <p className="mt-2 text-xs text-amber-700">{blockedReason}</p>
           ) : (
-            <p className="mt-2 text-xs text-muted">Creates the order in Shiprocket, assigns the recommended courier and schedules pickup. The shipping charge comes from your Shiprocket wallet.</p>
+            <p className="mt-2 text-xs text-muted-foreground">Creates the order in Shiprocket, assigns the recommended courier and schedules pickup. The shipping charge comes from your Shiprocket wallet.</p>
           )}
         </>
       )}

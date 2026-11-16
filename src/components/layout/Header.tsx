@@ -1,65 +1,62 @@
-import { Search } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import { site } from "@/config/site";
-import { getCategories } from "@/lib/catalog";
+import { company } from "@/content/site";
+import { getCategories, getProducts } from "@/lib/catalog";
+import { getCatalogItems, parseSalts } from "@/lib/catalog-items";
 import { getSession } from "@/lib/session";
-import { SearchBox } from "./SearchBox";
+import { Logo } from "@/components/site/Logo";
+import { Navbar, NavBody, NavLink, type NavItem } from "@/components/ui/resizable-navbar";
+import { SearchCommand, type SearchEntry } from "./SearchCommand";
 import { CartLink } from "./CartLink";
 import { AccountMenu } from "./AccountMenu";
 import { CollectionsMenu } from "./CollectionsMenu";
 import { MobileMenu } from "./MobileMenu";
 
-export function Logo({ light = true }: { light?: boolean }) {
-  return (
-    <Link href="/" aria-label={`${site.name} home`} className="flex items-center overflow-visible">
-      <Image
-        src="/brand/logo.png"
-        alt={site.name}
-        width={360}
-        height={150}
-        style={{
-          height: '150px',
-          width: 'auto',
-          marginTop: '-45px',
-          marginBottom: '-45px',
-        }}
-        priority
-      />
-    </Link>
-  );
-}
+export { Logo };
 
-const navLink = "rounded-full px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white";
+const products: NavItem = { name: "Products", link: "/products" };
+const about: NavItem = { name: "About", link: "/about" };
+const contact: NavItem = { name: "Contact", link: "/contact" };
+const team: NavItem = { name: "Team", link: "/team" };
 
-/** Floating dark nav bar. On the home page the hero slides underneath it. */
+/** The one header for every public route: logo, main navigation, search, account and cart. */
 export async function Header() {
-  const [categories, session] = await Promise.all([getCategories(), getSession()]);
+  const [categories, session, storeProducts, catalog] = await Promise.all([getCategories(), getSession(), getProducts({}), getCatalogItems()]);
   const user = session && { name: session.user.name, email: session.user.email, isAdmin: session.user.role === "admin" };
+
+  const search: SearchEntry[] = [
+    ...storeProducts.map((p) => ({ id: p.id, name: p.name, detail: p.composition, href: `/product/${p.slug}`, group: "shop" as const })),
+    ...catalog.map((c) => ({
+      id: c.id,
+      name: c.name,
+      detail: parseSalts(c.salts).map((s) => s.name).join(", "),
+      href: `/products?item=${encodeURIComponent(c.id)}`,
+      group: "products" as const,
+    })),
+  ];
+
+  const mobileItems: NavItem[] = [products, { name: "Shop", link: "/shop", match: ["/collections", "/store"] }, about, ...(company.hasTeam ? [team] : []), contact];
+
   return (
-    <header className="sticky top-3 z-40 px-3 md:top-4 md:px-6">
-      <div className="mx-auto grid h-[60px] max-w-7xl grid-cols-[1fr_auto_1fr] items-center rounded-2xl bg-brand-gradient px-2 shadow-lg shadow-brand-900/15 backdrop-blur md:h-[64px] md:px-4">
-        <nav className="flex items-center gap-1" aria-label="Main">
-          <MobileMenu categories={categories} user={user} />
-          <div className="hidden items-center gap-0.5 lg:flex">
-            <Link href="/shop" className={navLink}>Shop</Link>
-            <CollectionsMenu categories={categories} />
-            <Link href="/store#science" className={navLink}>Our science</Link>
-            <Link href="/store#faq" className={navLink}>FAQ</Link>
-          </div>
+    <Navbar>
+      <NavBody>
+        <Logo size="header" className="mr-auto lg:mr-0" />
+        <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
+          <ul className="flex items-center gap-1">
+            <li><NavLink item={products} /></li>
+            <li><CollectionsMenu categories={categories} /></li>
+            <li><NavLink item={about} /></li>
+            {company.hasTeam && <li><NavLink item={team} /></li>}
+            <li><NavLink item={contact} /></li>
+          </ul>
         </nav>
-        <Logo />
-        <div className="flex items-center justify-end gap-0.5">
-          <div className="hidden w-60 xl:block">
-            <SearchBox variant="nav" />
+        <div className="flex items-center gap-0.5">
+          <SearchCommand entries={search} />
+          <div className="hidden lg:block">
+            <AccountMenu user={user} />
           </div>
-          <Link href="/search" aria-label="Search" className="hidden size-10 place-items-center rounded-full text-white hover:bg-white/10 lg:grid xl:hidden">
-            <Search className="size-5" />
-          </Link>
-          <AccountMenu user={user} />
           <CartLink />
+          <MobileMenu items={mobileItems} categories={categories} user={user} />
         </div>
-      </div>
-    </header>
+      </NavBody>
+    </Navbar>
   );
 }

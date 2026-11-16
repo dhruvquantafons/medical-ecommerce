@@ -1,9 +1,15 @@
+/*
+ * Store configuration (delivery, shipping defaults). Company facts that the site states to visitors
+ * live in src/content/site.ts.
+ */
 export const site = {
   name: "Syncytium Health",
-  /** Wordmark shown in the header. */
-  shortName: "Syncytium",
-  tagline: "Science-backed daily supplements",
-  supportPhone: "1800-000-0000",
+  /**
+   * Fallback recipient for server emails (contact form and new-order alerts) when EMAIL_ADMIN is not set,
+   * and the address printed in prescription emails (src/lib/email-templates.ts).
+   * TODO(owner): replace with the real support inbox. This placeholder domain does not receive mail.
+   * It is not shown anywhere on the website.
+   */
   supportEmail: "care@syncytiumhealth.example",
   freeDeliveryAbove: 499,
   deliveryFee: 49,

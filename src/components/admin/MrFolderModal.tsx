@@ -7,7 +7,7 @@ import { MR_IMAGE_TYPES } from "@/lib/files";
 import { formatBytes } from "@/lib/mr-folder-types";
 import { filterValidMrImages, uploadMrImageFile } from "@/lib/mr-image-upload";
 import { createMrFolder, updateMrFolder } from "@/app/admin/mr-folders/actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { useAdminAction } from "./useAdminAction";
@@ -149,7 +149,7 @@ function MrFolderModalForm({
       {!draft.id && (
         <div>
           <span className="mb-1 block text-xs font-semibold text-gray-600">
-            Images / visual-aid pages <span className="font-normal text-muted">(JPG, PNG, WEBP · max 4 MB each)</span>
+            Images / visual-aid pages <span className="font-normal text-muted-foreground">(JPG, PNG, WEBP · max 4 MB each)</span>
           </span>
           <div
             onDragOver={(e) => e.preventDefault()}
@@ -209,7 +209,7 @@ function MrFolderModalForm({
 
       <label className="block">
         <span className="mb-1 block text-xs font-semibold text-gray-600">
-          Description <span className="font-normal text-muted">(optional)</span>
+          Description <span className="font-normal text-muted-foreground">(optional)</span>
         </span>
         <textarea
           rows={2}
@@ -217,7 +217,7 @@ function MrFolderModalForm({
           onChange={(e) => set({ description: e.target.value })}
           placeholder="Short note shown to MRs on the folder card"
           className={clsx(
-            "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100",
+            "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:border-brand focus:ring-2 focus:ring-brand-100",
             errors.description && "border-red-400",
           )}
         />
@@ -231,7 +231,7 @@ function MrFolderModalForm({
         <div className="mt-3 space-y-3">
           <label className="block">
             <span className="mb-1 block text-xs font-semibold text-gray-600">
-              Link slug <span className="font-normal text-muted">(auto-generated if blank)</span>
+              Link slug <span className="font-normal text-muted-foreground">(auto-generated if blank)</span>
             </span>
             <input
               value={draft.slug}
@@ -239,7 +239,7 @@ function MrFolderModalForm({
               placeholder="e.g. calcitium-d3"
               className={clsx(inputClass, "w-full", errors.slug && "border-red-400")}
             />
-            <span className={clsx("text-xs", errors.slug ? "text-red-600" : "text-muted")}>
+            <span className={clsx("text-xs", errors.slug ? "text-red-600" : "text-muted-foreground")}>
               {errors.slug || `/mr/${draft.slug.trim() || "auto-from-name"}`}
             </span>
           </label>

@@ -4,7 +4,7 @@ import { ExternalLink, FolderPlus, Tablet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { MrFolderSummary } from "@/lib/mr-folder-types";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "./ui";
 import { CopyLinkButton } from "./CopyLinkButton";
 import { MrFolderGrid, toFolderDraft } from "./MrFolderGrid";
@@ -29,12 +29,12 @@ export function MrFolderManager({ folders }: { folders: MrFolderSummary[] }) {
     <>
       <div className="card mb-5 flex flex-wrap items-center justify-between gap-4 bg-brand-50/60 p-4">
         <div className="flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-gradient text-white">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand text-white">
             <Tablet className="size-5" />
           </span>
           <div>
             <p className="text-sm font-bold text-ink">MR Tablet Presentation Link</p>
-            <p className="text-xs text-muted">
+            <p className="text-xs text-muted-foreground">
               Share <code className="rounded bg-white px-1.5 py-0.5 font-semibold text-brand-800">/mr</code> with employees — opens directly on tablets with no login needed.
             </p>
           </div>

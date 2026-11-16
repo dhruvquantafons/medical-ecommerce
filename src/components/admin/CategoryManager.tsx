@@ -8,7 +8,7 @@ import type { AdminCategory } from "@/lib/admin.server";
 import { deleteCategory, saveCategory } from "@/app/admin/actions";
 import { ICON_NAMES, Icon } from "@/components/ui/Icon";
 import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useAdminAction } from "./useAdminAction";
 import { inputClass } from "./ui";
 
@@ -49,14 +49,14 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{c.name}</p>
-              <p className="text-xs text-muted">
+              <p className="text-xs text-muted-foreground">
                 <Link href={`/admin/products?category=${c.id}`} className="hover:text-brand-700 hover:underline">
                   {c.productCount} product{c.productCount === 1 ? "" : "s"}
                 </Link>{" "}
                 · /collections/{c.slug}
               </p>
             </div>
-            <button aria-label={`Edit ${c.name}`} onClick={() => open({ ...c })} className="rounded p-1.5 text-muted hover:bg-gray-100 hover:text-ink">
+            <button aria-label={`Edit ${c.name}`} onClick={() => open({ ...c })} className="rounded p-1.5 text-muted-foreground hover:bg-gray-100 hover:text-ink">
               <Pencil className="size-4" />
             </button>
             <button
@@ -64,7 +64,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
               disabled={pending || c.productCount > 0}
               title={c.productCount > 0 ? "Move or delete its products first" : undefined}
               onClick={() => confirm(`Delete the "${c.name}" collection?`) && run(() => deleteCategory(c.id))}
-              className="rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+              className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
             >
               <Trash2 className="size-4" />
             </button>
@@ -111,7 +111,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
                 }}
                 className={clsx(inputClass, "w-full", errors.slug && "border-red-400")}
               />
-              <span className={clsx("text-xs", errors.slug ? "text-red-600" : "text-muted")}>{errors.slug || `/collections/${draft.slug || "…"}`}</span>
+              <span className={clsx("text-xs", errors.slug ? "text-red-600" : "text-muted-foreground")}>{errors.slug || `/collections/${draft.slug || "…"}`}</span>
             </label>
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-gray-600">Description</span>
@@ -128,7 +128,7 @@ export function CategoryManager({ categories }: { categories: AdminCategory[] })
                     aria-label={n}
                     aria-pressed={draft.icon === n}
                     onClick={() => set({ icon: n })}
-                    className={clsx("grid aspect-square place-items-center rounded-lg ring-1", draft.icon === n ? "bg-brand-gradient text-white ring-brand-600" : "text-gray-600 ring-line hover:ring-brand-500")}
+                    className={clsx("grid aspect-square place-items-center rounded-lg ring-1", draft.icon === n ? "bg-brand text-white ring-brand-600" : "text-gray-600 ring-line hover:ring-brand-500")}
                   >
                     <Icon name={n} className="size-4" />
                   </button>

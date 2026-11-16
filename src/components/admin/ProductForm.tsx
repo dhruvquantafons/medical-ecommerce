@@ -6,7 +6,7 @@ import clsx from "clsx";
 import type { Product, ProductForm as Form } from "@/data/types";
 import { createProduct, deleteProduct, updateProduct } from "@/app/admin/actions";
 import { ProductCard } from "@/components/product/ProductCard";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/Toast";
 import { inputClass } from "./ui";
 import { ProductImagesField, serializeImages, type ImageItem } from "./ProductImagesField";
@@ -79,7 +79,7 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
     return {
       id,
       note: text ? (
-        <span id={`${id}-note`} className={clsx("mt-1 block text-xs", errors[k] ? "text-red-600" : "text-muted")}>
+        <span id={`${id}-note`} className={clsx("mt-1 block text-xs", errors[k] ? "text-red-600" : "text-muted-foreground")}>
           {text}
         </span>
       ) : null,
@@ -100,7 +100,7 @@ export function ProductForm({ initial, categories }: { initial: ProductFormValue
             value={String(v[k])}
             onChange={(e) => set(k, e.target.value as never)}
             {...aria}
-            className={clsx("w-full rounded-lg border p-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100", errors[k] ? "border-red-400" : "border-line")}
+            className={clsx("w-full rounded-lg border p-2.5 text-sm focus:border-brand focus:ring-2 focus:ring-brand-100", errors[k] ? "border-red-400" : "border-line")}
           />
         ) : (
           <input

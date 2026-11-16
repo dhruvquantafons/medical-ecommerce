@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { authClient } from "@/lib/auth-client";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Field, FormError, PasswordField } from "./fields";
 
 const email = z.string().trim().email("Enter a valid email address");

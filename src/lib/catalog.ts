@@ -59,6 +59,7 @@ export function toProduct(r: ProductRow): Product {
     mrp,
     price,
     discountPct: mrp > 0 ? Math.round(((mrp - price) / mrp) * 100) : 0,
+    onSale: false,
     rxRequired: r.rxRequired,
     composition: r.composition,
     description: r.description,

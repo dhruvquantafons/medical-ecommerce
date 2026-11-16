@@ -6,7 +6,7 @@ import clsx from "clsx";
 import type { Employee } from "@/lib/employees";
 import { createEmployee, updateEmployee, deleteEmployee } from "@/app/admin/employees/actions";
 import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useAdminAction } from "./useAdminAction";
 import { inputClass } from "./ui";
 
@@ -83,7 +83,7 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
       {employees.length === 0 ? (
         <div className="card flex flex-col items-center gap-2 px-4 py-14 text-center">
           <p className="font-semibold">No employees yet</p>
-          <p className="text-sm text-muted">Add your first team member above.</p>
+          <p className="text-sm text-muted-foreground">Add your first team member above.</p>
         </div>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -103,7 +103,7 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{e.name}</p>
-                <p className="truncate text-xs text-muted">
+                <p className="truncate text-xs text-muted-foreground">
                   {e.role}
                   {!e.active && (
                     <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
@@ -115,7 +115,7 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
               <button
                 aria-label={`Edit ${e.name}`}
                 onClick={() => open(fromEmployee(e))}
-                className="rounded p-1.5 text-muted hover:bg-gray-100 hover:text-ink"
+                className="rounded p-1.5 text-muted-foreground hover:bg-gray-100 hover:text-ink"
               >
                 <Pencil className="size-4" />
               </button>
@@ -125,7 +125,7 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
                 onClick={() =>
                   confirm(`Delete "${e.name}"?`) && run(() => deleteEmployee(e.id))
                 }
-                className="rounded p-1.5 text-muted hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <Trash2 className="size-4" />
               </button>
@@ -174,7 +174,7 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
 
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-gray-600">
-                Email <span className="font-normal text-muted">(optional — shown on contact button)</span>
+                Email <span className="font-normal text-muted-foreground">(optional — shown on contact button)</span>
               </span>
               <input
                 type="email"
@@ -188,7 +188,7 @@ export function EmployeeManager({ employees }: { employees: Employee[] }) {
 
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-gray-600">
-                Photo URL <span className="font-normal text-muted">(https://…, optional)</span>
+                Photo URL <span className="font-normal text-muted-foreground">(https://…, optional)</span>
               </span>
               <input
                 type="url"

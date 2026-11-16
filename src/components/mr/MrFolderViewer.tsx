@@ -4,7 +4,7 @@ import { ArrowLeft, FolderOpen, Images, Maximize2, Play } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { MrFolderDetail } from "@/lib/mr-folder-types";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { MrFolderCard } from "./MrFolderCard";
 import { MrSlideShow } from "./MrSlideShow";
 
@@ -15,7 +15,7 @@ export function MrFolderViewer({ detail }: { detail: MrFolderDetail }) {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-3 flex flex-wrap items-center gap-1.5 text-sm font-semibold text-muted">
+      <nav aria-label="Breadcrumb" className="mb-3 flex flex-wrap items-center gap-1.5 text-sm font-semibold text-muted-foreground">
         <Link href="/mr" className="text-brand-700 hover:underline">
           Medicine Folders
         </Link>
@@ -48,9 +48,9 @@ export function MrFolderViewer({ detail }: { detail: MrFolderDetail }) {
           <div>
             <h1 className="display text-2xl text-ink md:text-3xl">{detail.folder.name}</h1>
             {detail.folder.description ? (
-              <p className="mt-1 text-sm text-muted">{detail.folder.description}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{detail.folder.description}</p>
             ) : (
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {detail.pages.length} {detail.pages.length === 1 ? "page" : "pages"}
                 {detail.subfolders.length > 0
                   ? ` · ${detail.subfolders.length} ${detail.subfolders.length === 1 ? "subfolder" : "subfolders"}`
@@ -107,7 +107,7 @@ export function MrFolderViewer({ detail }: { detail: MrFolderDetail }) {
                       loading={index < 6 ? "eager" : "lazy"}
                       className="absolute inset-0 size-full object-contain p-2 transition duration-200 group-hover:scale-[1.03]"
                     />
-                    <span className="absolute top-2 left-2 rounded-full bg-brand-gradient px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                    <span className="absolute top-2 left-2 rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
                       Page {index + 1}
                     </span>
                     <span className="absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-ink shadow-sm">
@@ -126,7 +126,7 @@ export function MrFolderViewer({ detail }: { detail: MrFolderDetail }) {
           <div className="card flex flex-col items-center gap-2 px-6 py-16 text-center">
             <Images className="size-12 text-brand-300" />
             <p className="text-base font-bold text-ink">This folder has no pages yet</p>
-            <p className="text-sm text-muted">High-quality pages added by the admin will appear here.</p>
+            <p className="text-sm text-muted-foreground">High-quality pages added by the admin will appear here.</p>
           </div>
         ) : null}
       </section>

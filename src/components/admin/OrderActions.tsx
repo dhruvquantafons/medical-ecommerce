@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { OrderDetail, OrderStatus } from "@/data/types";
 import { ORDER_FLOW, orderStatusLabel } from "@/lib/order-labels";
 import { reviewPrescription, updateOrderStatus } from "@/app/admin/actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useAdminAction } from "./useAdminAction";
 
 /** Status controls and prescription review for one order. The server enforces every rule again. */
@@ -27,7 +27,7 @@ export function OrderActions({ order }: { order: OrderDetail }) {
       {order.rxStatus === "pending" && !closed && (
         <div className="card border-amber-200 p-5">
           <h2 className="font-bold">Review prescription</h2>
-          <p className="mt-1 text-xs text-muted">Check the attached prescription(s) against the Rx items before approving.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Check the attached prescription(s) against the Rx items before approving.</p>
           <label className="mt-3 block">
             <span className="mb-1 block text-xs font-semibold text-gray-600">Note to customer (required when rejecting)</span>
             <textarea
@@ -38,7 +38,7 @@ export function OrderActions({ order }: { order: OrderDetail }) {
               }}
               rows={2}
               maxLength={500}
-              className="w-full rounded-lg border border-line p-2 text-sm outline-none focus:border-brand-500"
+              className="w-full rounded-lg border border-line p-2 text-sm focus:border-brand"
             />
             {noteError && <span className="text-xs text-red-600">{noteError}</span>}
           </label>
@@ -64,9 +64,9 @@ export function OrderActions({ order }: { order: OrderDetail }) {
       <div className="card p-5">
         <h2 className="font-bold">Order status</h2>
         {closed ? (
-          <p className="mt-2 text-sm text-muted">This order is {order.status} and can no longer be changed.</p>
+          <p className="mt-2 text-sm text-muted-foreground">This order is {order.status} and can no longer be changed.</p>
         ) : unpaid ? (
-          <p className="mt-2 text-sm text-muted">Waiting for the customer to complete online payment.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Waiting for the customer to complete online payment.</p>
         ) : (
           <>
             <div className="mt-3 flex flex-wrap gap-2">

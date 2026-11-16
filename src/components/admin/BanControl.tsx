@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { setCustomerBanned } from "@/app/admin/actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useAdminAction } from "./useAdminAction";
 import { inputClass } from "./ui";
 
 export function BanControl({ userId, banned, disabledReason }: { userId: string; banned: boolean; disabledReason?: string }) {
   const { run, pending } = useAdminAction();
   const [reason, setReason] = useState("");
-  if (disabledReason) return <p className="text-sm text-muted">{disabledReason}</p>;
+  if (disabledReason) return <p className="text-sm text-muted-foreground">{disabledReason}</p>;
   if (banned) {
     return (
       <Button variant="outline" disabled={pending} onClick={() => run(() => setCustomerBanned({ userId, banned: false }))}>

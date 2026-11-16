@@ -2,7 +2,7 @@
 
 import { Check, Copy } from "lucide-react";
 import { useState, type ComponentProps } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/Toast";
 
 export function CopyLinkButton({

@@ -1,0 +1,130 @@
+/*
+  Original store design, restored for /shop only (see layout.tsx in this folder).
+  Values are copied from src/app/globals.css as it was before the design-system work.
+  Everything is scoped to .legacy-store so no other route is affected.
+*/
+
+.legacy-store {
+  /* Palette (#8B5CF6 vivid violet, #7C6BF0 soft violet, #EDE9FE lavender) */
+  --color-brand-50: #f5f3ff;
+  --color-brand-100: #ede9fe;
+  --color-brand-200: #ddd6fe;
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #7c6bf0;
+  --color-brand-700: #6a58e0;
+  --color-brand-800: #3d2e86;
+  --color-brand-900: #2a1f66;
+  --color-sage: #a78bfa;
+  --color-accent-strong: #ddd6fe;
+  --color-sale: #c8321f;
+  --color-save: #2f7a3f;
+  --color-page: #f8f8fb;
+  --color-tile: #f2f1f7;
+  /* Names shared with the new system that meant something else in the old store. */
+  --accent: #ede9fe; /* bg-accent / text-accent: lavender */
+  --muted: #6b6879; /* text-muted: muted text colour */
+  --ink: #17151f;
+  --line: #e7e5ee;
+
+  /* Fonts: Nunito Sans everywhere (loaded in layout.tsx as --font-brand). */
+  --font-sans: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
+
+  /* Tailwind's default radius and type scale */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+  --text-sm--line-height: calc(1.25 / 0.875);
+  --text-base--line-height: calc(1.5 / 1);
+  --text-lg--line-height: calc(1.75 / 1.125);
+  --text-xl--line-height: calc(1.75 / 1.25);
+  --text-2xl--line-height: calc(2 / 1.5);
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: calc(2.25 / 1.875);
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: calc(2.5 / 2.25);
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1;
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 1;
+
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* Tailwind's default border colour (the shared base layer sets it to --border). */
+@layer base {
+  .legacy-store *,
+  .legacy-store ::before,
+  .legacy-store ::after {
+    border-color: currentColor;
+  }
+}
+
+.legacy-store :focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.legacy-store ::selection {
+  background: var(--color-accent-strong);
+  color: var(--color-brand-800);
+}
+
+.legacy-store .card {
+  border-radius: 1rem;
+}
+
+/* Brand gradient: #7C6BF0 → #8B5CF6 with a soft lavender light. */
+.legacy-store .bg-brand-gradient {
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgb(237 233 254 / 0.32), rgb(237 233 254 / 0) 55%),
+    linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
+}
+.legacy-store .bg-brand-gradient-glow {
+  background-color: transparent;
+  background-image:
+    radial-gradient(55% 90% at 100% 0%, rgb(237 233 254 / 0.42), rgb(237 233 254 / 0) 70%),
+    linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
+}
+.legacy-store .bg-brand-gradient-strong {
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgb(237 233 254 / 0.22), rgb(237 233 254 / 0) 55%),
+    linear-gradient(135deg, var(--color-brand-700), #7c3aed);
+}
+@media (hover: hover) {
+  .legacy-store .hover\:bg-brand-gradient-strong:hover {
+    background-color: transparent;
+    background-image:
+      linear-gradient(180deg, rgb(237 233 254 / 0.22), rgb(237 233 254 / 0) 55%),
+      linear-gradient(135deg, var(--color-brand-700), #7c3aed);
+  }
+}
+
+/* Display headings: extra-bold Nunito Sans; <em> takes the violet gradient. */
+.legacy-store .display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.legacy-store .display em {
+  font-style: normal;
+  color: revert-layer; /* undo the shared ".display em { color: inherit }" so text-* utilities apply */
+}
+.legacy-store .display em:not([class*="text-"]) {
+  background-image: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

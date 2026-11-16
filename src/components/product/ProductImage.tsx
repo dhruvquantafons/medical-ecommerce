@@ -45,17 +45,15 @@ function labelLines(name: string, max = 14) {
   return lines.slice(0, 2);
 }
 
-const serif = { fontFamily: "var(--font-brand), system-ui, sans-serif", fontWeight: 700 };
-const sans = { fontFamily: "var(--font-brand), system-ui, sans-serif" };
 
 function Wordmark({ x, y, size, tone, lines }: { x: number; y: number; size: number; tone: Tone; lines: string[] }) {
   return (
     <>
-      <text x={x} y={y} textAnchor="middle" fontSize={size} fill={tone.ink} style={serif}>
+      <text x={x} y={y} textAnchor="middle" fontSize={size} fill={tone.ink} className="font-display font-medium">
         Syncytium
       </text>
       {lines.map((l, i) => (
-        <text key={l} x={x} y={y + size * 0.62 + i * size * 0.34} textAnchor="middle" fontSize={size * 0.24} letterSpacing="1.2" fontWeight={600} fill={tone.sub} style={sans}>
+        <text key={l} x={x} y={y + size * 0.62 + i * size * 0.34} textAnchor="middle" fontSize={size * 0.24} letterSpacing="1.2" fontWeight={600} fill={tone.sub} className="font-sans">
           {l}
         </text>
       ))}
@@ -78,7 +76,10 @@ export function ProductImage({
   priority,
   fit = "cover",
   aspect = "aspect-square",
+  inset,
 }: {
+  /** Padding class around a `contain` photo (default "p-4"). */
+  inset?: string;
   product: Product;
   className?: string;
   src?: string;
@@ -91,9 +92,9 @@ export function ProductImage({
 }) {
   if (src) {
     const second = hoverSwap ? product.images[1] : undefined;
-    const imgClass = fit === "cover" ? "size-full object-cover" : "size-full object-contain p-4";
+    const imgClass = fit === "cover" ? "size-full object-cover" : clsx("size-full object-contain", inset ?? "p-4");
     return (
-      <div className={clsx("relative w-full overflow-hidden rounded-xl bg-tile", aspect, className)}>
+      <div className={clsx("relative w-full overflow-hidden rounded-card bg-surface", aspect, className)}>
         {/* eslint-disable-next-line @next/next/no-img-element -- uploads and admin-provided URLs on any host */}
         <img src={src} alt={alt} className={clsx(imgClass, second && "transition-opacity duration-500 group-hover:opacity-0")} loading={priority ? "eager" : "lazy"} />
         {second && (
@@ -106,7 +107,7 @@ export function ProductImage({
   const tone = tones[hash(product.name) % tones.length];
   const id = `sh-${product.id}`;
   return (
-    <div className={clsx("relative w-full overflow-hidden rounded-xl bg-tile", aspect, className)}>
+    <div className={clsx("relative w-full overflow-hidden rounded-card bg-surface", aspect, className)}>
       <svg viewBox="0 0 200 200" className="size-full" role="img" aria-label={product.name}>
         <defs>
           <linearGradient id={id} x1="0" x2="1">

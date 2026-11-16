@@ -69,7 +69,7 @@ export function RxDropzone({ onAdded, compact }: { onAdded?: (p: Prescription) =
       >
         <ImagePlus className={clsx("text-brand-600", compact ? "size-8" : "size-12", uploading && "animate-pulse")} />
         <span className="text-sm font-semibold">{uploading ? "Uploading…" : "Drag & drop or click to upload"}</span>
-        <span className="text-xs text-muted">JPG, PNG, WEBP or PDF · up to 2 MB each</span>
+        <span className="text-xs text-muted-foreground">JPG, PNG, WEBP or PDF · up to 2 MB each</span>
       </button>
       <input ref={input} type="file" accept={ACCEPT.join(",")} multiple hidden onChange={(e) => handle(e.target.files)} />
       {errors.length > 0 && (
@@ -95,7 +95,7 @@ export function RxThumb({ rx, onRemove }: { rx: Prescription; onRemove?: () => v
       </div>
       <div className="p-2">
         <p className="truncate text-xs font-medium" title={rx.name}>{rx.name}</p>
-        <p className="text-[11px] text-muted">{new Date(rx.uploadedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+        <p className="text-[11px] text-muted-foreground">{new Date(rx.uploadedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
       </div>
       {onRemove && (
         <button type="button" onClick={onRemove} aria-label={`Delete ${rx.name}`} className="absolute top-1.5 right-1.5 rounded-full bg-white/90 p-1.5 text-red-600 shadow hover:bg-white">

@@ -1,9 +1,12 @@
 # Syncytium Health
 
-Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a small range of about 5–10 products), with customer accounts, checkout (Razorpay or cash on delivery) and an admin panel. The design is a clean pharmacy look: Nunito Sans type, a soft-violet palette built on `#8B5CF6`, `#7C6BF0` and `#EDE9FE`. Colours are tokens in `src/app/globals.css` (`brand-*`, `accent`), so a retheme starts there.
+Company site and direct-to-consumer store for Syncytium Health, a pharmaceutical and nutraceutical company. It has company pages (home, about, product catalogue, contact, help and legal pages), a store for the **own-brand supplements** (a small range of about 5–10 products), customer accounts, checkout (Razorpay or cash on delivery) and an admin panel.
+
+The UI follows the **Design rules in `CLAUDE.md`**: one deep-violet brand colour sampled from the logo, neutral surfaces, Newsreader headings with Geist text, no gradients, glass or decorative motion. The redesign is being done step by step from `changeui.md` (see [UI redesign status](#ui-redesign-status)).
 
 - **Catalogue:** 6 real products in 4 collections, with photos (`src/db/seed/`, photos in `src/db/seed/photos/`). **MRP, prices and stock are placeholders**, and so is LYCOTIUM's pack count. Set the real values in the admin panel. Calcitium-D3 is marked "Prescription required", so customers upload a prescription at checkout.
-- **Images:** each product can have up to 8 photos, uploaded in the admin panel. Products without photos, and the hero images, show drawn placeholders (see [Images](#images)).
+- **Images:** each product can have up to 8 photos, uploaded in the admin panel. Products without photos show a drawn placeholder (see [Images](#images)).
+- **Company facts** (legal name, address, phone, email, licences, team) live in `src/content/site.ts`. Unknown facts are `null` and the site shows nothing for them; never fill them with made-up values.
 - **Payments:** run in **Razorpay test mode**.
 
 ## Stack
@@ -11,7 +14,8 @@ Direct-to-consumer store for Syncytium Health's **own-brand supplements** (a sma
 | Area | Choice |
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript |
-| Styling | Tailwind CSS 4. Design tokens (colours, fonts) live in `src/app/globals.css`. Fonts: Instrument Serif (headings, `display` class) and Instrument Sans (text) via `next/font` |
+| Styling | Tailwind CSS 4 + shadcn/ui primitives (`src/components/ui`). Design tokens (colours, radius, shadows, type scale) live in `src/app/globals.css`. Fonts via `next/font`: Newsreader (marketing headings), Geist (text), Geist Mono (formulas, CAS numbers, IDs) |
+| Motion | `motion` (Magic UI Blur Fade as the one section entrance, via `components/site/Reveal.tsx`); honours `prefers-reduced-motion` |
 | Database | Postgres (Neon) via **Drizzle ORM**; migrations in `drizzle/` |
 | Auth | **Better Auth**: email + password, admin plugin (roles, bans) |
 | Payments | Razorpay (Checkout.js + server-side order creation and signature verification) |
@@ -52,6 +56,7 @@ npm run make-admin -- you@example.com
 | `SHIPROCKET_API_EMAIL` / `SHIPROCKET_API_PASSWORD` | yes (to ship) | Shiprocket **API user** (Settings → API → Configure), not your main login. |
 | `SHIPROCKET_PICKUP_LOCATION` | no | Pickup address nickname in Shiprocket. Defaults to `Primary`. |
 | `SHIPROCKET_WEBHOOK_TOKEN` | no | Only needed for `/api/shipping/webhook`. |
+| `NEXT_PUBLIC_SITE_URL` | no | Public origin used for canonical URLs, share tags, sitemap and JSON-LD. Defaults to `https://www.syncytiumhealth.com`. |
 
 Secrets are never committed: `.env.local` is git-ignored, and only `.env.example` is tracked.
 
@@ -73,19 +78,27 @@ Secrets are never committed: `.env.local` is git-ignored, and only `.env.example
 ```
 src/
   app/
-    (store)/             Customer-facing pages (share the header/footer layout)
-      page.tsx           Home: hero slider, product tabs, collections, spotlight, reviews, FAQ
-      shop/              All products (collection tabs, sort)
+    (site)/              Every public page; shares one header and footer (layout.tsx)
+      page.tsx           Home: hero, What we make, Shop direct, composition explorer, contact band
+      about/             About the company
+      products/          Product catalogue (catalog_items table), details open in a dialog (?item=<id>)
+      team/              Team page (404 until content/site.ts says a real team exists)
+      contact/           Contact form (react-hook-form + zod; ?product=NAME prefills the message)
+      faq/, shipping-returns/, privacy/, terms/   Help and legal pages (legal text is a draft)
+      store/             Store home: hero, product tabs, collections, spotlight, FAQ
+      shop/              All store products (collection tabs, sort)
       collections/[slug] One collection (the `categories` table)
       search/            Search results
-      product/[slug]     Product detail, accordions, related
+      product/[slug]     Store product detail, accordions, related
       cart/, checkout/   Cart (guest) and checkout (login required)
       order-success/[id] Order confirmation
       account/           My orders, saved addresses
       login/, signup/, forgot-password/, reset-password/
     admin/               Admin panel (layout checks the admin role)
       actions.ts         All admin mutations (server actions)
+    mr/                  MR visual-aid folders (tablet viewer, not indexed)
     actions/             Customer server actions (addresses, COD orders, cart products)
+    portfolio/actions.ts Contact form server action (emails the inquiry)
     api/
       auth/[...all]      Better Auth handler
       payments/          create-order, verify, webhook (Razorpay)
@@ -93,14 +106,27 @@ src/
       prescriptions/     Upload (POST) and download (GET, owner or admin only)
       admin/product-images  Product photo upload (POST, admin only)
       product-images/[id]   Serves an uploaded product photo (public, cached)
-      search/suggest     Header search suggestions
-  components/            UI by area: layout, home, product, listing, checkout, orders, admin, auth, rx, ui
+      search/suggest     Search suggestions for the /search page
+    robots.ts, sitemap.ts  robots.txt and sitemap.xml (public routes, collections, products)
+    icon.png, apple-icon.png, favicon.ico   App icons (cropped logo mark)
+  components/
+    site/                Shared building blocks: ProductCard (the one card for store and catalogue products), Container, Section, SectionHeading, Logo, Price, Chip, ProsePage, JsonLd, Reveal
+    ui/                  shadcn/ui primitives (button, dialog, sheet, command, tabs, table, field…) + restyled Magic UI (Blur Fade, Text Animate, Number Ticker, Dot Pattern, Bento Grid) and Aceternity UI (Resizable Navbar, Stateful Button, Tooltip Card)
+    layout/              Header (nav, Shop menu, ⌘K search, account, cart, mobile sheet) and Footer
+    portfolio/           Company page sections (hero, range, shop direct, composition explorer, contact form) and pages
+    home/, product/, listing/, checkout/, orders/, admin/, auth/, rx/, mr/   Store and admin UI by area
+  content/
+    site.ts              Company facts (name, description, contact details, licences, hasTeam). Unknown = null
+    product-copy.ts      Reviewed one-line product summaries shown instead of the raw pack copy
+    landing.ts           Landing copy: the three hero headline options (heroHeadlineIndex picks one; ?headline=2 previews in dev)
   db/
     schema.ts            Store tables (products, categories, orders, …)
     auth-schema.ts       Better Auth tables (generated, don't edit)
     seed/                Collections, products and product photos used by db:seed
   lib/
     catalog.ts           All catalogue queries (search, sort, best sellers, new arrivals, related)
+    catalog-items.ts     Company product catalogue queries (catalog_items)
+    seo.ts               Page metadata helper (canonical, Open Graph, Twitter) and JSON-LD builders
     pricing.ts           Pure bill/coupon/delivery calculations (shared by browser and server)
     checkout.server.ts   Server-side cart pricing and stock checks
     orders.server.ts     Order creation, payment confirmation, order reads
@@ -110,9 +136,11 @@ src/
     auth.ts, session.ts  Better Auth config and session helpers (requireUser, requireAdmin)
   data/
     types.ts             Shared TypeScript types
-    home.ts              Hero slides, collection art, reviews, promises, FAQs, discount codes (in code)
-  config/site.ts         Brand name and wordmark, tagline, support contacts, delivery fee settings
-public/images/placeholders/  Placeholder hero and collection artwork (SVG)
+    home.ts              Store hero slides, collection art, promises, FAQs, discount codes (in code)
+  config/site.ts         Store settings: delivery fee, free-delivery threshold, parcel size, server email fallback
+public/brand/            logo.png (horizontal lockup), logo-stacked.png, mark.png, share.png (default share image)
+public/portfolio/assets/ Product pack photographs used on company and store pages
+public/images/placeholders/  Placeholder collection artwork (SVG)
 scripts/                 seed, make-admin, auth schema config
 drizzle/                 Generated SQL migrations (commit these)
 ```
@@ -135,7 +163,8 @@ drizzle/                 Generated SQL migrations (commit these)
   - Photos are served by `/api/product-images/[id]` with a one-year immutable cache header. A replaced photo gets a new id, so caches never show stale images.
   - The product page shows a gallery (thumbnails, arrows, swipe). Product cards fade to the second photo on hover.
 - **Collections:** the store only shows collections that have at least one visible product, so a new collection appears once you add a product to it.
-- **Badges:** "Sale" appears when MRP is higher than the price. "Best seller" marks the top 3 products by review count.
+- **Product cards:** one card (`components/site/ProductCard.tsx`) for store products and catalogue items. Prescription and catalogue-only products show "Prescription required" and no price or Add button on cards; the store product page still sells them with a prescription upload.
+- **Badges:** MRP is shown struck through when it is higher than the price. The "Sale" badge additionally needs `onSale` on the product, which is `false` for every product until a database column is added (`toProduct()` in `lib/catalog.ts`). "Best seller" marks the top 3 products by review count. Star ratings only show when a product has real ratings.
 - **Discount codes:** stored in `src/data/home.ts` (`coupons`) and entered at the cart's "Have a discount code?". They aren't advertised on the site.
 - **Prescriptions (dormant):** kept from the original pharmacy build in case prescription products are ever added (tick "Prescription required" on a product).
   - With no Rx products, the checkout Rx step never appears, and the admin "Prescriptions" page shows only when something is pending.
@@ -151,13 +180,16 @@ drizzle/                 Generated SQL migrations (commit these)
   - Every admin page is checked by `requireAdmin()` in `app/admin/layout.tsx`, and every admin action re-checks the role, because server actions are public HTTP endpoints. Non-admins get a 404.
   - Customer data is always filtered by the signed-in user's id.
 - **Rendering:** pages are rendered on each request (`dynamic = "force-dynamic"` in the root layout), so price, stock and admin changes show immediately.
+- **Site search:** the header search (click the icon or press Ctrl/⌘ K) matches store products and catalogue items by name or ingredient. Store results open the product page; catalogue results open `/products?item=<id>`. "Search the store" goes to `/search`.
+- **SEO:** every public page sets its own title, description, canonical URL and share tags through `pageMetadata()` in `lib/seo.ts` (title template `%s | Syncytium Health`, origin from `NEXT_PUBLIC_SITE_URL` or `https://www.syncytiumhealth.com`). JSON-LD: Organization on the home page (only known fields), Product + Offer and BreadcrumbList on product pages, BreadcrumbList on collections. No ratings are emitted.
+- **Old URLs:** `/portfolio`, `/portfolio/about`, `/portfolio/catalog` and `/portfolio/team` redirect permanently to `/`, `/about`, `/products` and `/team` (`next.config.ts`).
 
 ## Images
 
-All imagery is placeholder until real photography is ready:
-
-- **Product images:** add photos in the admin product form under **Photos** (see [How it works](#how-it-works)). Square photos on a plain light background look best. A product with no photos shows a drawn placeholder from `src/components/product/ProductImage.tsx`: a branded jar, canister, dropper bottle, pouch or tube, based on its "Pack type".
-- **Hero slides and collection cards:** SVG files in `public/images/placeholders/`, referenced from `src/data/home.ts` (`heroSlides[].image` and `collectionImages`). To replace them, put your photos in `public/images/` (e.g. `hero-gut.jpg`, ideally 2400×1350 for heroes and 1200×1500 for collections) and update the paths. They're rendered with `next/image`, so JPG/WebP photos are optimised automatically.
+- **Product images:** add photos in the admin product form under **Photos** (see [How it works](#how-it-works)). Square photos on a plain light background look best. A product with no photos shows a drawn placeholder from `src/components/product/ProductImage.tsx`, based on its "Pack type".
+- **Company pages and store hero:** real pack photographs from `public/portfolio/assets/`, referenced in the section components and in `src/data/home.ts` (`heroSlides`). No 3D models, stock portraits or placeholder avatars.
+- **Catalogue items:** each item's `imageUrl` is set in the admin catalogue form.
+- **Logo:** `public/brand/logo.png` is a horizontal lockup cropped from the original artwork; use the `Logo` component (`components/site/Logo.tsx`), which renders it 28px tall in the header and 32px in the footer. The source artwork is small; replace it with an SVG and add a white version when the owner supplies them.
 
 ## Changing the database
 
@@ -171,6 +203,10 @@ All schema changes go through code, so every developer and environment can repro
 Don't change tables by hand in the Neon console, or the migrations will drift. To experiment safely, create a Neon **branch** (an instant copy of the database) and point your `.env.local` at it.
 
 For Better Auth tables, change the plugins in both `src/lib/auth.ts` and `scripts/auth-schema.config.ts` (via `src/lib/auth-plugins.ts`). Then run `npm run auth:generate`, followed by the steps above.
+
+## UI redesign status
+
+The redesign follows `changeui.md`, one problem at a time, with the rules in `CLAUDE.md`. In scope: Parts 1–3 (foundation, landing page, company pages). Done: Prompt 00 and Problems 01–15. Part 1 (design tokens and fonts, decoration removed, invented content removed, one header and footer, help and legal pages, logo, 3D and motion removed, accessibility, metadata) and Part 2, the landing page (hero with data-counted facts, What we make grid, Shop direct, one shared product card, composition explorer, contact page). Next: Part 3, Problems 16–19 (About, Team, catalogue list and product pages). Backend code (database, API routes, server actions, emails) is not part of the redesign.
 
 ## Razorpay (test mode)
 
@@ -215,10 +251,13 @@ For Better Auth tables, change the plugins in both `src/lib/auth.ts` and `script
 ## Known limitations and next steps
 
 - **No email provider yet.** Password-reset links are printed to the server log (`[auth] Password reset link …`). Add one (e.g. Resend) in `sendResetPassword` in `src/lib/auth.ts`, and consider enabling email verification.
-- **Home page content** (hero slides, reviews, promises, FAQs) and **discount codes** are in `src/data/home.ts` (no admin UI). **The reviews are samples:** replace them with real customer reviews before launch.
+- **Store home content** (hero slides, promises, FAQs) and **discount codes** are in `src/data/home.ts` (no admin UI). There are no customer reviews, and the "Why Syncytium" claims are empty until they can be verified, so those blocks don't render.
+- **Missing company facts:** search the code for `TODO(owner)` to see everything the owner still has to supply (address, phone, email, licences, team, About story, legal details, product data corrections).
+- **Catalogue data:** some catalogue items still spell the brand "SYNCTIUM" in the database (corrected on display by `displayBrand()`), and a few compositions need checking by the owner.
 - **Product photos** live in Postgres, which is fine for a small catalogue because responses are cached. With many products or very large photos, move them to object storage (e.g. S3, Vercel Blob or Supabase Storage); only `/api/admin/product-images` and `/api/product-images/[id]` would change.
 - **Prescription files** live in Postgres. Move them to object storage if volume grows.
 - **Rate limiting:** Better Auth's default limiter (about 3 sign-in attempts per 10 seconds per IP) keeps its counters in memory. On multi-instance or serverless hosting, configure database or Redis storage for it.
 - **No caching:** pages render per request. If traffic grows, add caching for catalogue reads and revalidate on admin changes.
-- **Policy pages** (terms, privacy, refunds, shipping) are placeholders in the footer.
+- **Policy pages** (`/privacy`, `/terms`, `/shipping-returns`) are drafts marked "Draft for legal review" and need legal sign-off.
+- **Server email fallback:** `site.supportEmail` in `src/config/site.ts` is a placeholder; set `EMAIL_ADMIN` or replace it with the real inbox.
 - **No automated tests in the repo yet.** The flows were verified with ad-hoc browser tests. Adding Playwright tests for checkout, payments and admin rules is a good next step.

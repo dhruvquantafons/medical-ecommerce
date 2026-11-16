@@ -4,7 +4,7 @@ import { listOrders } from "@/lib/admin.server";
 import { orderStatusLabel, paymentStatusLabel } from "@/lib/order-labels";
 import { EmptyState, FilterBar, PageHeader, Pagination, inputClass, pageParam, strParam } from "@/components/admin/ui";
 import { OrdersTable } from "@/components/admin/OrdersTable";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Orders" };
 
