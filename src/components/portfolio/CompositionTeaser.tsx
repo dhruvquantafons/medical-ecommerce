@@ -16,41 +16,17 @@ import { usePortfolio } from './PortfolioContext';
 
 /*
   Home: the Salt Inspector teaser. Two views of the same catalog data:
-  1. "By formulation": tabs for each product, with its bioavailability and its active ingredients
+  1. "By formulation": tabs for each product, with its active ingredients
      (amount per unit and share by weight) counting and filling in.
   2. "Whole catalog": every formulation as one share-by-weight bar (FormularyChart).
 
-  Bioavailability values come from the catalog_items.bioavailability column (edit in Admin ->
-  Catalog). The owner confirmed on 2026-11-17 that these formulations are verified.
+  Bioavailability is not shown (owner decision, 2026-11-17): the seeded figures did not match the
+  listed ingredients. The catalog_items.bioavailability column is left unchanged.
 */
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const MAX_TABS = 6;
 const shareColor = (i: number) => `var(--share-${(i % 4) + 1})`;
-
-interface Bioavailability {
-  low: number;
-  high?: number;
-  decimals: number;
-  approx: boolean;
-  note?: string;
-}
-
-/** "89.6%", "40.0 - 80.0%", "~100% (Topical)". Anything else returns null and is not shown. */
-function parseBioavailability(raw: string): Bioavailability | null {
-  const s = raw.trim();
-  if (!s.includes('%')) return null;
-  const nums = [...s.matchAll(/\d+(?:\.\d+)?/g)].map(m => m[0]);
-  if (nums.length === 0) return null;
-  const isRange = nums.length > 1 && /\d\s*(-|–|to)\s*\d/.test(s);
-  return {
-    low: Number(nums[0]),
-    high: isRange ? Number(nums[1]) : undefined,
-    decimals: nums[0].includes('.') ? nums[0].split('.')[1].length : 0,
-    approx: /^(~|≈|approx)/i.test(s),
-    note: s.match(/\(([^)]+)\)/)?.[1],
-  };
-}
 
 /** "200 mg" -> 200 and "mg". Amounts that are not a plain number and unit stay as text. */
 function parseAmount(amount: string): { value: number; decimals: number; unit: string } | null {
@@ -75,8 +51,8 @@ export function CompositionTeaser({ items }: { items: CatalogItem[] }) {
   const featured = useMemo(
     () =>
       items
-        .map(item => ({ item, salts: parseSalts(item.salts), bio: parseBioavailability(item.bioavailability ?? '') }))
-        .filter(r => r.salts.length > 0 && r.bio)
+        .map(item => ({ item, salts: parseSalts(item.salts) }))
+        .filter(r => r.salts.length > 0)
         .slice(0, MAX_TABS),
     [items],
   );
@@ -178,14 +154,14 @@ export function CompositionTeaser({ items }: { items: CatalogItem[] }) {
                   })}
                 </Tabs.List>
 
-                {featured.map(({ item, salts, bio }) => (
+                {featured.map(({ item, salts }) => (
                   <Tabs.Content key={item.id} value={item.id} className="min-w-0 focus-visible:outline-none">
                     <motion.div
                       initial={{ opacity: 0, y: 10, filter: 'blur(6px)' }}
                       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                       transition={{ duration: 0.5, ease: EASE }}
                     >
-                      <FormulationPanel item={item} salts={salts} bio={bio!} />
+                      <FormulationPanel item={item} salts={salts} />
                     </motion.div>
                   </Tabs.Content>
                 ))}
@@ -204,10 +180,9 @@ export function CompositionTeaser({ items }: { items: CatalogItem[] }) {
   );
 }
 
-function FormulationPanel({ item, salts, bio }: { item: CatalogItem; salts: ReturnType<typeof parseSalts>; bio: Bioavailability }) {
+function FormulationPanel({ item, salts }: { item: CatalogItem; salts: ReturnType<typeof parseSalts> }) {
   const { openItem } = usePortfolio();
   const shares = weightShares(salts);
-  const fmt = (n: number) => n.toFixed(bio.decimals);
 
   return (
     <div className="pf-card pf-card-raised p-5 sm:p-8">
@@ -220,41 +195,6 @@ function FormulationPanel({ item, salts, bio }: { item: CatalogItem; salts: Retu
           {isPrescription(item.category) ? <RxBadge /> : <Badge tone="brand">{categoryLabel(item.category)}</Badge>}
           <Badge>{item.dosageForm}</Badge>
         </div>
-      </div>
-
-      {/* Bioavailability, from the catalog (verified by the owner, 2026-11-17). */}
-      <div className="mt-8 rounded-2xl border border-border bg-[#faf9fd] p-5 sm:p-6">
-        <p className="text-[15px] font-semibold text-foreground">Bioavailability</p>
-        <p className="mt-3 flex items-baseline gap-2 font-display text-[48px] leading-none font-medium tracking-[-0.035em] text-foreground sm:text-[56px]">
-          <span>
-            {bio.approx && <span className="text-muted-foreground">~</span>}
-            <CountUp value={bio.low} decimals={bio.decimals} duration={1200} />
-            {bio.high !== undefined && (
-              <>
-                <span className="text-muted-foreground">–</span>
-                <CountUp value={bio.high} decimals={bio.decimals} duration={1200} delay={120} />
-              </>
-            )}
-            <span className="text-[0.55em] text-muted-foreground">%</span>
-          </span>
-          {bio.note && <span className="text-[16px] font-normal tracking-normal text-muted-foreground">{bio.note}</span>}
-        </p>
-        <FillBar
-          trackClassName="mt-5 h-2.5"
-          from={bio.high !== undefined ? bio.low : 0}
-          value={bio.high ?? bio.low}
-          color="linear-gradient(90deg, var(--share-2), var(--share-1))"
-        />
-        <div className="mt-2 flex justify-between font-mono text-[12px] text-subtle" aria-hidden="true">
-          <span>0%</span>
-          <span>50%</span>
-          <span>100%</span>
-        </div>
-        <p className="sr-only">
-          Bioavailability {bio.approx ? 'about ' : ''}
-          {fmt(bio.low)}
-          {bio.high !== undefined ? ` to ${fmt(bio.high)}` : ''} percent{bio.note ? `, ${bio.note}` : ''}.
-        </p>
       </div>
 
       {/* Active ingredients: amount per unit and share by weight. */}
