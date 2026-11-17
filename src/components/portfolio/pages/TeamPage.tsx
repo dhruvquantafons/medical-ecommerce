@@ -5,10 +5,9 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import type { Employee } from '@/lib/employees';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
-import { DotPattern } from '../ui/dot-pattern';
-import { Container } from '../site';
+import { Container, Section } from '../site';
 import { BRAND, CONTACT_HREF } from '../copy';
-import { Badge, Card, MoleculeField, Reveal } from '../kit';
+import { Backdrop, Badge, Card, Reveal } from '../kit';
 
 /*
   Team (changeui.md, Problem 17). People come from Admin -> Employees.
@@ -29,15 +28,15 @@ export function TeamPage({ members }: { members: Employee[] }) {
 
   return (
     <>
-      <section aria-labelledby="pf-page-title" className="relative isolate overflow-hidden border-b border-border bg-white">
-        <DotPattern
-          width={22}
-          height={22}
-          cr={1.1}
-          aria-hidden="true"
-          className="-z-10 text-[#ddd8ea] [mask-image:radial-gradient(ellipse_at_top_left,black_0%,transparent_50%)]"
+      <section aria-labelledby="pf-page-title" className="relative isolate overflow-hidden">
+        <Backdrop
+          washes={[{ at: 'tr', color: 'orchid', size: 0.6 }, { at: 'bl', color: 'violet', size: 0.5 }]}
+          pattern="dots"
+          patternFrom="tl"
+          motif={['a', 'c']}
+          motifOpacity={0.7}
+          particles
         />
-        <MoleculeField className="-z-10 opacity-60 max-md:opacity-30" />
         <Container className="pt-16 pb-14 md:pt-24 md:pb-20">
           <div className="grid grid-cols-1 items-end gap-6 lg:grid-cols-2 lg:gap-16">
             <h1
@@ -54,7 +53,12 @@ export function TeamPage({ members }: { members: Employee[] }) {
         </Container>
       </section>
 
-      <Container className="py-16 md:py-24">
+      <Section
+        tone="tint"
+        curveFrom="default"
+        className="md:py-24"
+        backdrop={{ washes: [{ at: 'r', color: 'violet', size: 0.5 }, { at: 'bl', color: 'orchid', size: 0.45 }], pattern: 'grid', patternFrom: 'top' }}
+      >
         <h2 className="sr-only">Team members</h2>
         {members.length === 0 ? (
           <Card className="rounded-[20px] px-6 py-14 text-center text-muted-foreground">Team profiles will appear here soon.</Card>
@@ -86,7 +90,7 @@ export function TeamPage({ members }: { members: Employee[] }) {
             </Link>
           </Card>
         </Reveal>
-      </Container>
+      </Section>
 
       <Dialog open={!!selected} onOpenChange={open => { if (!open) setSelected(null); }}>
         {selected && (

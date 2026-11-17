@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getCatalogItems } from '@/lib/catalog-items';
 import { SaltInspector } from '@/components/portfolio/SaltInspector';
 import { Container } from '@/components/portfolio/site';
-import { DotPattern } from '@/components/portfolio/ui/dot-pattern';
+import { Backdrop } from '@/components/portfolio/kit';
 
 export const metadata: Metadata = {
   title: 'Salt Inspector',
@@ -16,12 +16,13 @@ export default async function SaltInspectorPage({ searchParams }: PageProps<'/po
 
   return (
     <section aria-labelledby="pf-page-title" className="relative isolate border-b border-border bg-tint">
-      <DotPattern
-        width={22}
-        height={22}
-        cr={1.1}
-        aria-hidden="true"
-        className="-z-10 text-[#dcd6ee] [mask-image:radial-gradient(ellipse_at_top_right,black_0%,transparent_45%)]"
+      <Backdrop
+        washes={[{ at: 'tr', color: 'violet', size: 0.65 }, { at: 'bl', color: 'orchid', size: 0.55 }, { at: 'r', color: 'iris', size: 0.45 }]}
+        pattern="grid"
+        patternFrom="top"
+        motif={['c']}
+        motifOpacity={0.6}
+        particles
       />
       <Container className="pt-16 pb-20 md:pt-24 md:pb-28">
         <div className="pf-rise mb-12 max-w-[62ch] md:mb-14">

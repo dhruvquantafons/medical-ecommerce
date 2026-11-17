@@ -25,7 +25,12 @@ export function PortfolioHome({ items, bestsellers, heroProducts, areas, hasPres
       <HeroSection products={heroProducts} areas={areas} hasPrescription={hasPrescription} facts={facts} />
       {/* Shows nothing until real partner logos are listed in partner-logos.ts (TODO(owner)). */}
       <PartnerStrip />
-      <RangeSection tiles={tiles} />
+      <RangeSection
+        tiles={tiles}
+        tone="surface"
+        curveFrom="default"
+        backdrop={{ washes: [{ at: 'l', color: 'orchid', size: 0.45 }], pattern: 'grid', patternFrom: 'br' }}
+      />
       <ShopSection products={bestsellers} />
       <CompositionTeaser items={items} />
       <ContactSection />

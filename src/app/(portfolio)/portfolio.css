@@ -17,7 +17,7 @@
   - defines the tinted band (.pf-tint) and base type, focus and reduced-motion rules;
   - holds the portfolio kit's depth tokens, component classes and keyframes (see "Portfolio kit" below).
 
-  Contrast on white: ink #1d1d1f 16.8:1, muted #5e5e66 6.4:1, subtle #6a6a70 5.4:1,
+  Contrast on white: ink #1d1d1f 16.8:1, muted #55555d 7.4:1, subtle #5c5c63 6.6:1,
   brand #3d2e86 11.0:1, input border #8a8698 3.5:1. On the tint #f3f1fa: muted 5.8:1, subtle 4.8:1, brand 10.0:1.
   Share colours: white text on #3d2e86 11:1 and #5f4bd8 5.6:1; ink text on #a597ff 7.4:1 and #d4ccff 12:1.
 */
@@ -28,8 +28,8 @@
   --color-primary: #3d2e86;
   --color-primary-hover: #2a1f66;
   --color-primary-foreground: #ffffff;
-  --color-muted-foreground: #5e5e66;
-  --color-subtle: #6a6a70;
+  --color-muted-foreground: #55555d;
+  --color-subtle: #5c5c63;
   --color-surface: #f6f5fa;
   --color-tint: #f3f1fa;
   --color-secondary: #f6f5fa;
@@ -68,7 +68,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-[data-portfolio] main { flex: 1; }
+[data-portfolio] main { flex: 1; background: var(--pf-base); }
 [data-portfolio] main:focus { outline: none; }
 
 /* A pale lavender band for page headers and feature sections. */
@@ -120,9 +120,21 @@
 
 [data-portfolio] {
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --pf-shadow-1: 0 1px 2px rgba(39, 28, 94, 0.06), 0 2px 8px -4px rgba(39, 28, 94, 0.1);
-  --pf-shadow-2: 0 2px 4px -2px rgba(39, 28, 94, 0.08), 0 14px 32px -14px rgba(39, 28, 94, 0.24);
-  --pf-shadow-3: 0 4px 10px -4px rgba(39, 28, 94, 0.1), 0 30px 64px -28px rgba(39, 28, 94, 0.34);
+  /* Layered depth: a contact shadow, a mid shadow and a long soft one, plus a faint top highlight. */
+  --pf-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --pf-shadow-1: 0 1px 1px rgba(39, 28, 94, 0.04), 0 2px 4px -1px rgba(39, 28, 94, 0.05), 0 6px 14px -8px rgba(39, 28, 94, 0.12), var(--pf-highlight);
+  --pf-shadow-2: 0 1px 2px rgba(39, 28, 94, 0.05), 0 6px 12px -6px rgba(39, 28, 94, 0.1), 0 18px 40px -20px rgba(39, 28, 94, 0.26), var(--pf-highlight);
+  --pf-shadow-3: 0 2px 4px -1px rgba(39, 28, 94, 0.06), 0 12px 24px -12px rgba(39, 28, 94, 0.16), 0 36px 72px -32px rgba(39, 28, 94, 0.36), var(--pf-highlight);
+
+  /* Backgrounds (kit/Backdrop.tsx). Washes are the logo's two hues: indigo-violet and orchid.
+     Strengths are set so that even two overlapping wash centres on the tint band keep text AA:
+     muted #55555d >= 5.3:1, subtle #5c5c63 >= 4.7:1 (checked 2026-11-17). */
+  --pf-base: #faf9fd;
+  --pf-wash-violet: rgba(124, 104, 232, 0.1);
+  --pf-wash-orchid: rgba(196, 140, 200, 0.12);
+  --pf-wash-iris: rgba(61, 46, 134, 0.06);
+  --pf-pattern-dot: #d6cfeb;
+  --pf-pattern-line: #e7e2f3;
   --color-success: #17734a;
   --color-caution-bg: #fff6e0;
   --color-caution-fg: #7a4b00;
@@ -194,9 +206,9 @@
   /* Cards ------------------------------------------------------------------------------------ */
   [data-portfolio] .pf-card {
     position: relative;
-    border: 1px solid var(--color-border);
+    border: 1px solid #e8e4f2;
     border-radius: 16px;
-    background: #fff;
+    background: linear-gradient(180deg, #ffffff 0%, #fdfcff 100%);
     box-shadow: var(--pf-shadow-1);
   }
   [data-portfolio] .pf-card-raised { box-shadow: var(--pf-shadow-2); }
@@ -299,6 +311,25 @@
 /* Success check: circle then tick. */
 [data-portfolio] .pf-check-circle { stroke-dasharray: 1; animation: pf-draw 700ms var(--ease-out-expo) both; }
 [data-portfolio] .pf-check-tick { stroke-dasharray: 1; animation: pf-draw 500ms var(--ease-out-expo) 450ms both; }
+
+/* Backdrop: washes drift slowly, particles float. Both pause off screen ([data-paused]) and
+   stop under reduced motion. Transform and opacity only. */
+@keyframes pf-wash {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(var(--dx, 40px), var(--dy, 30px), 0) scale(1.08); }
+}
+[data-portfolio] .pf-wash { animation: pf-wash var(--dur, 22s) ease-in-out infinite alternate; }
+@keyframes pf-float {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(var(--dx, 6px), var(--dy, -16px), 0); }
+}
+[data-portfolio] .pf-float { animation: pf-float var(--dur, 12s) ease-in-out infinite alternate; }
+[data-portfolio] [data-paused] .pf-wash,
+[data-portfolio] [data-paused] .pf-float { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  [data-portfolio] .pf-wash,
+  [data-portfolio] .pf-float { animation: none !important; }
+}
 
 /* Skeleton placeholders: a pale block with a slow light sweep. Static under reduced motion. */
 @keyframes pf-shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }

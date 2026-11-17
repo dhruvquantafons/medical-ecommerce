@@ -2,6 +2,8 @@
 
 import { BlurFade } from './ui/blur-fade';
 import { cn } from '@/lib/utils';
+import { Backdrop, CurveEdge, type BackdropProps } from './kit/Backdrop';
+import { Reveal as KitReveal } from './kit/motion';
 
 /** 1200px container with 16px (mobile) / 24px gutters. */
 export function Container({ className, children }: { className?: string; children: React.ReactNode }) {
@@ -21,28 +23,46 @@ export function Reveal({ children, className, delay = 0 }: { children: React.Rea
   );
 }
 
-/** default: white. surface: pale grey-violet with hairlines. tint: the lavender band for headers and features. */
+/**
+ * Section tones, alternated down a page for rhythm:
+ * default: the soft tinted page base (--pf-base). surface: white. tint: the pale lavender band.
+ */
 export type Tone = 'default' | 'surface' | 'tint';
 
 export function toneClass(tone: Tone) {
-  if (tone === 'surface') return 'border-y border-border bg-surface';
+  if (tone === 'surface') return 'bg-white';
   if (tone === 'tint') return 'bg-tint';
   return '';
 }
+
+/** The colour of each tone, for the curved edge of the section below it. */
+export const TONE_COLOR: Record<Tone, string> = {
+  default: 'var(--pf-base)',
+  surface: '#ffffff',
+  tint: 'var(--color-tint)',
+};
 
 interface SectionProps {
   id?: string;
   labelledBy?: string;
   tone?: Tone;
+  /** Tone of the section above: draws a soft curved edge in that colour at the top. */
+  curveFrom?: Tone;
+  /** Background layers (washes, pattern, motif, particles). See kit/Backdrop. */
+  backdrop?: BackdropProps;
+  /** Fade the section's content in when it scrolls into view. */
+  reveal?: boolean;
   className?: string;
   children: React.ReactNode;
 }
 
 /** Section padding 112px desktop / 72px mobile. */
-export function Section({ id, labelledBy, tone = 'default', className, children }: SectionProps) {
+export function Section({ id, labelledBy, tone = 'default', curveFrom, backdrop, reveal, className, children }: SectionProps) {
   return (
-    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-16 py-[72px] md:py-28', toneClass(tone), className)}>
-      <Container>{children}</Container>
+    <section id={id} aria-labelledby={labelledBy} className={cn('relative isolate scroll-mt-16 py-[72px] md:py-28', toneClass(tone), className)}>
+      {curveFrom && curveFrom !== tone && <CurveEdge color={TONE_COLOR[curveFrom]} />}
+      {backdrop && <Backdrop {...backdrop} />}
+      <Container>{reveal ? <KitReveal>{children}</KitReveal> : children}</Container>
     </section>
   );
 }

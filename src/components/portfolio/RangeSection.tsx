@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Label, Section, SectionHeading, type Tone } from './site';
+import type { BackdropProps } from './kit';
 
 export interface RangeTile {
   name: string;
@@ -23,13 +24,25 @@ const countText = (t: RangeTile) => `${t.count} ${t.count === 1 ? t.countNoun : 
  * Large names set like an index; on wide screens the pack for the row under the pointer or focus
  * appears in the panel beside it. On small screens each row carries its own thumbnail.
  */
-export function RangeSection({ tiles, tone = 'default', showAboutLink = true }: { tiles: RangeTile[]; tone?: Tone; showAboutLink?: boolean }) {
+export function RangeSection({
+  tiles,
+  tone = 'default',
+  curveFrom,
+  backdrop,
+  showAboutLink = true,
+}: {
+  tiles: RangeTile[];
+  tone?: Tone;
+  curveFrom?: Tone;
+  backdrop?: BackdropProps;
+  showAboutLink?: boolean;
+}) {
   const [active, setActive] = useState(0);
   if (tiles.length === 0) return null;
   const current = tiles[Math.min(active, tiles.length - 1)];
 
   return (
-    <Section id="range" labelledBy="pf-range-title" tone={tone}>
+    <Section id="range" labelledBy="pf-range-title" tone={tone} curveFrom={curveFrom} backdrop={backdrop}>
       <div className="grid grid-cols-1 items-end gap-6 lg:grid-cols-2 lg:gap-16">
         <SectionHeading id="pf-range-title" title="What we make" />
         <p className="max-w-[44ch] text-[18px] leading-[1.6] text-muted-foreground md:text-[20px] lg:justify-self-end">

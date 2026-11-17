@@ -90,7 +90,12 @@ export function CompositionTeaser({ items }: { items: CatalogItem[] }) {
   ];
 
   return (
-    <Section id="composition" labelledBy="pf-composition-title" tone="tint">
+    <Section
+      id="composition"
+      labelledBy="pf-composition-title"
+      curveFrom="tint"
+      backdrop={{ washes: [{ at: 'r', color: 'violet', size: 0.6 }, { at: 'bl', color: 'orchid', size: 0.45 }], pattern: 'grid', patternFrom: 'top' }}
+    >
       <SectionHeader
         id="pf-composition-title"
         title="Every formulation, ingredient by ingredient"

@@ -5,7 +5,7 @@ import { FlaskConical, Layers, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/data/types';
 import { DotPattern } from './ui/dot-pattern';
 import { Container } from './site';
-import { ActionButton, CountUp, MoleculeField, parallaxLayer, usePointerParallax } from './kit';
+import { ActionButton, Backdrop, CountUp, parallaxLayer, usePointerParallax } from './kit';
 
 export interface HomeFacts {
   formulations: number;
@@ -59,20 +59,17 @@ export function HeroSection({ products, areas, hasPrescription, facts }: HeroSec
   ].filter(f => f.value > 0);
 
   return (
-    <section aria-labelledby="pf-hero-title" className="relative isolate overflow-hidden border-b border-border bg-white">
-      {/* Background layers: dot grid top-left, a pale violet wash behind the packs, the molecule motif. */}
-      <DotPattern
-        width={22}
-        height={22}
-        cr={1.1}
-        aria-hidden="true"
-        className="-z-10 text-[#ddd8ea] [mask-image:radial-gradient(ellipse_at_top_left,black_0%,transparent_55%)]"
+    <section aria-labelledby="pf-hero-title" className="relative isolate overflow-hidden">
+      {/* Background: violet wash behind the packs, orchid wash low left, dot grid from the top left,
+          the molecule motif and a few particles at the edges. */}
+      <Backdrop
+        washes={[{ at: 'tr', color: 'violet', size: 0.75 }, { at: 'bl', color: 'orchid', size: 0.55 }, { at: 'c', color: 'iris', size: 0.35 }]}
+        pattern="dots"
+        patternFrom="tl"
+        motif={['a', 'b', 'c']}
+        motifOpacity={1}
+        particles
       />
-      <div
-        aria-hidden="true"
-        className="absolute top-[-10%] right-[-12%] -z-10 h-[90%] w-[70%] bg-[radial-gradient(closest-side,#eee9ff_0%,rgba(238,233,255,0.55)_45%,transparent_100%)]"
-      />
-      <MoleculeField className="-z-10 max-md:opacity-60" />
 
       <Container className="relative pt-14 pb-12 md:pt-20 md:pb-16">
         <div className="grid grid-cols-1 items-center gap-14 lg:min-h-[580px] lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-16">

@@ -118,7 +118,11 @@ function buildClusters(): Cluster[] {
 
 const CLUSTERS = buildClusters();
 
-export function MoleculeField({ className }: { className?: string }) {
+/** Which ring systems to draw: "a" three fused rings (lower right), "b" one ring (lower left), "c" two rings (upper right). */
+export type MoleculeCluster = 'a' | 'b' | 'c';
+const CLUSTER_KEYS: MoleculeCluster[] = ['a', 'b', 'c'];
+
+export function MoleculeField({ className, clusters = CLUSTER_KEYS }: { className?: string; clusters?: MoleculeCluster[] }) {
   const ref = usePauseOffscreen<SVGSVGElement>();
   const stagger = (base: number, i: number) => `${base + i * 90}ms`;
 
@@ -132,6 +136,7 @@ export function MoleculeField({ className }: { className?: string }) {
       className={cn('pointer-events-none absolute inset-0 h-full w-full text-primary', className)}
     >
       {CLUSTERS.map((c, ci) => {
+        if (!clusters.includes(CLUSTER_KEYS[ci])) return null;
         return (
           <g key={ci} transform={`translate(${c.at[0]} ${c.at[1]})`} opacity={c.opacity}>
             <g

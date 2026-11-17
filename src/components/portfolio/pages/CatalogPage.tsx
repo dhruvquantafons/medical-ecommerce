@@ -8,12 +8,11 @@ import type { CatalogItem } from '@/lib/catalog-item-types';
 import { parseSalts } from '@/lib/catalog-item-types';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { DotPattern } from '../ui/dot-pattern';
 import { Container } from '../site';
 import { CatalogCard } from '../CatalogCard';
 import { usePortfolio } from '../PortfolioContext';
 import { isPrescription } from '../copy';
-import { ActionButton, Card, CountUp, SectionHeader } from '../kit';
+import { ActionButton, Backdrop, Card, CountUp, SectionHeader } from '../kit';
 
 /*
   Catalogue index (changeui.md, Problem 18, part B), kept at its current URL.
@@ -112,12 +111,12 @@ export function CatalogPage({ items, initial }: { items: CatalogItem[]; initial:
   return (
     <>
       <section aria-labelledby="pf-page-title" className="relative isolate overflow-hidden bg-tint">
-        <DotPattern
-          width={22}
-          height={22}
-          cr={1.1}
-          aria-hidden="true"
-          className="-z-10 text-[#dcd6ee] [mask-image:radial-gradient(ellipse_at_top_right,black_0%,transparent_55%)]"
+        <Backdrop
+          washes={[{ at: 'tr', color: 'violet', size: 0.6 }, { at: 'l', color: 'orchid', size: 0.4 }]}
+          pattern="dots"
+          patternFrom="tr"
+          motif={['c']}
+          motifOpacity={0.55}
         />
         <Container className="pt-16 pb-12 md:pt-24 md:pb-16">
           <SectionHeader
@@ -243,6 +242,9 @@ export function CatalogPage({ items, initial }: { items: CatalogItem[]; initial:
         </Container>
       </div>
 
+      {/* Results sit on the page base with two faint washes at the edges. */}
+      <div className="relative isolate">
+      <Backdrop washes={[{ at: 'l', color: 'orchid', size: 0.45 }, { at: 'r', color: 'violet', size: 0.5 }]} pattern="grid" patternFrom="top" />
       <Container className="pt-6 pb-20 md:pb-28">
         <div className="flex min-h-9 flex-wrap items-center gap-x-4 gap-y-2">
           <p className="text-[14px] text-muted-foreground tabular-nums" aria-live="polite">
@@ -338,6 +340,7 @@ export function CatalogPage({ items, initial }: { items: CatalogItem[]; initial:
           </>
         )}
       </Container>
+      </div>
     </>
   );
 }

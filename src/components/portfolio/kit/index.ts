@@ -15,3 +15,4 @@ export { Reveal, CountUp, FillBar, useInViewOnce, usePauseOffscreen, usePointerP
 export { SectionNav } from './SectionNav';
 export { Timeline, type TimelineItem } from './Timeline';
 export { Skeleton } from './Skeleton';
+export { Backdrop, CurveEdge, type BackdropProps, type Wash } from './Backdrop';

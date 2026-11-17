@@ -22,7 +22,14 @@ export function ShopSection({ products }: { products: Product[] }) {
   ];
 
   return (
-    <Section id="shop" labelledBy="pf-shop-title" tone="surface">
+    <Section
+      id="shop"
+      labelledBy="pf-shop-title"
+      tone="tint"
+      curveFrom="surface"
+      reveal
+      backdrop={{ washes: [{ at: 'tr', color: 'violet', size: 0.55 }, { at: 'bl', color: 'orchid', size: 0.4 }], pattern: 'dots', patternFrom: 'br' }}
+    >
       <SectionHeader
         id="pf-shop-title"
         title="Best sellers in our store"

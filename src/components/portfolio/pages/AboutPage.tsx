@@ -6,9 +6,8 @@ import type { Product } from '@/data/types';
 import type { CatalogItem } from '@/lib/catalog-item-types';
 import { Container, Section } from '../site';
 import { RangeSection, type RangeTile } from '../RangeSection';
-import { DotPattern } from '../ui/dot-pattern';
 import { BRAND, CONTACT_HREF, isPrescription } from '../copy';
-import { ActionButton, Badge, Card, CountUp, MoleculeField, Reveal, SectionHeader, SectionNav, Timeline, type TimelineItem } from '../kit';
+import { ActionButton, Backdrop, Badge, Card, CountUp, MoleculeField, Reveal, SectionHeader, SectionNav, Timeline, type TimelineItem } from '../kit';
 
 /*
   About (changeui.md, Problem 16). Every statement below comes from earlier site copy or the
@@ -74,19 +73,15 @@ export function AboutPage({ items, products, tiles }: AboutPageProps) {
   return (
     <>
       {/* Editorial hero: the name set large, the two-paragraph introduction, the figures beside it. */}
-      <section aria-labelledby="pf-page-title" className="relative isolate overflow-hidden border-b border-border bg-white">
-        <DotPattern
-          width={22}
-          height={22}
-          cr={1.1}
-          aria-hidden="true"
-          className="-z-10 text-[#ddd8ea] [mask-image:radial-gradient(ellipse_at_top_right,black_0%,transparent_50%)]"
+      <section aria-labelledby="pf-page-title" className="relative isolate overflow-hidden border-b border-border">
+        <Backdrop
+          washes={[{ at: 'br', color: 'violet', size: 0.7 }, { at: 'tl', color: 'orchid', size: 0.5 }]}
+          pattern="dots"
+          patternFrom="tr"
+          motif={['a', 'b', 'c']}
+          motifOpacity={0.75}
+          particles
         />
-        <div
-          aria-hidden="true"
-          className="absolute right-[-10%] bottom-[-20%] -z-10 h-[80%] w-[60%] bg-[radial-gradient(closest-side,#eee9ff_0%,rgba(238,233,255,0.5)_45%,transparent_100%)]"
-        />
-        <MoleculeField className="-z-10 opacity-70 max-md:opacity-40" />
 
         <Container className="relative pt-16 pb-16 md:pt-24 md:pb-24">
           <h1
@@ -147,10 +142,21 @@ export function AboutPage({ items, products, tiles }: AboutPageProps) {
       <SectionNav items={NAV} />
 
       <Reveal>
-        <RangeSection tiles={tiles} tone="surface" showAboutLink={false} />
+        <RangeSection
+          tiles={tiles}
+          tone="tint"
+          showAboutLink={false}
+          backdrop={{ washes: [{ at: 'r', color: 'violet', size: 0.5 }], pattern: 'grid', patternFrom: 'bl' }}
+        />
       </Reveal>
 
-      <Section id="process" labelledBy="pf-process-title">
+      <Section
+        id="process"
+        labelledBy="pf-process-title"
+        tone="surface"
+        curveFrom="tint"
+        backdrop={{ washes: [{ at: 'l', color: 'orchid', size: 0.45 }, { at: 'br', color: 'violet', size: 0.4 }], pattern: 'dots', patternFrom: 'tl' }}
+      >
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           {/* The heading stays in view (below the header and section bar) while the steps scroll past. */}
           <Reveal className="lg:sticky lg:top-40 lg:self-start">
@@ -165,7 +171,13 @@ export function AboutPage({ items, products, tiles }: AboutPageProps) {
         </div>
       </Section>
 
-      <Section id="next" labelledBy="pf-next-title" tone="tint">
+      <Section
+        id="next"
+        labelledBy="pf-next-title"
+        tone="tint"
+        curveFrom="surface"
+        backdrop={{ washes: [{ at: 'br', color: 'violet', size: 0.6 }, { at: 'tl', color: 'orchid', size: 0.4 }], pattern: 'grid', patternFrom: 'center' }}
+      >
         <Reveal>
           <Card elevation={2} className="relative isolate overflow-hidden rounded-[28px] px-6 py-12 sm:px-12 sm:py-16">
             <MoleculeField className="-z-10 opacity-40" />

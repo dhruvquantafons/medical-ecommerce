@@ -75,7 +75,14 @@ export function ContactSection() {
   };
 
   return (
-    <Section id="contact" labelledBy="pf-contact-title">
+    <Section
+      id="contact"
+      labelledBy="pf-contact-title"
+      tone="surface"
+      curveFrom="default"
+      reveal
+      backdrop={{ washes: [{ at: 'tl', color: 'orchid', size: 0.5 }, { at: 'br', color: 'violet', size: 0.45 }], pattern: 'dots', patternFrom: 'br' }}
+    >
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-16">
         <SectionHeader
           id="pf-contact-title"
