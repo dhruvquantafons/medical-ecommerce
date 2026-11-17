@@ -18,9 +18,9 @@ import { Section, SectionHeading } from './site';
 */
 
 const FIELDS = [
-  { key: 'name', label: 'Full name', type: 'text', autoComplete: 'name', placeholder: 'Your full name' },
+  { key: 'name', label: 'Full name', type: 'text', autoComplete: 'name', placeholder: '' },
   { key: 'email', label: 'Email', type: 'email', autoComplete: 'email', placeholder: 'name@example.com' },
-  { key: 'pharmacyName', label: 'Pharmacy or company', type: 'text', autoComplete: 'organization', placeholder: 'Pharmacy or company name' },
+  { key: 'pharmacyName', label: 'Pharmacy or company', type: 'text', autoComplete: 'organization', placeholder: '' },
 ] as const;
 
 export function ContactSection() {
@@ -50,7 +50,7 @@ export function ContactSection() {
 
   return (
     <Section id="contact" labelledBy="pf-contact-title">
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-16">
         <SectionHeading
           id="pf-contact-title"
           eyebrow="Pharmacies and distributors"
@@ -58,10 +58,10 @@ export function ContactSection() {
           lead="Tell us about your pharmacy or business and which products you are interested in. We reply by email."
         />
 
-        <div className="rounded-lg border border-border p-5 sm:p-8">
+        <div className="rounded-2xl border border-border bg-surface p-5 sm:p-8">
           {submitted ? (
             <div role="status" className="space-y-4">
-              <p className="text-lg font-medium text-success">Message sent.</p>
+              <p className="text-[20px] font-medium text-success">Message sent</p>
               <p className="text-muted-foreground">We will reply to the email address you gave us.</p>
               <Button variant="outline" onClick={() => setSubmitted(false)}>Send another message</Button>
             </div>
@@ -69,20 +69,20 @@ export function ContactSection() {
             <form onSubmit={handleSubmit} className="grid gap-5" noValidate={false}>
               {FIELDS.map(({ key, label, type, autoComplete, placeholder }) => (
                 <div key={key} className="grid gap-2">
-                  <Label htmlFor={`pf-${key}`} className="text-[15px]">{label}</Label>
+                  <Label htmlFor={`pf-${key}`} className="text-[16px]">{label}</Label>
                   <Input
                     id={`pf-${key}`}
                     type={type}
                     required
                     autoComplete={autoComplete}
-                    placeholder={placeholder}
+                    placeholder={placeholder || undefined}
                     value={formData[key]}
                     onChange={e => setFormData({ ...formData, [key]: e.target.value })}
                   />
                 </div>
               ))}
               <div className="grid gap-2">
-                <Label htmlFor="pf-message" className="text-[15px]">
+                <Label htmlFor="pf-message" className="text-[16px]">
                   Message <span className="font-normal text-muted-foreground">(optional)</span>
                 </Label>
                 <Textarea
@@ -93,11 +93,12 @@ export function ContactSection() {
                 />
               </div>
               {errorMsg && (
-                <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-[15px] text-destructive">
+                <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-[16px] text-destructive">
                   {errorMsg}
                 </p>
               )}
               <Button type="submit" disabled={loading} className="justify-self-start">
+                {/* The spinner is live: it runs only while the message is being sent. */}
                 {loading && <Loader2 className="animate-spin" aria-hidden="true" />}
                 {loading ? 'Sending…' : 'Send message'}
               </Button>

@@ -15,7 +15,9 @@ export function Logo({ height = 32, priority = false, className }: { height?: nu
       alt="Syncytium Health"
       width={width}
       height={height}
-      priority={priority}
+      // Next 16: `priority` is deprecated; above-the-fold logos preload and load eagerly instead.
+      preload={priority}
+      loading={priority ? 'eager' : undefined}
       className={cn('h-auto', className)}
       style={{ height, width }}
     />

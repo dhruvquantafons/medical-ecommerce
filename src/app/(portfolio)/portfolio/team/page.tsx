@@ -3,7 +3,7 @@ import { getEmployees } from '@/lib/employees';
 import { TeamPage } from '@/components/portfolio/pages/TeamPage';
 
 export const metadata: Metadata = {
-  title: 'Our team',
+  title: 'Team',
   description: 'The people who develop, test and review Syncytium Health medicines and supplements.',
 };
 

@@ -9,64 +9,97 @@ export function Container({ className, children }: { className?: string; childre
 }
 
 /**
- * The one entrance animation on the company pages (changeui.md, Motion):
- * fade with an 8px rise, 200ms, once, when the section enters view. Magic UI Blur Fade, no blur.
+ * The one entrance on the company pages: the page header fades in with an 8px rise, once, on load.
+ * Sections below are never hidden, so content is visible without JavaScript, in print and in captures.
  * Reduced motion is honoured through <MotionConfig reducedMotion="user"> in PortfolioShell.
  */
-export function Reveal({ children, className }: { children: React.ReactNode; className?: string }) {
+export function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   return (
-    <BlurFade inView inViewMargin="0px" direction="up" offset={8} duration={0.2} blur="0px" className={className}>
+    <BlurFade direction="up" offset={8} duration={0.5} delay={delay} blur="0px" className={className}>
       {children}
     </BlurFade>
   );
 }
 
+/** default: white. surface: pale grey-violet with hairlines. tint: the lavender band for headers and features. */
+export type Tone = 'default' | 'surface' | 'tint';
+
+export function toneClass(tone: Tone) {
+  if (tone === 'surface') return 'border-y border-border bg-surface';
+  if (tone === 'tint') return 'bg-tint';
+  return '';
+}
+
 interface SectionProps {
   id?: string;
   labelledBy?: string;
-  /** "surface" puts the section on the warm off-white with hairlines above and below. */
-  tone?: 'default' | 'surface';
+  tone?: Tone;
   className?: string;
   children: React.ReactNode;
 }
 
-/** Section padding 96px desktop / 64px mobile, content wrapped in the single fade-in. */
+/** Section padding 112px desktop / 72px mobile. */
 export function Section({ id, labelledBy, tone = 'default', className, children }: SectionProps) {
   return (
-    <section
-      id={id}
-      aria-labelledby={labelledBy}
-      className={cn('py-16 md:py-24', tone === 'surface' && 'border-y border-border bg-surface', className)}
-    >
-      <Container>
-        <Reveal>{children}</Reveal>
-      </Container>
+    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-16 py-[72px] md:py-28', toneClass(tone), className)}>
+      <Container>{children}</Container>
     </section>
+  );
+}
+
+/** Small label in IBM Plex Mono, like the reference line on a lab report. Sentence case. */
+export function Label({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <p className={cn('font-mono text-[12px] leading-4 text-subtle', className)}>{children}</p>;
+}
+
+/** Eyebrow above a headline: Plex Mono in the accent, after a short rule. */
+export function Eyebrow({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={cn('flex items-start gap-3 font-mono text-[13px] leading-5 font-medium text-primary', className)}>
+      <span className="mt-2.5 h-px w-6 shrink-0 bg-primary" aria-hidden="true" />
+      {children}
+    </p>
   );
 }
 
 interface SectionHeadingProps {
   id: string;
-  /** Optional small uppercase label in muted ink: plain text, no pill, no icon. */
   eyebrow?: string;
   title: string;
   lead?: React.ReactNode;
   as?: 'h1' | 'h2';
+  size?: 'default' | 'display';
   className?: string;
 }
 
-export function SectionHeading({ id, eyebrow, title, lead, as = 'h2', className }: SectionHeadingProps) {
+export function SectionHeading({ id, eyebrow, title, lead, as = 'h2', size, className }: SectionHeadingProps) {
   const Heading = as;
+  const display = size ? size === 'display' : as === 'h1';
   return (
-    <div className={cn('max-w-[65ch]', className)}>
-      {eyebrow && <p className="mb-3 text-sm font-medium uppercase tracking-[0.08em] text-muted-foreground">{eyebrow}</p>}
+    <div className={cn('max-w-[62ch]', className)}>
+      {eyebrow && <Eyebrow className="mb-5">{eyebrow}</Eyebrow>}
       <Heading
         id={id}
-        className={as === 'h1' ? 'text-[44px] leading-[1.08] md:text-[60px]' : 'text-[32px] leading-[1.15] md:text-[44px]'}
+        className={
+          display
+            ? 'text-[40px] leading-[1.06] tracking-[-0.035em] md:text-[64px] md:leading-[1.03] md:tracking-[-0.045em]'
+            : 'text-[30px] leading-[1.12] tracking-[-0.03em] md:text-[44px] md:leading-[1.08] md:tracking-[-0.035em]'
+        }
       >
         {title}
       </Heading>
-      {lead && <p className="mt-4 text-lg text-muted-foreground">{lead}</p>}
+      {lead && <p className="mt-5 max-w-[56ch] text-[18px] leading-[1.6] text-muted-foreground md:text-[20px] md:leading-[1.55]">{lead}</p>}
     </div>
+  );
+}
+
+/** Small rectangular tag for "Prescription required". Quiet text, not a pill. */
+export function RxTag({ className }: { className?: string }) {
+  return (
+    <span className={cn('inline-flex h-6 w-fit items-center gap-2 rounded-[4px] border border-border bg-background px-2 text-[12px] tracking-normal whitespace-nowrap text-foreground', className)}>
+      <span className="font-mono text-[12px] font-medium text-primary" aria-hidden="true">Rx</span>
+      {/* "required" is dropped on phones so the tag fits a two-column card. */}
+      Prescription<span className="max-sm:sr-only"> required</span>
+    </span>
   );
 }

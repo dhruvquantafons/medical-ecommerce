@@ -44,17 +44,17 @@ export function PortfolioShell({ children, items, collections, fontClassName }: 
 
           <ItemDialog item={selectedItem} onClose={() => setSelectedItem(null)} />
 
-          {/* Site search over the catalogue: shadcn command dialog (changeui.md, Problem 04). */}
+          {/* Site search over the catalog: shadcn command dialog (changeui.md, Problem 04). */}
           <CommandDialog
             open={searchOpen}
             onOpenChange={setSearchOpen}
             title="Search products"
-            description="Search the catalogue by product or ingredient name"
+            description="Search the catalog by product or ingredient name"
           >
             <CommandInput placeholder="Product or ingredient name" />
             <CommandList>
               <CommandEmpty>No products match. Try an ingredient name instead.</CommandEmpty>
-              <CommandGroup heading="Catalogue">
+              <CommandGroup heading="Catalog">
                 {items.map(item => {
                   const salts = parseSalts(item.salts).map(s => s.name);
                   return (

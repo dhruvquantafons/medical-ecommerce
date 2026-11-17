@@ -1,14 +1,13 @@
-import { Geist, Geist_Mono, Newsreader } from 'next/font/google';
+import { JetBrains_Mono, Manrope } from 'next/font/google';
 import './portfolio.css';
 import { getCatalogItems } from '@/lib/catalog-items';
 import { getCategories } from '@/lib/catalog';
 import { PortfolioShell } from '@/components/portfolio/PortfolioShell';
 
-// Company pages only: Newsreader for headings, Geist for text, Geist Mono for formulas and CAS numbers.
-// The store keeps its own fonts.
-const newsreader = Newsreader({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-newsreader' });
-const geist = Geist({ subsets: ['latin'], variable: '--font-geist' });
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
+// Company pages only: Manrope for headings and text, JetBrains Mono for amounts, CAS numbers and
+// small labels ("Clinical clean", chosen by the owner on 2026-11-16). The store keeps its own fonts.
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jetbrains-mono' });
 
 export default async function PortfolioLayout({ children }: { children: React.ReactNode }) {
   const [items, collections] = await Promise.all([getCatalogItems(), getCategories()]);
@@ -16,7 +15,7 @@ export default async function PortfolioLayout({ children }: { children: React.Re
     <PortfolioShell
       items={items}
       collections={collections}
-      fontClassName={`${newsreader.variable} ${geist.variable} ${geistMono.variable}`}
+      fontClassName={`${manrope.variable} ${jetbrainsMono.variable}`}
     >
       {children}
     </PortfolioShell>

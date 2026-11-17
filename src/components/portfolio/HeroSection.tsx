@@ -5,8 +5,6 @@ import { ArrowRight } from 'lucide-react';
 import type { Product } from '@/data/types';
 import { Button } from './ui/button';
 import { DotPattern } from './ui/dot-pattern';
-import { TextAnimate } from './ui/text-animate';
-import { NumberTicker } from './ui/number-ticker';
 import { Container, Reveal } from './site';
 
 export interface HomeFacts {
@@ -37,14 +35,16 @@ function listInWords(words: string[]): string {
 */
 const HEADLINE = 'Medicines and daily supplements, with every ingredient listed.';
 
+/** Home hero, in the layout the owner chose on 2026-11-17: text left, a composed still of three real packs right, counts below. */
 export function HeroSection({ products, areas, hasPrescription, facts }: HeroSectionProps) {
   const [main, ...rest] = products.filter(p => p.images.length > 0).slice(0, 3);
   const lead =
     `Formulations for ${listInWords(areas)}` +
     (hasPrescription ? ', alongside a range of prescription medicines.' : '.');
 
+  // Counts taken from the product data, nothing else.
   const factRows = [
-    { value: facts.formulations, label: 'formulations in our catalogue' },
+    { value: facts.formulations, label: 'formulations in our catalog' },
     { value: facts.storeProducts, label: 'products in the online store' },
     { value: facts.areas, label: 'therapeutic areas' },
   ].filter(f => f.value > 0);
@@ -60,22 +60,14 @@ export function HeroSection({ products, areas, hasPrescription, facts }: HeroSec
       />
       <Container className="relative py-16 md:py-20">
         <div className="grid grid-cols-1 items-center gap-12 lg:min-h-[560px] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <div>
-            <p className="mb-4 text-sm font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          <Reveal>
+            <p className="mb-4 text-sm font-medium tracking-[0.08em] text-muted-foreground uppercase">
               Pharmaceuticals and nutraceuticals
             </p>
-            <TextAnimate
-              as="h1"
-              id="pf-hero-title"
-              by="word"
-              animation="blurIn"
-              once
-              duration={0.5}
-              className="max-w-[16ch] text-[44px] leading-[1.06] md:text-[60px]"
-            >
+            <h1 id="pf-hero-title" className="max-w-[16ch] text-[44px] leading-[1.06] tracking-[-0.035em] md:text-[60px] md:tracking-[-0.04em]">
               {HEADLINE}
-            </TextAnimate>
-            <p className="mt-6 max-w-[52ch] text-lg text-muted-foreground">{lead}</p>
+            </h1>
+            <p className="mt-6 max-w-[52ch] text-[18px] leading-[1.6] text-muted-foreground">{lead}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild>
                 <Link href="/shop">
@@ -87,20 +79,20 @@ export function HeroSection({ products, areas, hasPrescription, facts }: HeroSec
                 <Link href="/portfolio/catalog">View all products</Link>
               </Button>
             </div>
-          </div>
+          </Reveal>
 
           {main && (
-            <Reveal>
-              {/* Composed still of real packs: no rotation, no floating. */}
+            <Reveal delay={0.12}>
+              {/* Composed still of real packs: one large, two smaller overlapping its lower edge. No rotation, no floating. */}
               <div className="relative pb-24 sm:pb-28">
-                <div className="aspect-[5/4] overflow-hidden rounded-lg border border-border bg-surface">
+                <div className="aspect-[5/4] overflow-hidden rounded-xl border border-border bg-surface">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={main.images[0]} alt={`${main.name} pack`} className="size-full object-cover" />
+                  <img src={main.images[0]} alt={`${main.name} pack`} fetchPriority="high" className="size-full object-cover" />
                 </div>
                 {rest.length > 0 && (
                   <div className="absolute right-0 bottom-0 left-[18%] grid grid-cols-2 gap-4">
                     {rest.map(p => (
-                      <div key={p.id} className="aspect-square overflow-hidden rounded-lg border border-border bg-background">
+                      <div key={p.id} className="aspect-square overflow-hidden rounded-xl border border-border bg-background">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={p.images[0]} alt={`${p.name} pack`} className="size-full object-cover" />
                       </div>
@@ -112,15 +104,12 @@ export function HeroSection({ products, areas, hasPrescription, facts }: HeroSec
           )}
         </div>
 
-        {/* Proof row: only counts taken from the product data. */}
         {factRows.length >= 3 && (
           <dl className="mt-16 grid gap-6 border-t border-border pt-8 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-border">
             {factRows.map(f => (
               <div key={f.label} className="flex flex-col-reverse sm:px-8 sm:first:pl-0">
-                <dt className="mt-2 text-[15px] text-muted-foreground">{f.label}</dt>
-                <dd className="font-display text-[44px] leading-none text-foreground">
-                  <NumberTicker value={f.value} className="tabular-nums tracking-[-0.02em] text-foreground" />
-                </dd>
+                <dt className="mt-2 text-[16px] text-muted-foreground">{f.label}</dt>
+                <dd className="font-display text-[44px] leading-none font-medium tracking-[-0.03em] tabular-nums text-foreground">{f.value}</dd>
               </div>
             ))}
           </dl>

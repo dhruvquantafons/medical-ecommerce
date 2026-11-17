@@ -84,7 +84,7 @@ export function Navbar({ onSearchClick }: NavbarProps) {
                     href={href}
                     onClick={() => setMenuOpen(false)}
                     aria-current={isActive(pathname, href) ? 'page' : undefined}
-                    className="border-b border-border py-4 font-display text-[24px] text-foreground aria-[current=page]:text-primary"
+                    className="border-b border-border py-4 font-display text-[26px] font-semibold tracking-[-0.03em] text-foreground aria-[current=page]:text-primary"
                   >
                     {label}
                   </Link>

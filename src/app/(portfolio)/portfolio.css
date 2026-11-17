@@ -1,28 +1,60 @@
 /*
   Company pages: Home, About, Catalog, Team, Salt Inspector.
-  Design rules: changeui.md (calm, clinical-editorial; one violet; Newsreader + Geist;
-  8px controls / 14px cards; borders instead of shadows; one fade-in per section).
 
-  Components are styled with Tailwind utilities. This file only:
+  Direction: precise, luminous, assured, on a light theme. The world is a clean lab bench: white
+  specimen cards on a pale lavender surface, ruled tables, figures in tabular numerals. The logo
+  violet is the one accent.
+  Moment: each formulation's share of active ingredients by weight (ShareBar, FormularyChart),
+  computed from the listed amounts. Signature: small tabular labels and ruled composition tables.
+  Type ("Clinical clean"): Manrope for headings (500 for page and section headings, 600 for card
+  titles; tight at large sizes) and text (16px body,
+  18-20px intro); JetBrains Mono for amounts, CAS numbers, shares and small labels, like a lab report.
+  Scale 12 / 14 / 16 / 20 / 22 / 34 / 44 / 64.
+
+  Components use Tailwind utilities. This file only:
   - remaps tokens the store also uses (accent, muted, fonts, radii) inside [data-portfolio],
     so the store keeps its own values;
-  - sets base type, focus and reduced-motion rules for the company pages.
-  Dialogs, sheets and selects portal into the [data-portfolio] wrapper, so they inherit this too.
+  - defines the tinted band (.pf-tint) and base type, focus, one keyframe and reduced-motion rules.
 
-  Contrast on white: ink #17151f 17.9:1, muted #5a5766 7.0:1, subtle #6e6b7b 5.2:1,
-  brand #3d2e86 11.0:1, input border #8a8698 3.5:1 (non-text, 3:1 needed).
+  Contrast on white: ink #1d1d1f 16.8:1, muted #5e5e66 6.4:1, subtle #6a6a70 5.4:1,
+  brand #3d2e86 11.0:1, input border #8a8698 3.5:1. On the tint #f3f1fa: muted 5.8:1, subtle 4.8:1, brand 10.0:1.
+  Share colours: white text on #3d2e86 11:1 and #5f4bd8 5.6:1; ink text on #a597ff 7.4:1 and #d4ccff 12:1.
 */
 
 [data-portfolio] {
-  --color-accent: #f5f4f9;          /* 5% brand tint: the only tinted surface */
-  --color-muted: #f7f6f3;           /* shadcn bg-muted = surface */
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-display: var(--font-newsreader), Georgia, serif;
+  --color-background: #ffffff;
+  --color-foreground: #1d1d1f;
+  --color-primary: #3d2e86;
+  --color-primary-hover: #2a1f66;
+  --color-primary-foreground: #ffffff;
+  --color-muted-foreground: #5e5e66;
+  --color-subtle: #6a6a70;
+  --color-surface: #f6f5fa;
+  --color-tint: #f3f1fa;
+  --color-secondary: #f6f5fa;
+  --color-accent: #eceaf4;          /* raised: hover and selected rows */
+  --color-accent-foreground: #17151f;
+  --color-muted: #f6f5fa;
+  --color-border: #e5e1ef;
+  --color-input: #8a8698;
+  --color-card: #ffffff;
+  --color-card-foreground: #17151f;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #17151f;
+  /* Ingredient shares, deepest first. Each colour marks one ingredient row of a product. */
+  --share-1: #3d2e86;
+  --share-2: #5f4bd8;
+  --share-3: #a597ff;
+  --share-4: #d4ccff;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 14px;
-  --radius-xl: 14px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 
   font-family: var(--font-sans);
   background: var(--color-background);
@@ -38,7 +70,10 @@
 [data-portfolio] main { flex: 1; }
 [data-portfolio] main:focus { outline: none; }
 
-/* Defaults go in Tailwind's base layer so utility classes (font-sans, border-primary, …) override them.
+/* A pale lavender band for page headers and feature sections. */
+[data-portfolio] .pf-tint { background-color: var(--color-tint); }
+
+/* Defaults go in Tailwind's base layer so utility classes override them.
    Unlayered rules would beat every utility regardless of specificity. */
 @layer base {
   /* shadcn's bare `border` classes take this colour (zero specificity, so explicit colours win). */
@@ -46,16 +81,20 @@
     border-color: var(--color-border);
   }
 
-  /* Marketing headings: Newsreader 500, -0.02em, one colour. Zero specificity so utility classes override. */
-  :where([data-portfolio]) :where(h1, h2) {
+  /* Page and section headings: Manrope 500, tight at large sizes. Card titles use 600. The [data-portfolio] prefix outranks Tailwind's
+     preflight (which resets heading weight); utility classes still override, being in a later layer. */
+  [data-portfolio] :where(h1, h2) {
     font-family: var(--font-display);
     font-weight: 500;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     color: var(--color-foreground);
     text-wrap: balance;
   }
   :where([data-portfolio]) :where(h3) { text-wrap: balance; }
 }
+
+/* Figures line up in columns. */
+[data-portfolio] .font-mono { font-variant-numeric: tabular-nums; letter-spacing: 0; }
 
 /* One visible focus ring for every interactive element. */
 [data-portfolio] :focus-visible {
@@ -63,11 +102,22 @@
   outline-offset: 2px;
 }
 
+/* Share bars fill once from the left when they first appear: transform only. */
+@keyframes pf-bar-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+[data-portfolio] .pf-bar-in {
+  transform-origin: left center;
+  animation: pf-bar-in 700ms var(--ease-out-soft) 150ms both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-portfolio] *,
   [data-portfolio] *::before,
   [data-portfolio] *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;

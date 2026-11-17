@@ -14,18 +14,20 @@ export default async function SaltInspectorPage({ searchParams }: PageProps<'/po
   const initialId = typeof sp.item === 'string' ? sp.item : undefined;
 
   return (
-    <Container className="py-16 md:py-24">
-      <Reveal>
-        <SectionHeading
-          as="h1"
-          id="pf-page-title"
-          eyebrow="Composition"
-          title="Salt Inspector"
-          lead="Choose a product to see each active ingredient it contains, the amount per unit, what it does and its CAS registry number."
-          className="mb-10"
-        />
+    <section className="border-b border-border bg-tint">
+      <Container className="pt-16 pb-20 md:pt-24 md:pb-28">
+        <Reveal>
+          <SectionHeading
+            as="h1"
+            id="pf-page-title"
+            eyebrow="Composition, ingredient by ingredient"
+            title="Salt Inspector"
+            lead="Choose a product to see each active ingredient it contains, its share by weight, its amount per unit, what it does and its CAS registry number."
+            className="mb-14"
+          />
+        </Reveal>
         <SaltInspector items={items} initialId={initialId} />
-      </Reveal>
-    </Container>
+      </Container>
+    </section>
   );
 }

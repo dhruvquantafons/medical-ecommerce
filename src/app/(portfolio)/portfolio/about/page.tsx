@@ -12,5 +12,5 @@ export const metadata: Metadata = {
 
 export default async function PortfolioAboutPage() {
   const [items, products, collections] = await Promise.all([getCatalogItems(), getProducts({}), getCategories()]);
-  return <AboutPage products={products} tiles={buildRangeTiles(collections, products, items)} />;
+  return <AboutPage items={items} products={products} tiles={buildRangeTiles(collections, products, items)} />;
 }

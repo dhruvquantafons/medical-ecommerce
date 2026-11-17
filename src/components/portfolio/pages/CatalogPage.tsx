@@ -75,74 +75,81 @@ export function CatalogPage({ items, initial }: { items: CatalogItem[]; initial:
   const clear = () => { setQuery(''); setType('all'); setForm(ALL_FORMS); };
 
   return (
-    <Container className="py-16 md:py-24">
-      <Reveal>
-        <SectionHeading
-          as="h1"
-          id="pf-page-title"
-          title="Product catalog"
-          lead={`All ${items.length} formulations we make, with the active ingredients in each. Select a product to see its full composition.`}
-        />
+    <>
+      <section aria-labelledby="pf-page-title" className="border-b border-border bg-tint">
+        <Container className="pt-16 pb-10 md:pt-24">
+          <Reveal>
+            <SectionHeading
+              as="h1"
+              id="pf-page-title"
+              eyebrow={`Digital catalog · ${items.length} formulations`}
+              title="Product catalog"
+              lead="Every formulation we make, prescription and over the counter, with the active ingredients and amount per unit of each. Select a product for its full composition."
+            />
+          </Reveal>
 
-        <div className="mt-10 flex flex-col gap-4 border-y border-border py-4 lg:flex-row lg:items-end">
-          <div className="grid gap-2 lg:w-80">
-            <Label htmlFor="pf-catalog-search" className="text-sm text-muted-foreground">Search</Label>
-            <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-              <Input
-                id="pf-catalog-search"
-                type="search"
-                placeholder="Product or ingredient"
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                className="pl-9"
-              />
+          <div className="mt-12 flex flex-col gap-4 border-t border-border pt-6 lg:flex-row lg:items-end">
+            <div className="grid gap-2 lg:w-80">
+              <Label htmlFor="pf-catalog-search" className="text-sm font-normal text-muted-foreground">Search</Label>
+              <div className="relative">
+                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+                <Input
+                  id="pf-catalog-search"
+                  type="search"
+                  placeholder="Product or ingredient"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <span id="pf-type-label" className="text-sm text-muted-foreground">Type</span>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                value={type}
+                onValueChange={v => setType((v || 'all') as TypeFilter)}
+                aria-labelledby="pf-type-label"
+                className="h-11"
+              >
+                {([['all', 'All'], ['rx', 'Prescription'], ['otc', 'Over the counter']] as const).map(([v, label]) => (
+                  <ToggleGroupItem
+                    key={v}
+                    value={v}
+                    className="h-11 px-3 text-[16px] sm:px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                  >
+                    {label}
+                    <span className="ml-1.5 hidden tabular-nums text-[12px] opacity-80 sm:inline">{counts[v]}</span>
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+
+            <div className="grid gap-2 lg:w-48">
+              <Label htmlFor="pf-form-select" className="text-sm font-normal text-muted-foreground">Form</Label>
+              <Select value={form} onValueChange={setForm}>
+                <SelectTrigger id="pf-form-select" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_FORMS}>All forms</SelectItem>
+                  {forms.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        </Container>
+      </section>
 
-          <div className="grid gap-2">
-            <span id="pf-type-label" className="text-sm font-medium text-muted-foreground">Type</span>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={type}
-              onValueChange={v => setType((v || 'all') as TypeFilter)}
-              aria-labelledby="pf-type-label"
-              className="h-11"
-            >
-              {([['all', 'All'], ['rx', 'Prescription'], ['otc', 'Over the counter']] as const).map(([v, label]) => (
-                <ToggleGroupItem
-                  key={v}
-                  value={v}
-                  className="h-11 px-3 text-[15px] sm:px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                >
-                  {label}
-                  <span className="ml-1 hidden font-mono text-[13px] opacity-80 sm:inline">{counts[v]}</span>
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </div>
-
-          <div className="grid gap-2 lg:w-48">
-            <Label htmlFor="pf-form-select" className="text-sm text-muted-foreground">Form</Label>
-            <Select value={form} onValueChange={setForm}>
-              <SelectTrigger id="pf-form-select" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_FORMS}>All forms</SelectItem>
-                {forms.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <p className="mt-6 text-[15px] text-muted-foreground" aria-live="polite">
+      <Container className="pt-8 pb-20 md:pb-28">
+        <p className="tabular-nums text-[12px] text-subtle" aria-live="polite">
           Showing {filtered.length} of {items.length} {items.length === 1 ? 'product' : 'products'}
         </p>
 
         {filtered.length === 0 ? (
-          <div className="mt-8 rounded-lg border border-border bg-surface px-6 py-14 text-center">
+          <div className="mt-8 rounded-2xl border border-border bg-surface px-6 py-16 text-center">
             <h2 className="text-[24px]">No products match these filters</h2>
             <p className="mt-2 text-muted-foreground">Try an ingredient name, or clear the filters to see everything.</p>
             <Button variant="outline" className="mt-6" onClick={clear}>Clear filters</Button>
@@ -150,14 +157,14 @@ export function CatalogPage({ items, initial }: { items: CatalogItem[]; initial:
         ) : (
           <>
             <h2 className="sr-only">Products</h2>
-            <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
+            <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {filtered.map(item => (
                 <li key={item.id} className="min-w-0"><CatalogCard item={item} /></li>
               ))}
             </ul>
           </>
         )}
-      </Reveal>
-    </Container>
+      </Container>
+    </>
   );
 }
