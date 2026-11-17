@@ -7,6 +7,7 @@ import { RangeSection, type RangeTile } from './RangeSection';
 import { ShopSection } from './ShopSection';
 import { CompositionTeaser } from './CompositionTeaser';
 import { ContactSection } from './ContactSection';
+import { PartnerStrip } from './PartnerStrip';
 
 interface PortfolioHomeProps {
   items: CatalogItem[];
@@ -22,6 +23,8 @@ export function PortfolioHome({ items, bestsellers, heroProducts, areas, hasPres
   return (
     <>
       <HeroSection products={heroProducts} areas={areas} hasPrescription={hasPrescription} facts={facts} />
+      {/* Shows nothing until real partner logos are listed in partner-logos.ts (TODO(owner)). */}
+      <PartnerStrip />
       <RangeSection tiles={tiles} />
       <ShopSection products={bestsellers} />
       <CompositionTeaser items={items} />

@@ -1,44 +1,58 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowRight, RotateCcw, Timer, Truck } from 'lucide-react';
+import { RotateCcw, Timer, Truck } from 'lucide-react';
 import type { Product } from '@/data/types';
 import { site } from '@/config/site';
-import { Section, SectionHeading } from './site';
+import { Section } from './site';
+import { ActionButton, Carousel, SectionHeader } from './kit';
 import { StoreProductCard } from './StoreProductCard';
 
 /**
- * "Shop direct": the store's best sellers (changeui.md, Problem 12). Service facts are only those the
- * store already states (home page delivery line, FAQ, product page).
+ * "Shop direct": the store's best sellers (changeui.md, Problem 12) in a snap carousel that is a
+ * plain row when every card fits. Service facts are only those the store already states (home page
+ * delivery line, FAQ, product page).
  */
 export function ShopSection({ products }: { products: Product[] }) {
   if (products.length === 0) return null;
+  const service = [
+    { Icon: Truck, text: `Free delivery above ₹${site.freeDeliveryAbove}` },
+    { Icon: Timer, text: 'Ships within 24 hours' },
+    { Icon: RotateCcw, text: '7-day returns on unopened products' },
+  ];
+
   return (
     <Section id="shop" labelledBy="pf-shop-title" tone="surface">
-      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
-        <SectionHeading
-          id="pf-shop-title"
-          title="Best sellers in our store"
-          lead="Part of the range is sold direct across India, with prices in rupees."
-        />
-        <Link href="/shop" className="inline-flex items-center gap-2 rounded-sm text-[16px] font-medium text-primary underline underline-offset-4">
-          Shop all products
-          <ArrowRight className="size-4" aria-hidden="true" />
-        </Link>
-      </div>
+      <SectionHeader
+        id="pf-shop-title"
+        title="Best sellers in our store"
+        lead="Part of the range is sold direct across India, with prices in rupees."
+        actions={
+          <ActionButton asChild variant="secondary" arrow>
+            <Link href="/shop">Shop all products</Link>
+          </ActionButton>
+        }
+      />
 
-      <ul className="mt-12 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+      <Carousel
+        label="Best sellers"
+        className="mt-12"
+        itemClassName="basis-[76%] sm:basis-[calc((100%-24px)/2)] lg:basis-[calc((100%-72px)/4)]"
+      >
         {products.map(p => (
-          <li key={p.id} className="min-w-0">
-            <StoreProductCard product={p} />
+          <StoreProductCard key={p.id} product={p} />
+        ))}
+      </Carousel>
+
+      <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        {service.map(({ Icon, text }) => (
+          <li key={text} className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3.5 text-[15px] text-foreground">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#efebfd] text-primary" aria-hidden="true">
+              <Icon className="size-[18px]" strokeWidth={1.6} />
+            </span>
+            {text}
           </li>
         ))}
-      </ul>
-
-      <ul className="mt-12 grid grid-cols-1 gap-4 border-t border-border pt-6 text-[16px] text-muted-foreground sm:grid-cols-3">
-        <li className="flex items-center gap-2"><Truck className="size-[18px] text-subtle" strokeWidth={1.5} aria-hidden="true" />Free delivery above ₹{site.freeDeliveryAbove}</li>
-        <li className="flex items-center gap-2"><Timer className="size-[18px] text-subtle" strokeWidth={1.5} aria-hidden="true" />Ships within 24 hours</li>
-        <li className="flex items-center gap-2"><RotateCcw className="size-[18px] text-subtle" strokeWidth={1.5} aria-hidden="true" />7-day returns on unopened products</li>
       </ul>
     </Section>
   );

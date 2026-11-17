@@ -1,42 +1,56 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ClipboardCheck, Droplets, ScanSearch, Waves } from 'lucide-react';
 import type { Product } from '@/data/types';
 import type { CatalogItem } from '@/lib/catalog-item-types';
-import { Button } from '../ui/button';
-import { Container, Label, Reveal, Section, SectionHeading } from '../site';
+import { Container, Section } from '../site';
 import { RangeSection, type RangeTile } from '../RangeSection';
+import { DotPattern } from '../ui/dot-pattern';
 import { BRAND, CONTACT_HREF, isPrescription } from '../copy';
+import { ActionButton, Badge, Card, CountUp, MoleculeField, Reveal, SectionHeader, SectionNav, Timeline, type TimelineItem } from '../kit';
 
 /*
   About (changeui.md, Problem 16). Every statement below comes from earlier site copy or the
   product data; the owner should confirm the process steps.
   TODO(owner): where the company is based, and a photograph of the facility or team for the intro.
   TODO(owner): licence and certification numbers (add them to "At a glance" once supplied).
-  TODO(owner): real milestones with dates.
+  TODO(owner): real milestones with dates. The Timeline component takes a `meta` line for the date,
+  so a "Milestones" section can reuse it once there are facts to show.
   Removed: the four unsourced statistics, the three tabs, the pharmacy chains named as
   collaborators, the "Verified Standard" cards and the DNA animation.
 */
 
-const STEPS = [
+const STEPS: TimelineItem[] = [
   {
     title: 'Identifying each ingredient',
+    icon: ScanSearch,
     body: 'Each active ingredient is identified by its Chemical Abstracts Service (CAS) registry number. Anyone can use that number to check exactly which substance a formulation contains.',
   },
   {
     title: 'Testing the active salts',
+    icon: Waves,
     body: 'We verify the active salts in our formulations by spectrometry. The results are kept as a spectrometry log for each formulation.',
   },
   {
     title: 'Checking absorption',
+    icon: Droplets,
     body: 'Formulations are tested for bio-equivalence, meaning how well the body absorbs them, and for side effects.',
   },
   {
     title: 'Quality review',
+    icon: ClipboardCheck,
     body: 'Our quality assurance team checks every formulation against its CAS registration numbers, its spectrometry logs and our batch purity standards.',
   },
 ];
+
+const NAV = [
+  { id: 'range', label: 'What we make' },
+  { id: 'process', label: 'How we check our products' },
+  { id: 'next', label: 'See the full range' },
+];
+
+const rise = (ms: number): React.CSSProperties => ({ animationDelay: `${ms}ms` });
 
 interface AboutPageProps {
   items: CatalogItem[];
@@ -59,105 +73,119 @@ export function AboutPage({ items, products, tiles }: AboutPageProps) {
 
   return (
     <>
-      <section aria-labelledby="pf-page-title" className="border-b border-border bg-tint">
-        <Container className="py-16 md:py-28">
-          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
-            <Reveal>
-              <SectionHeading as="h1" id="pf-page-title" title={`About ${BRAND}`} />
-              <div className="mt-8 max-w-[56ch] space-y-5 text-[18px] leading-[1.6] text-muted-foreground md:text-[20px]">
-                <p>
-                  <span className="text-foreground">{BRAND} is a pharmaceutical and nutraceutical company.</span> We make our own
-                  formulations, from prescription medicines to daily supplements, and sell part of the range direct through our
-                  online store.
-                </p>
-                <p>
-                  We publish the full composition of every product, with each active ingredient and its amount per unit, so patients,
-                  doctors and pharmacists can see what a product contains.
-                </p>
-              </div>
-            </Reveal>
+      {/* Editorial hero: the name set large, the two-paragraph introduction, the figures beside it. */}
+      <section aria-labelledby="pf-page-title" className="relative isolate overflow-hidden border-b border-border bg-white">
+        <DotPattern
+          width={22}
+          height={22}
+          cr={1.1}
+          aria-hidden="true"
+          className="-z-10 text-[#ddd8ea] [mask-image:radial-gradient(ellipse_at_top_right,black_0%,transparent_50%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute right-[-10%] bottom-[-20%] -z-10 h-[80%] w-[60%] bg-[radial-gradient(closest-side,#eee9ff_0%,rgba(238,233,255,0.5)_45%,transparent_100%)]"
+        />
+        <MoleculeField className="-z-10 opacity-70 max-md:opacity-40" />
 
-            <Reveal delay={0.12}>
-              <figure className="rounded-2xl border border-border bg-background p-5 shadow-[0_24px_64px_-32px_rgba(39,28,94,0.22)] sm:p-8">
+        <Container className="relative pt-16 pb-16 md:pt-24 md:pb-24">
+          <h1
+            id="pf-page-title"
+            className="pf-rise max-w-[14ch] text-[48px] leading-[1] tracking-[-0.04em] sm:text-[64px] lg:text-[88px] lg:leading-[0.98] lg:tracking-[-0.045em]"
+            style={rise(0)}
+          >
+            About <span className="text-primary">{BRAND}</span>
+          </h1>
+
+          <div className="mt-12 grid grid-cols-1 gap-12 border-t border-foreground/70 pt-10 lg:mt-16 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
+            <div className="pf-rise max-w-[58ch] space-y-6" style={rise(120)}>
+              <p className="text-[20px] leading-[1.55] text-muted-foreground md:text-[24px] md:leading-[1.5]">
+                <span className="text-foreground">{BRAND} is a pharmaceutical and nutraceutical company.</span> We make our own
+                formulations, from prescription medicines to daily supplements, and sell part of the range direct through our
+                online store.
+              </p>
+              <p className="text-[18px] leading-[1.6] text-muted-foreground">
+                We publish the full composition of every product, with each active ingredient and its amount per unit, so patients,
+                doctors and pharmacists can see what a product contains.
+              </p>
+            </div>
+
+            <Card elevation={2} asChild className="pf-rise rounded-[20px] p-5 sm:p-7">
+              <figure style={rise(220)}>
                 <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <span className="font-display text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground">At a glance</span>
-                  <Label>From this site&apos;s product data</Label>
+                  <span className="font-display text-[24px] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground">At a glance</span>
+                  <span className="text-[13px] text-subtle">From this site&apos;s product data</span>
                 </figcaption>
-                <dl className="mt-6 grid grid-cols-2 border-t border-foreground/70">
+                <dl className="mt-5 grid grid-cols-2 gap-3">
                   {glance.map((r, i) => (
-                    <div
-                      key={r.label}
-                      className={`flex flex-col-reverse justify-end border-b border-border py-5 ${i % 2 === 1 ? 'border-l pl-5' : 'pr-5'}`}
-                    >
-                      <dt className="mt-2 text-[12px] leading-5 text-muted-foreground">{r.label}</dt>
-                      <dd className="font-display text-[56px] leading-[1.1] font-semibold tracking-[-0.03em] tabular-nums text-foreground">{r.value}</dd>
+                    <div key={r.label} className="flex flex-col-reverse justify-end rounded-xl border border-border bg-[#faf9fd] p-4">
+                      <dt className="mt-2 text-[13px] leading-5 text-muted-foreground">{r.label}</dt>
+                      <dd className="font-display text-[44px] leading-none font-medium tracking-[-0.035em] text-foreground sm:text-[52px]">
+                        <CountUp value={r.value} duration={1300} delay={400 + i * 90} />
+                      </dd>
                     </div>
                   ))}
                 </dl>
                 {forms.length > 0 && (
-                  <div className="pt-5">
-                    <Label>Dosage forms</Label>
-                    <ul className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-5 border-t border-border pt-4">
+                    <p className="text-[13px] font-semibold text-foreground">Dosage forms</p>
+                    <ul className="mt-2.5 flex flex-wrap gap-2">
                       {forms.map(f => (
-                        <li key={f} className="rounded-[4px] border border-border px-2 py-0.5 text-[14px] text-foreground first-letter:uppercase">
-                          {f}
+                        <li key={f}>
+                          <Badge>{f.charAt(0).toUpperCase() + f.slice(1)}</Badge>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
               </figure>
-            </Reveal>
+            </Card>
           </div>
         </Container>
       </section>
 
-      <RangeSection tiles={tiles} tone="surface" showAboutLink={false} />
+      <SectionNav items={NAV} />
 
-      <Section labelledBy="pf-process-title">
-        <div className="grid grid-cols-1 items-end gap-6 lg:grid-cols-2 lg:gap-16">
-          <SectionHeading id="pf-process-title" title="How we check our products" />
-          <p className="max-w-[44ch] text-[18px] leading-[1.6] text-muted-foreground md:text-[20px] lg:justify-self-end">
-            The checks a formulation goes through, in order.
-          </p>
+      <Reveal>
+        <RangeSection tiles={tiles} tone="surface" showAboutLink={false} />
+      </Reveal>
+
+      <Section id="process" labelledBy="pf-process-title">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          {/* The heading stays in view (below the header and section bar) while the steps scroll past. */}
+          <Reveal className="lg:sticky lg:top-40 lg:self-start">
+            <SectionHeader
+              id="pf-process-title"
+              layout="stack"
+              title="How we check our products"
+              lead="The checks a formulation goes through, in order."
+            />
+          </Reveal>
+          <Timeline items={STEPS} label="Checks, in order" />
         </div>
-        <ol className="mt-14 grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((step, i) => (
-            <li key={step.title}>
-              {/* Track: a node and a line running to the next step, like a protocol sheet. */}
-              <div className="flex items-center gap-3" aria-hidden="true">
-                <span className="flex size-8 items-center justify-center rounded-[6px] bg-primary text-[12px] font-semibold tabular-nums text-primary-foreground">
-                  {i + 1}
-                </span>
-                <span className="h-px flex-1 bg-foreground/20" />
-              </div>
-              <Label className="mt-6">Step {i + 1} of {STEPS.length}</Label>
-              <h3 className="mt-2 font-display text-[22px] leading-[1.15] font-semibold tracking-[-0.03em]">{step.title}</h3>
-              <p className="mt-3 text-[16px] leading-[1.6] text-muted-foreground">{step.body}</p>
-            </li>
-          ))}
-        </ol>
       </Section>
 
-      <Section labelledBy="pf-next-title" tone="tint">
-        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-8">
-          <SectionHeading
-            id="pf-next-title"
-            title="See the full range"
-            lead="Browse every formulation with its composition, or get in touch about stocking our products."
-          />
-          <div className="flex flex-wrap gap-3">
-            <Button asChild>
-              <Link href="/portfolio/catalog">
-                Browse the catalog
-                <ArrowRight aria-hidden="true" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href={CONTACT_HREF}>Contact us</Link>
-            </Button>
-          </div>
-        </div>
+      <Section id="next" labelledBy="pf-next-title" tone="tint">
+        <Reveal>
+          <Card elevation={2} className="relative isolate overflow-hidden rounded-[28px] px-6 py-12 sm:px-12 sm:py-16">
+            <MoleculeField className="-z-10 opacity-40" />
+            <SectionHeader
+              id="pf-next-title"
+              title="See the full range"
+              lead="Browse every formulation with its composition, or get in touch about stocking our products."
+              actions={
+                <>
+                  <ActionButton asChild size="lg" arrow>
+                    <Link href="/portfolio/catalog">Browse the catalog</Link>
+                  </ActionButton>
+                  <ActionButton asChild size="lg" variant="secondary">
+                    <Link href={CONTACT_HREF}>Contact us</Link>
+                  </ActionButton>
+                </>
+              }
+            />
+          </Card>
+        </Reveal>
       </Section>
     </>
   );
