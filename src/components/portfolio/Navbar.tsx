@@ -1,144 +1,105 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
-import { Search, Menu, X, ArrowRight } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { ArrowRight, Menu, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import { Logo } from './Logo';
+import { NAV_LINKS } from './copy';
 
 interface NavbarProps {
   onSearchClick: () => void;
 }
 
+function isActive(pathname: string, href: string): boolean {
+  if (href === '/') return pathname === '/' || pathname === '/portfolio';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** Solid white header with a bottom border: 64px desktop, 56px mobile. No blur, no gradient. */
 export function Navbar({ onSearchClick }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const currentPage = pathname.includes('/catalog')
-    ? 'catalog'
-    : pathname.includes('/team')
-    ? 'team'
-    : pathname.includes('/about')
-    ? 'about'
-    : 'home';
-
-  const navTo = (path: string) => {
-    setMobileMenuOpen(false);
-    router.push(path);
-  };
-
-  const scrollToAnchor = (anchor: string) => {
-    setMobileMenuOpen(false);
-    if (pathname !== '/portfolio') {
-      router.push(`/portfolio#${anchor}`);
-    } else {
-      const el = document.getElementById(anchor);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        padding: scrolled ? '8px 20px' : '12px 24px',
-        transition: 'all 0.3s ease',
-        background: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.6)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: scrolled ? '1px solid rgba(226,232,240,0.8)' : '1px solid rgba(226,232,240,0.4)',
-      }}
-    >
-      <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <Image src="/brand/logo.png" alt="SYNCYTIUM Health" width={360} height={150} className="pf-navbar-logo" style={{ height: '105px', width: 'auto', marginTop: '-22px', marginBottom: '-22px' }} priority />
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
+      <div className="mx-auto flex h-14 w-full max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6 md:h-16">
+        <Link href="/" className="shrink-0 rounded-md" aria-label="Syncytium Health home">
+          <Logo height={30} priority />
         </Link>
 
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }} className="pf-desktop-nav">
-          {[
-            { label: 'Home', page: 'home', href: '/portfolio' },
-            { label: 'About Us', page: 'about', href: '/portfolio/about' },
-            { label: 'Digital Catalog', page: 'catalog', href: '/portfolio/catalog' },
-            { label: 'Team & Employ', page: 'team', href: '/portfolio/team' },
-          ].map(({ label, page, href }) => (
-            <Link key={page} href={href} style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: currentPage === page ? '#7c3aed' : '#475569',
-              fontWeight: currentPage === page ? 800 : 600,
-              fontSize: '0.92rem',
-              position: 'relative',
-              textDecoration: 'none',
-            }}>
-              {label}
-              {currentPage === page && (
-                <span style={{ position: 'absolute', bottom: '-4px', left: 0, right: 0, height: '2px', background: '#7c3aed', borderRadius: '1px' }} />
-              )}
-            </Link>
-          ))}
-          <button onClick={() => scrollToAnchor('salt-inspector')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#475569', fontWeight: 600, fontSize: '0.92rem' }}>
-            Salt Inspector
-          </button>
+        <nav aria-label="Main" className="hidden lg:block">
+          <ul className="flex items-center gap-1">
+            {NAV_LINKS.map(({ label, href }) => {
+              const active = isActive(pathname, href);
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    aria-current={active ? 'page' : undefined}
+                    className={cn(
+                      'inline-flex h-11 items-center rounded-md px-3 text-[15px] transition-colors',
+                      active ? 'font-medium text-foreground underline decoration-primary decoration-2 underline-offset-8' : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button onClick={onSearchClick} className="glass-button-secondary" style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '9999px' }} aria-label="Search Salts">
-            <Search size={16} color="#7c3aed" />
-            <span className="pf-search-text">Search Salts</span>
-          </button>
-          <Link href="/store" className="glass-button pf-header-get-started" style={{ padding: '9px 18px', fontSize: '0.85rem', textDecoration: 'none' }}>
-            <span>Get Started</span>
-            <ArrowRight size={14} />
-          </Link>
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#0f172a', cursor: 'pointer', display: 'none', width: '38px', height: '38px', borderRadius: '10px', alignItems: 'center', justifyContent: 'center', padding: 0 }} className="pf-mobile-btn" aria-label="Toggle Navigation Menu">
-            {mobileMenuOpen ? <X size={22} color="#0f172a" /> : <Menu size={22} color="#0f172a" />}
-          </button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={onSearchClick} aria-label="Search products">
+            <Search className="size-5" aria-hidden="true" />
+          </Button>
+          <Button asChild className="hidden sm:inline-flex">
+            <Link href="/store">
+              Shop
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          </Button>
+
+          {/* Mobile menu: shadcn sheet with large plain links (changeui.md, Problem 04). */}
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+                <Menu className="size-5" aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full max-w-sm gap-0 p-0">
+              <SheetHeader className="h-14 justify-center border-b border-border px-4">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
+                <SheetDescription className="sr-only">Site navigation</SheetDescription>
+                <Logo height={26} />
+              </SheetHeader>
+              <nav aria-label="Main" className="flex flex-col px-4 py-4">
+                {NAV_LINKS.map(({ label, href }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    aria-current={isActive(pathname, href) ? 'page' : undefined}
+                    className="border-b border-border py-4 font-display text-[26px] font-semibold tracking-[-0.03em] text-foreground aria-[current=page]:text-primary"
+                  >
+                    {label}
+                  </Link>
+                ))}
+                <Button asChild className="mt-6">
+                  <Link href="/store" onClick={() => setMenuOpen(false)}>
+                    Shop the store
+                    <ArrowRight aria-hidden="true" />
+                  </Link>
+                </Button>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-
-      {mobileMenuOpen && (
-        <div style={{ marginTop: '12px', background: '#ffffff', borderRadius: '18px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {[
-            { label: 'Home', href: '/portfolio' },
-            { label: 'About Us', href: '/portfolio/about' },
-            { label: 'Digital Catalog', href: '/portfolio/catalog' },
-            { label: 'Team & Employ', href: '/portfolio/team' },
-          ].map(({ label, href }) => (
-            <button key={href} onClick={() => navTo(href)} style={{ background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px', padding: '10px 14px', color: '#0f172a', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', textAlign: 'left' }}>
-              {label}
-            </button>
-          ))}
-          <button onClick={() => scrollToAnchor('salt-inspector')} style={{ background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px', padding: '10px 14px', color: '#0f172a', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', textAlign: 'left' }}>
-            Salt Inspector
-          </button>
-          <Link href="/store" onClick={() => setMobileMenuOpen(false)} className="glass-button" style={{ padding: '12px 20px', fontSize: '0.95rem', justifyContent: 'center', textDecoration: 'none', marginTop: '4px' }}>
-            <span>Get Started</span>
-            <ArrowRight size={16} />
-          </Link>
-        </div>
-      )}
-
-      <style>{`
-        @media (max-width: 900px) {
-          .pf-desktop-nav { display: none !important; }
-          .pf-mobile-btn { display: flex !important; }
-          .pf-search-text { display: none !important; }
-        }
-        @media (max-width: 640px) {
-          .pf-header-get-started { display: none !important; }
-        }
-      `}</style>
     </header>
   );
 }

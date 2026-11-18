@@ -1,200 +1,346 @@
 "use client";
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { ToggleGroup } from 'radix-ui';
+import { LayoutGrid, List, PackageSearch, Search, X } from 'lucide-react';
 import type { CatalogItem } from '@/lib/catalog-item-types';
 import { parseSalts } from '@/lib/catalog-item-types';
-import { MedicineModal } from '../MedicineModal';
-import { Search, ShieldCheck, Eye, Star, Sparkles, ArrowLeft, FlaskConical, Pill, Leaf } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Container } from '../site';
+import { CatalogCard } from '../CatalogCard';
+import { usePortfolio } from '../PortfolioContext';
+import { isPrescription } from '../copy';
+import { ActionButton, Backdrop, Card, CountUp, SectionHeader } from '../kit';
 
-const CATEGORY_META: Record<string, { color: string; bg: string; icon: React.ReactNode }> = {
-  'Prescription (Rx)':       { color: '#6366f1', bg: 'rgba(99,102,241,0.08)',  icon: <Pill size={18} /> },
-  'Over-The-Counter (OTC)':  { color: '#10b981', bg: 'rgba(16,185,129,0.08)',  icon: <ShieldCheck size={18} /> },
-  'Biotech Formulations':    { color: '#ec4899', bg: 'rgba(236,72,153,0.08)',  icon: <FlaskConical size={18} /> },
-  'Nutraceuticals':          { color: '#f59e0b', bg: 'rgba(245,158,11,0.08)',  icon: <Leaf size={18} /> },
-};
+/*
+  Catalogue index (changeui.md, Problem 18, part B), kept at its current URL.
+  Filters are mirrored in the query string (?q=, ?type=rx|otc, ?form=) so a view can be shared;
+  ?item=<id> opens that product's details.
+  Removed: the count cards, the card around the search box, "Certified" ticks, star ratings,
+  review counts, "Bio:" figures and coloured top borders.
 
-function hexToRgb(hex: string) {
-  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!r) return '99,102,241';
-  return `${parseInt(r[1], 16)},${parseInt(r[2], 16)},${parseInt(r[3], 16)}`;
+  2026-11-17 restyle: the filter logic, URL sync and ?item= handling below are unchanged. Added
+  view-only controls: a sticky toolbar, removable chips for the active filters (each sets the same
+  state as its control), a grid/list view toggle, and "Show more" when there are more than
+  PAGE_SIZE results. None of them change which products match.
+*/
+
+type TypeFilter = 'all' | 'rx' | 'otc';
+type Layout = 'grid' | 'list';
+const ALL_FORMS = 'all';
+const PAGE_SIZE = 12;
+const EASE = [0.16, 1, 0.3, 1] as const;
+const TYPE_LABELS: Record<TypeFilter, string> = { all: 'All', rx: 'Prescription', otc: 'Over the counter' };
+
+export interface CatalogFilters {
+  q?: string;
+  type?: string;
+  form?: string;
+  item?: string;
 }
 
-function MedicineCard({ item, idx, onSelect, onAddToCart, accentColor }: { item: CatalogItem; idx: number; onSelect: () => void; onAddToCart: () => void; accentColor: string }) {
-  const salts = parseSalts(item.salts);
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.25) }}
-      whileHover={{ y: -4, boxShadow: '0 12px 36px rgba(0,0,0,0.10)' }}
-      style={{ padding: '24px', borderRadius: '20px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-    >
-      <div style={{ height: '4px', borderRadius: '4px 4px 0 0', background: item.imageGradient || `#${accentColor}`, marginBottom: '18px', marginLeft: '-24px', marginRight: '-24px', marginTop: '-24px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }} />
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '3px 10px', borderRadius: '8px', background: `rgba(${hexToRgb(accentColor)}, 0.1)`, color: accentColor, border: `1px solid rgba(${hexToRgb(accentColor)}, 0.2)`, letterSpacing: '0.04em' }}>{item.dosageForm}</span>
-          {item.googleIndexed && <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: '#10b981', fontWeight: 700 }}><ShieldCheck size={13} /><span>Certified</span></div>}
-        </div>
-        <div style={{ width: '100%', aspectRatio: '1/1', maxHeight: '180px', borderRadius: '12px', overflow: 'hidden', marginBottom: '14px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {item.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          )}
-        </div>
-        <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', marginBottom: '3px', lineHeight: 1.3 }}>{item.name}</h3>
-        <div style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '14px' }}>By {item.brand}</div>
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Active Salts</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-            {salts.slice(0, 2).map((salt, i) => (
-              <span key={i} style={{ fontSize: '0.72rem', background: '#f8fafc', color: '#334155', padding: '3px 9px', borderRadius: '6px', border: '1px solid #e2e8f0', fontWeight: 600 }}>{salt.name} ({salt.amount})</span>
-            ))}
-            {salts.length > 2 && <span style={{ fontSize: '0.72rem', color: '#94a3b8', padding: '3px 6px', fontWeight: 600 }}>+{salts.length - 2} more</span>}
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '0.82rem', color: '#64748b', marginBottom: '18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#f59e0b', fontWeight: 700 }}><Star size={13} fill="#f59e0b" /><span>{item.rating}</span><span style={{ color: '#94a3b8', fontWeight: 400 }}>({item.reviewsCount})</span></div>
-          <div>Bio: <strong style={{ color: accentColor }}>{item.bioavailability}</strong></div>
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
-          <button onClick={onSelect} className="glass-button" style={{ padding: '7px 14px', fontSize: '0.8rem' }}><Eye size={14} /><span>View Details</span></button>
-      </div>
-    </motion.div>
-  );
-}
+export function CatalogPage({ items, initial }: { items: CatalogItem[]; initial: CatalogFilters }) {
+  const { openItem } = usePortfolio();
+  const [query, setQuery] = useState(initial.q ?? '');
+  const [type, setType] = useState<TypeFilter>(initial.type === 'rx' || initial.type === 'otc' ? initial.type : 'all');
+  const [form, setForm] = useState(initial.form ?? ALL_FORMS);
+  const [layout, setLayout] = useState<Layout>('grid');
 
-interface CatalogPageProps {
-  items: CatalogItem[];
-}
-
-export function CatalogPage({ items }: CatalogPageProps) {
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const handleAddToCart = (item: CatalogItem) => {
-    setToastMessage(`Selected "${item.name}" for SYNCYTIUM Health digital store!`);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
-
-  // Derive categories from live data
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(items.map(i => i.category)));
-    return ['All', ...cats];
+  const forms = useMemo(() => Array.from(new Set(items.map(i => i.dosageForm))).sort(), [items]);
+  const counts = useMemo(() => {
+    const rx = items.filter(i => isPrescription(i.category)).length;
+    return { all: items.length, rx, otc: items.length - rx };
   }, [items]);
 
-  const filteredItems = useMemo(() => items.filter(item => {
-    const salts = parseSalts(item.salts);
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      salts.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCat = activeFilter === 'All' || item.category === activeFilter;
-    return matchesSearch && matchesCat;
-  }), [items, searchQuery, activeFilter]);
-
-  const grouped = useMemo(() => {
-    const groups: Record<string, CatalogItem[]> = {};
-    categories.filter(c => c !== 'All').forEach(cat => {
-      const meds = filteredItems.filter(m => m.category === cat);
-      if (meds.length > 0) groups[cat] = meds;
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items.filter(item => {
+      const rx = isPrescription(item.category);
+      if (type === 'rx' && !rx) return false;
+      if (type === 'otc' && rx) return false;
+      if (form !== ALL_FORMS && item.dosageForm !== form) return false;
+      if (!q) return true;
+      return item.name.toLowerCase().includes(q) || parseSalts(item.salts).some(s => s.name.toLowerCase().includes(q));
     });
-    return groups;
-  }, [filteredItems, categories]);
+  }, [items, query, type, form]);
+
+  // Keep the URL in step with the filters without a navigation.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('q', query.trim());
+    if (type !== 'all') params.set('type', type);
+    if (form !== ALL_FORMS) params.set('form', form);
+    const qs = params.toString();
+    window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+  }, [query, type, form]);
+
+  // Open a product passed as ?item= (e.g. from a shared link).
+  useEffect(() => {
+    const target = initial.item && items.find(i => i.id === initial.item);
+    if (target) openItem(target);
+  }, [initial.item, items, openItem]);
+
+  const clear = () => { setQuery(''); setType('all'); setForm(ALL_FORMS); };
+
+  // "Show more": how many results are shown, reset whenever the filters change.
+  const filterKey = `${query}|${type}|${form}`;
+  const [shown, setShown] = useState({ key: filterKey, limit: PAGE_SIZE });
+  const limit = shown.key === filterKey ? shown.limit : PAGE_SIZE;
+  const visible = filtered.slice(0, limit);
+  const remaining = filtered.length - visible.length;
+
+  // The toolbar gets a shadow once it is stuck under the header.
+  const sentinel = useRef<HTMLDivElement>(null);
+  const [stuck, setStuck] = useState(false);
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setStuck(!e.isIntersecting), { rootMargin: '-72px 0px 0px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const chips = [
+    ...(query.trim() ? [{ key: 'q', label: `“${query.trim()}”`, remove: () => setQuery('') }] : []),
+    ...(type !== 'all' ? [{ key: 'type', label: TYPE_LABELS[type], remove: () => setType('all') }] : []),
+    ...(form !== ALL_FORMS ? [{ key: 'form', label: form, remove: () => setForm(ALL_FORMS) }] : []),
+  ];
 
   return (
-    <div style={{ paddingTop: '106px', paddingBottom: '80px', minHeight: '100vh', background: 'var(--hero-gradient)' }}>
-      {toastMessage && (
-        <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 3000, background: '#ffffff', border: '1px solid #10b981', borderRadius: '16px', padding: '14px 22px', display: 'flex', alignItems: 'center', gap: '12px', color: '#059669', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontWeight: 700, fontSize: '0.9rem' }}>
-          <span>✓ {toastMessage}</span>
-        </div>
-      )}
+    <>
+      <section aria-labelledby="pf-page-title" className="relative isolate overflow-hidden bg-tint">
+        <Backdrop
+          washes={[{ at: 'tr', color: 'violet', size: 0.6 }, { at: 'l', color: 'orchid', size: 0.4 }]}
+          pattern="dots"
+          patternFrom="tr"
+          motif={['c']}
+          motifOpacity={0.55}
+        />
+        <Container className="pt-16 pb-12 md:pt-24 md:pb-16">
+          <SectionHeader
+            as="h1"
+            size="display"
+            id="pf-page-title"
+            title="Product catalog"
+            lead="Every formulation we make, prescription and over the counter, with the active ingredients and amount per unit of each. Select a product for its full composition."
+            className="pf-rise"
+            actions={
+              <p className="rounded-2xl border border-border bg-white px-5 py-4 shadow-[var(--pf-shadow-1)]">
+                <span className="block text-[13px] text-muted-foreground">Digital catalog</span>
+                <span className="mt-1.5 flex items-baseline gap-2">
+                  <span className="font-display text-[40px] leading-none font-medium tracking-[-0.035em] text-foreground">
+                    <CountUp value={items.length} duration={1100} />
+                  </span>
+                  <span className="text-[16px] text-foreground">formulations</span>
+                </span>
+              </p>
+            }
+          />
+        </Container>
+      </section>
 
-      <div style={{ maxWidth: '1320px', margin: '0 auto', padding: '0 24px' }}>
-        <button onClick={() => router.push('/portfolio')} className="glass-button-secondary" style={{ marginBottom: '28px', padding: '8px 16px', fontSize: '0.85rem' }}>
-          <ArrowLeft size={16} /><span>Back to Home</span>
-        </button>
+      <div ref={sentinel} aria-hidden="true" />
 
-        <div style={{ marginBottom: '40px' }}>
-          <div className="glass-pill" style={{ marginBottom: '14px' }}><Sparkles size={14} color="var(--primary-accent)" /><span>Dedicated Digital Medicine Registry</span></div>
-          <h1 className="font-display gradient-text" style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', fontWeight: 800, marginBottom: '12px' }}>
-            Complete Pharmaceutical <span className="gradient-accent-text">Medicine Catalog</span>
-          </h1>
-          <p style={{ color: '#475569', fontSize: '1.05rem', maxWidth: '680px', lineHeight: 1.65 }}>
-            Browse {items.length} certified formulations. Inspect active salt percentages, molecular formulas, and bioavailability indices.
-          </p>
-        </div>
-
-        {/* Category cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '36px' }}>
-          {categories.filter(c => c !== 'All').map(cat => {
-            const meta = CATEGORY_META[cat] ?? { color: '#6366f1', bg: 'rgba(99,102,241,0.08)', icon: <FlaskConical size={18} /> };
-            const count = items.filter(m => m.category === cat).length;
-            const isActive = activeFilter === cat;
-            return (
-              <button key={cat} onClick={() => setActiveFilter(isActive ? 'All' : cat)}
-                style={{ padding: '18px 22px', borderRadius: '16px', background: isActive ? meta.bg : '#ffffff', border: `1.5px solid ${isActive ? meta.color : '#e2e8f0'}`, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: isActive ? `0 6px 24px rgba(${hexToRgb(meta.color)}, 0.18)` : '0 2px 10px rgba(0,0,0,0.03)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: isActive ? meta.color : '#f1f5f9', color: isActive ? '#fff' : meta.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{meta.icon}</div>
-                  <span style={{ fontSize: '1.4rem', fontWeight: 800, color: isActive ? meta.color : '#0f172a' }}>{count}</span>
-                </div>
-                <div style={{ fontSize: '0.9rem', color: '#0f172a', fontWeight: 700 }}>{cat}</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>Click to view formulations</div>
+      {/* Sticky search and filter bar. */}
+      <div
+        className={cn(
+          'sticky top-14 z-30 border-y border-border bg-white transition-shadow duration-300 md:top-16',
+          stuck && 'shadow-[0_10px_24px_-18px_rgba(39,28,94,0.35)]',
+        )}
+      >
+        {/* Phones: search and form, then type. (Grid and list look alike at one column, so the view toggle starts at tablet width.) Wide screens: one row. */}
+        <Container className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 lg:flex lg:gap-4">
+          <div className="relative col-start-1 row-start-1 lg:w-80">
+            <label htmlFor="pf-catalog-search" className="sr-only">Search</label>
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 size-[18px] -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} aria-hidden="true" />
+            <input
+              id="pf-catalog-search"
+              type="search"
+              placeholder="Product or ingredient"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              className="h-11 w-full rounded-[10px] border border-input bg-white pr-10 pl-10 text-[16px] transition-[border-color,box-shadow] duration-200 placeholder:text-subtle hover:border-foreground/60 focus:border-primary focus:shadow-[0_0_0_4px_rgba(61,46,134,0.16)] focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                aria-label="Clear search"
+                className="absolute top-1/2 right-1.5 grid size-8 -translate-y-1/2 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+              >
+                <X className="size-4" aria-hidden="true" />
               </button>
-            );
-          })}
-        </div>
-
-        {/* Search bar */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center', justifyContent: 'space-between', marginBottom: '40px', background: '#ffffff', padding: '16px 22px', borderRadius: '18px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-          <div style={{ position: 'relative', minWidth: '260px' }}>
-            <Search size={15} color="#94a3b8" style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input type="text" placeholder="Search salts, names, brands..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-              style={{ width: '100%', padding: '9px 13px 9px 36px', borderRadius: '12px', background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#0f172a', fontSize: '0.85rem', outline: 'none', fontWeight: 600, boxSizing: 'border-box' }} />
+            )}
           </div>
-          <div style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: 600 }}>Showing <span style={{ color: 'var(--primary-accent)', fontWeight: 800 }}>{filteredItems.length}</span> products</div>
-        </div>
 
-        {filteredItems.length === 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '80px 20px' }}>
-            <FlaskConical size={48} color="#cbd5e1" style={{ marginBottom: '16px' }} />
-            <h3 style={{ color: '#64748b', fontSize: '1.2rem', fontWeight: 700, marginBottom: '8px' }}>No formulations found</h3>
-            <p style={{ color: '#94a3b8' }}>Try a different search term or category.</p>
-          </motion.div>
-        )}
-
-        {activeFilter === 'All' ? (
-          Object.entries(grouped).map(([cat, catItems]) => {
-            const meta = CATEGORY_META[cat] ?? { color: '#6366f1', bg: '', icon: null };
-            return (
-              <div key={cat} style={{ marginBottom: '48px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #e2e8f0' }}>
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: meta.color }} />
-                  <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>{cat}</h2>
-                  <span style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>({catItems.length} products)</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-                  {catItems.map((item, idx) => (
-                    <MedicineCard key={item.id} item={item} idx={idx} onSelect={() => setSelectedItem(item)} onAddToCart={() => handleAddToCart(item)} accentColor={meta.color} />
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-            {filteredItems.map((item, idx) => (
-              <MedicineCard key={item.id} item={item} idx={idx} onSelect={() => setSelectedItem(item)} onAddToCart={() => handleAddToCart(item)} accentColor={CATEGORY_META[item.category]?.color ?? '#6366f1'} />
-            ))}
+          <div className="pf-no-scrollbar relative col-span-2 row-start-2 min-w-0 overflow-x-auto sm:col-span-1 lg:overflow-visible">
+            <span id="pf-type-label" className="sr-only">Type</span>
+            <ToggleGroup.Root
+              type="single"
+              value={type}
+              onValueChange={v => setType((v || 'all') as TypeFilter)}
+              aria-labelledby="pf-type-label"
+              className="flex shrink-0 rounded-xl border border-border bg-surface p-1"
+            >
+              {(['all', 'rx', 'otc'] as const).map(v => (
+                <ToggleGroup.Item
+                  key={v}
+                  value={v}
+                  className={cn(
+                    'relative flex h-9 items-center gap-1.5 rounded-[9px] px-3 text-[14px] font-semibold sm:px-3.5 sm:text-[15px] whitespace-nowrap transition-colors duration-200',
+                    type === v ? 'text-white' : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {type === v && (
+                    <motion.span layoutId="pf-type-pill" className="absolute inset-0 rounded-[9px] bg-primary shadow-[0_4px_10px_-4px_rgba(61,46,134,0.6)]" transition={{ duration: 0.35, ease: EASE }} />
+                  )}
+                  <span className="relative">{TYPE_LABELS[v]}</span>
+                  <span className={cn('relative font-mono text-[12px] tabular-nums', type === v ? 'text-white/80' : 'text-subtle')}>{counts[v]}</span>
+                </ToggleGroup.Item>
+              ))}
+            </ToggleGroup.Root>
           </div>
-        )}
+
+          <div className="col-start-2 row-start-1 w-36 sm:w-44">
+              <label htmlFor="pf-form-select" className="sr-only">Form</label>
+              <Select value={form} onValueChange={setForm}>
+                <SelectTrigger
+                  id="pf-form-select"
+                  className="h-11 w-full rounded-[10px] border-input bg-white text-[15px] font-medium hover:border-foreground/60 data-[size=default]:h-11"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_FORMS}>All forms</SelectItem>
+                  {forms.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                </SelectContent>
+              </Select>
+          </div>
+
+          <div role="group" aria-label="View" className="col-start-2 row-start-2 hidden shrink-0 justify-self-end sm:flex rounded-xl border border-border bg-surface p-1 lg:ml-auto">
+              {([['grid', LayoutGrid, 'Grid view'], ['list', List, 'List view']] as const).map(([v, Icon, label]) => (
+                <button
+                  key={v}
+                  type="button"
+                  aria-pressed={layout === v}
+                  aria-label={label}
+                  onClick={() => setLayout(v)}
+                  className={cn(
+                    'relative grid size-9 place-items-center rounded-[9px] transition-colors duration-200',
+                    layout === v ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {layout === v && (
+                    <motion.span layoutId="pf-view-toggle" className="absolute inset-0 rounded-[9px] bg-white shadow-[var(--pf-shadow-1)]" transition={{ duration: 0.3, ease: EASE }} />
+                  )}
+                  <Icon className="relative size-[18px]" strokeWidth={1.75} aria-hidden="true" />
+                </button>
+              ))}
+          </div>
+        </Container>
       </div>
 
-      <MedicineModal item={selectedItem} onClose={() => setSelectedItem(null)} onAddToCart={handleAddToCart} />
-    </div>
+      {/* Results sit on the page base with two faint washes at the edges. */}
+      <div className="relative isolate">
+      <Backdrop washes={[{ at: 'l', color: 'orchid', size: 0.45 }, { at: 'r', color: 'violet', size: 0.5 }]} pattern="grid" patternFrom="top" />
+      <Container className="pt-6 pb-20 md:pb-28">
+        <div className="flex min-h-9 flex-wrap items-center gap-x-4 gap-y-2">
+          <p className="text-[14px] text-muted-foreground tabular-nums" aria-live="polite">
+            Showing {filtered.length} of {items.length} {items.length === 1 ? 'product' : 'products'}
+          </p>
+          <ul className="flex flex-wrap items-center gap-2" aria-label="Active filters">
+            <AnimatePresence initial={false}>
+              {chips.map(chip => (
+                <motion.li
+                  key={chip.key}
+                  layout
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  transition={{ duration: 0.25, ease: EASE }}
+                >
+                  <button
+                    type="button"
+                    onClick={chip.remove}
+                    aria-label={`Remove filter ${chip.label}`}
+                    className="group inline-flex h-8 items-center gap-1.5 rounded-full border border-[#d3cee2] bg-[#f4f1fd] pr-2 pl-3 text-[13px] font-semibold text-primary transition-colors hover:border-primary/50 hover:bg-[#ece8ff]"
+                  >
+                    {chip.label}
+                    <X className="size-3.5 transition-transform duration-200 group-hover:rotate-90" strokeWidth={2.25} aria-hidden="true" />
+                  </button>
+                </motion.li>
+              ))}
+              {chips.length > 1 && (
+                <motion.li key="clear" layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                  <button type="button" onClick={clear} className="h-8 rounded-md px-2 text-[13px] font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                    Clear filters
+                  </button>
+                </motion.li>
+              )}
+            </AnimatePresence>
+          </ul>
+        </div>
+
+        {filtered.length === 0 ? (
+          <Card className="mt-6 flex flex-col items-center rounded-[24px] px-6 py-16 text-center sm:py-20">
+            <span className="grid size-16 place-items-center rounded-2xl bg-[#efebfd] text-primary" aria-hidden="true">
+              <PackageSearch className="size-8" strokeWidth={1.5} />
+            </span>
+            <h2 className="mt-6 text-[24px] leading-tight tracking-[-0.02em]">No products match these filters</h2>
+            <p className="mt-2 max-w-[44ch] text-muted-foreground">Try an ingredient name, or clear the filters to see everything.</p>
+            <ActionButton variant="secondary" className="mt-7" onClick={clear}>Clear filters</ActionButton>
+          </Card>
+        ) : (
+          <>
+            <h2 className="sr-only">Products</h2>
+            <LayoutGroup>
+              <motion.ul
+                key={layout}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className={cn(
+                  'mt-6 grid',
+                  layout === 'grid' ? 'grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3' : 'grid-cols-1 gap-3',
+                )}
+              >
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {visible.map(item => (
+                    <motion.li
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
+                      transition={{ duration: 0.4, ease: EASE }}
+                      className="min-w-0"
+                    >
+                      <CatalogCard item={item} layout={layout} />
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
+              </motion.ul>
+            </LayoutGroup>
+
+            {remaining > 0 && (
+              <div className="mt-12 flex flex-col items-center gap-4">
+                <div className="h-1 w-48 overflow-hidden rounded-full bg-border" aria-hidden="true">
+                  <div className="h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${(visible.length / filtered.length) * 100}%` }} />
+                </div>
+                <p className="text-[14px] text-muted-foreground tabular-nums">
+                  {visible.length} of {filtered.length} shown
+                </p>
+                <ActionButton variant="secondary" onClick={() => setShown({ key: filterKey, limit: limit + PAGE_SIZE })}>
+                  Show {Math.min(remaining, PAGE_SIZE)} more
+                </ActionButton>
+              </div>
+            )}
+          </>
+        )}
+      </Container>
+      </div>
+    </>
   );
 }

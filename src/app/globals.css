@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* Syncytium Health design tokens. The palette is built on three colours:
    #8B5CF6 (vivid violet: highlights), #7C6BF0 (soft violet: buttons, header, footer) and #EDE9FE (lavender: tints, accents).
@@ -122,4 +123,34 @@ body {
 @keyframes hero-draw {
   0% { stroke-dashoffset: 1; }
   60%, 100% { stroke-dashoffset: 0; }
+}
+
+/* ---- Company pages (shadcn/ui tokens) ----
+   New colour names used only by the shadcn components in src/components/portfolio/ui.
+   None of these names is used by the store, so the store is unaffected. Values follow the
+   design rules in changeui.md; the company-page scope in (portfolio)/portfolio.css also
+   remaps --color-accent, --color-muted, fonts and radii, which the store uses with other values. */
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #17151f;
+  --color-primary: #3d2e86;
+  --color-primary-hover: #2a1f66;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f7f6f3;
+  --color-secondary-foreground: #17151f;
+  --color-muted-foreground: #5a5766;
+  --color-subtle: #6e6b7b;
+  --color-accent-foreground: #17151f;
+  --color-tint: #f5f4f9;
+  --color-surface: #f7f6f3;
+  --color-border: #e6e3ec;
+  --color-input: #8a8698;
+  --color-ring: #3d2e86;
+  --color-destructive: #b42318;
+  --color-success: #1f7a4d;
+  --color-warning: #a15c07;
+  --color-card: #ffffff;
+  --color-card-foreground: #17151f;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #17151f;
 }
